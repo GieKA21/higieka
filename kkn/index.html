@@ -3,261 +3,304 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rancangan Dashboard Admin LKH KKN</title>
-<meta name="description" content="Rancangan antarmuka dashboard admin LKH KKN. Seluruh angka, nama, dan berkas pada halaman ini adalah data contoh.">
+<title>Admin LKH KKN</title>
+<meta name="description" content="Rancangan dashboard admin LKH KKN: pendaftar, impor data, dan penempatan peserta.">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#13261F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
 :root{
-  --hijau:#0B753A; --hijau-tua:#0F3D26; --hijau-teks:#0B5A2D;
-  --dasar:#F4F6F3; --kartu:#FFFFFF; --garis:#DDE3DF; --garis-tegas:#B8C2BC;
-  --teks:#17211B; --teks-2:#33413A; --teks-3:#4A554F; --sela:#EEF2EF; --alas:#E6ECE8;
-  --biru-bg:#E3ECFB; --biru:#1E3A8A; --jingga-bg:#FCE6D2; --jingga:#5F2108; --jingga-tua:#8A2F0B;
-  --ok-bg:#DDEFE3; --netral-bg:#E8ECE9;
-  --judul:'Space Grotesk',Inter,system-ui,sans-serif;
+  color-scheme:light;
+  --malam:#13261F; --malam-2:#1D3A2F; --kertas:#F2F4EF; --muka:#FFFFFF; --alas:#E7EBE5; --sela:#F7F8F5;
+  --garis:#D9DED8; --garis-tegas:#A3AFA8;
+  --tinta:#18231F; --tinta-2:#3A4842; --batu:#56655E;
+  --daun:#1F7A4D; --daun-tua:#155E3A; --daun-muda:#E3F1E8;
+  --padi:#E9B949; --padi-muda:#FBF1D6;
+  --bata:#B4432E; --bata-tua:#8E2F1E; --bata-muda:#F9E4DF;
+  --nila:#2E4A86; --nila-muda:#E5ECF8;
+  --huruf:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--dasar);color:var(--teks);font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.45}
-button,select,input{font:inherit}
+body{background:var(--kertas);color:var(--tinta);font-family:var(--huruf);font-size:15px;line-height:1.5;accent-color:var(--daun);-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit;color:inherit}
 button{cursor:pointer}
 button:disabled{cursor:not-allowed;opacity:.45}
-:focus-visible{outline:3px solid #1D4ED8;outline-offset:2px}
-a{color:var(--hijau-teks)}a:hover{color:#063D1E}
+:focus-visible{outline:3px solid var(--nila);outline-offset:2px}
+a{color:var(--daun-tua)}
 h1,h2,h3,p{margin:0}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.lompat{position:absolute;left:12px;top:-60px;z-index:30;padding:10px 14px;border-radius:10px;background:#fff;color:var(--malam);font-weight:700}
+.lompat:focus{top:12px}
+button,a,label,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{text-wrap:balance}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.kecil{font-size:12.5px;color:var(--batu)}
+.angka-rata{font-variant-numeric:tabular-nums}
+.tebal{font-weight:600}
 
+/* Pita atas: merek, tautan, dan garis 45 hari yang tumbuh seperti batang padi. */
 .app{min-height:100vh;display:flex;flex-direction:column}
-.puncak{display:flex;flex-direction:column;gap:16px;width:100%;max-width:1320px;margin:0 auto;padding:24px 32px 0}
-.puncak-atas{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px}
-.merek{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
-.merek b{font-family:var(--judul);font-size:26px;line-height:1;letter-spacing:-.3px;color:var(--hijau-tua)}
-.merek span{padding:4px 10px;border:1px solid var(--garis-tegas);border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teks-2)}
-.cip-puncak{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.cip-puncak a{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid var(--garis-tegas);border-radius:999px;background:var(--kartu);color:var(--teks);font-size:13px;font-weight:600;text-decoration:none}
-.cip-puncak a:hover{border-color:var(--hijau);color:var(--hijau-teks)}
-.cip-contoh{margin-left:auto;display:inline-flex;align-items:center;min-height:28px;padding:0 12px;border-radius:999px;background:var(--jingga-bg);color:var(--jingga);font-size:12px;font-weight:700}
-.masa{display:flex;flex-direction:column;gap:8px}
-.masa-teks{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 16px;font-size:13px;color:var(--teks-3)}
-.masa-teks b{color:var(--teks);font-weight:700}
-.masa-hari{display:flex;gap:8px}
-.masa-minggu{display:flex;flex-direction:column;gap:5px;min-width:0}
-.masa-sel{display:flex;align-items:center;gap:2px;height:18px}
-.masa-sel i{flex:1 1 0;height:8px;border-radius:2px;background:var(--garis)}
-.masa-sel i.lewat{background:var(--hijau)}
-.masa-sel i.kini{height:18px;border-radius:3px;background:var(--hijau-tua)}
-.masa-minggu small{overflow:hidden;font-size:10px;font-weight:600;letter-spacing:.04em;white-space:nowrap;color:var(--teks-3)}
-.dok{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;display:flex;gap:4px;padding:6px;border-radius:999px;background:var(--hijau-tua);box-shadow:0 10px 28px rgba(15,61,38,.32);max-width:calc(100% - 16px)}
-.dok button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:44px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:#fff;font-weight:600;font-size:13px;white-space:nowrap}
+.puncak{background:var(--malam);color:#D6E4DB}
+.puncak-dalam{max-width:1240px;margin:0 auto;padding:18px 32px 22px;display:flex;flex-direction:column;gap:18px}
+.puncak-atas{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px}
+.merek{color:#fff;font-size:19px;font-weight:800;letter-spacing:-.02em;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;gap:8px}
+.merek span{color:#8FAA9C;font-weight:600}
+.cip-contoh{font-size:12px;font-weight:600;color:#C9D8CF;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:3px 10px}
+.tautan-puncak{display:flex;flex-wrap:wrap;gap:0 20px;margin-left:auto}
+.tautan-puncak a{color:#D6E4DB;font-size:14px;font-weight:600;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.tautan-puncak a:hover{color:#fff;text-decoration:underline}
+.puncak :focus-visible{outline-color:#fff}
+.masa{display:flex;flex-direction:column;gap:10px}
+.masa-teks{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 16px;font-size:14px;color:#A9C2B5}
+.masa-teks b{color:#fff;font-weight:700}
+.masa-hari{display:flex;gap:10px}
+.masa-minggu{display:flex;flex-direction:column;gap:6px;min-width:0}
+.masa-sel{display:flex;align-items:flex-end;gap:3px;height:30px}
+.masa-sel i{flex:1 1 0;height:9px;border-radius:2px 2px 1px 1px;background:rgba(255,255,255,.16)}
+.masa-sel i.lewat{height:20px;background:#5FA77F}
+.masa-sel i.kini{height:30px;background:var(--padi)}
+.masa-hari.hantu .masa-sel i{background:rgba(255,255,255,.09)}
+.masa-minggu small{overflow:hidden;font-size:11px;font-weight:600;white-space:nowrap;color:#8FAA9C}
+
+/* Dok menu di bawah. */
+.dok{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;display:flex;gap:4px;padding:6px;border-radius:999px;background:var(--malam);box-shadow:0 12px 30px rgba(19,38,31,.28)}
+.dok button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:44px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:#D6E4DB;font-weight:600;font-size:13.5px;white-space:nowrap}
 .dok button svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.dok button:hover{background:rgba(255,255,255,.14)}
-.dok button[aria-current="page"]{background:#fff;color:var(--hijau-tua)}
+.dok button:hover{background:rgba(255,255,255,.1);color:#fff}
+.dok button[aria-current="page"]{background:#fff;color:var(--malam)}
 .dok button:focus-visible{outline-color:#fff;outline-offset:1px}
-main{flex:1 1 auto;min-width:0;width:100%;max-width:1320px;margin:0 auto;padding:28px 32px 120px;display:flex;flex-direction:column;gap:24px}
+
+main{flex:1 1 auto;min-width:0;width:100%;max-width:1240px;margin:0 auto;padding:30px 32px 128px;display:flex;flex-direction:column;gap:18px}
 main:focus{outline:none}
+.kepala{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;min-height:44px}
+.kepala h1{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.15}
+.kepala .kecil{font-size:13.5px}
 
-.kepala{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
-.kepala h1{font-family:var(--judul);font-size:28px}
-.kepala p{color:var(--teks-3);margin-top:4px}
-.isian{display:flex;flex-direction:column;gap:4px}
-.isian label{font-size:12px;font-weight:600;color:var(--teks-3)}
-select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);border-radius:8px;background:#fff;color:var(--teks);font-weight:600}
-
-.kartu{background:var(--kartu);border:1px solid var(--garis);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
-.kartu h2{font-size:16px}
-.kartu .sub{font-size:12px;color:var(--teks-3);margin-top:2px}
-.angka{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-.angka .kartu{gap:6px;padding:18px 20px}
-.angka .label{font-size:12px;font-weight:600;color:var(--teks-3)}
-.angka .nilai{font-family:var(--judul);font-size:32px;font-weight:700;line-height:1.1}
-.angka .ket{font-size:12px;color:var(--teks-3)}
-.dua{display:flex;flex-wrap:wrap;gap:16px;align-items:stretch}
-.dua > .lebar{flex:3 1 420px}
-.dua > .sempit{flex:2 1 340px}
-.atas{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
-
-.segmen{display:flex;gap:4px;padding:4px;border-radius:10px;background:var(--alas)}
-.segmen button{min-height:36px;padding:6px 14px;border:0;border-radius:7px;font-weight:600;font-size:13px;background:transparent;color:var(--teks-2)}
-.segmen button[aria-pressed="true"]{background:#fff;color:var(--teks)}
-.pil{display:flex;flex-wrap:wrap;gap:8px}
-.pil button{min-height:44px;padding:8px 14px;border-radius:8px;font-weight:600;font-size:13px;border:1px solid var(--garis-tegas);background:#fff;color:var(--teks)}
-.pil button[aria-pressed="true"]{background:var(--hijau-tua);border-color:var(--hijau-tua);color:#fff}
-
-.minggu{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:start}
-.minggu > div{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
-.minggu .nilai{font-size:13px;font-weight:700}
-.minggu .tiang{width:100%;max-width:64px;height:180px;display:flex;align-items:flex-end;border-radius:6px;background:var(--sela)}
-.minggu .tiang i{display:block;width:100%;border-radius:6px;background:var(--hijau)}
-.minggu .nama{font-size:12px;font-weight:600;text-align:center}
-.minggu .ket{font-size:11px;color:var(--teks-3);text-align:center}
-.minggu .pendek{display:none}
-.garis{display:flex;gap:10px}
-.garis .sumbu-y{display:flex;flex-direction:column;justify-content:space-between;height:220px;font-size:11px;color:var(--teks-3);text-align:right}
-.garis .badan{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:6px}
-.garis svg{display:block;width:100%;height:220px;overflow:visible}
-.garis .sumbu-x{display:flex;font-size:11px;color:var(--teks-3)}
-.garis .sumbu-x span{min-width:0;text-align:center}
-.kecil{font-size:11px;color:var(--teks-3)}
-
-.batang{display:flex;flex-direction:column;gap:12px}
-.batang > div{display:grid;grid-template-columns:minmax(84px,120px) minmax(0,1fr) 92px;gap:10px;align-items:center}
-.batang .nama{font-size:13px;font-weight:500}
-.batang .jalur{height:14px;border-radius:7px;background:var(--alas);overflow:hidden}
-.batang .jalur i{display:block;height:14px;border-radius:7px;background:var(--hijau)}
-.batang .teks{font-size:12px;color:var(--teks-2);text-align:right}
-
-.gulir{overflow-x:auto}
-.tabel{display:flex;flex-direction:column}
-.tabel [role="row"]{display:grid;gap:12px;align-items:center;padding:12px;border-bottom:1px solid var(--alas);font-size:13px}
-.tabel [role="row"].judul{padding:10px 12px;background:var(--sela);border:0;border-radius:8px;font-size:12px;font-weight:700;color:var(--teks-2)}
-.tabel .tebal{font-weight:600}
-.tabel .angka-rata{font-variant-numeric:tabular-nums}
-.t-tindak{min-width:620px}
-.t-tindak [role="row"]{grid-template-columns:140px minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr)}
-.t-pratinjau{min-width:860px}
-.t-pratinjau [role="row"]{grid-template-columns:56px 1fr 1.3fr 1fr 1fr 116px 1.6fr}
-.t-riwayat{min-width:900px}
-.t-riwayat [role="row"]{grid-template-columns:1.1fr .9fr 1.6fr 1.5fr 1fr 110px 190px}
-.lencana{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
-.l-baru{background:var(--biru-bg);color:var(--biru)}
-.l-ubah,.l-batal{background:var(--netral-bg);color:var(--teks-2)}
-.l-salah{background:var(--jingga-bg);color:var(--jingga)}
-.l-ok{background:var(--ok-bg);color:var(--hijau-teks)}
-
-.langkah{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 20px}
-.langkah li{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--teks-3)}
-.langkah b{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--alas);color:var(--teks)}
-.langkah li.lewat b{background:#CFE3D6}
-.langkah li[aria-current="step"]{color:var(--teks)}
-.langkah li[aria-current="step"] b{background:var(--hijau-tua);color:#fff}
-.jenis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.jenis button{display:flex;flex-direction:column;gap:4px;align-items:flex-start;text-align:left;min-height:88px;padding:14px 16px;border-radius:10px;border:2px solid var(--garis);background:#fff;color:var(--teks)}
-.jenis button[aria-pressed="true"]{border-color:var(--hijau-tua);background:#EAF3ED}
-.jenis b{font-size:15px}
-.jenis span{font-size:12px;color:var(--teks-2)}
-.info{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:10px;background:var(--sela)}
-.info b{font-size:12px;color:var(--teks-2)}
-.info small{font-size:12px;color:var(--teks-2)}
-.baris{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.tombol{display:inline-flex;align-items:center;text-decoration:none;min-height:44px;padding:10px 16px;border-radius:8px;border:1px solid var(--garis-tegas);background:#fff;color:var(--teks);font-weight:600}
-.tombol.utama{border:0;padding:10px 20px;background:var(--hijau);color:#fff;font-weight:700}
-.tombol.bahaya{border:0;background:var(--jingga-tua);color:#fff;font-weight:700}
-.tombol.rapat{padding:8px 12px;font-size:13px}
-.unggah{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:20px;border:2px dashed var(--garis-tegas);border-radius:10px;background:#FAFBFA}
-.unggah input:focus-visible + label{outline:3px solid #1D4ED8;outline-offset:2px}
-.status{font-size:13px;font-weight:600;color:var(--hijau-teks)}
-.peringatan{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;border-radius:10px;background:var(--jingga-bg);color:var(--jingga)}
-.peringatan input{width:20px;height:20px;margin:2px 0 0;flex:none}
-.peringatan label{font-size:13px;font-weight:600}
+.kartu{background:var(--muka);border:1px solid var(--garis);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.kartu h2{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.kartu h3{font-size:15px;font-weight:700}
+.kartu .sub{font-size:13px;color:var(--batu);margin-top:2px}
+.kosong{align-items:flex-start;padding:36px 28px;background:var(--sela);border-style:dashed}
+.kosong h2{font-size:20px}
 .sempit-maks{max-width:720px}
-.tiga{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.tiga > div{padding:14px 16px;border-radius:10px;display:flex;flex-direction:column;gap:2px}
-.tiga b{font-family:var(--judul);font-size:26px}
-.tiga span{font-size:12px;font-weight:600}
+.daftar-angkatan{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 24px;font-size:14px}
+.daftar-angkatan dt{font-weight:600}
+.daftar-angkatan dd{margin:0;color:var(--tinta-2)}
+.dua{display:flex;flex-wrap:wrap;gap:18px;align-items:stretch}
+.dua > .lebar{flex:3 1 420px}
+.dua > .sempit{flex:2 1 320px}
+.atas{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:space-between}
+
+/* Strip angka: satu permukaan, dipisah garis tipis, bukan kotak kembar. */
+.angka{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--muka);border:1px solid var(--garis);border-radius:14px}
+.angka .kartu{background:none;border:0;border-radius:0;padding:18px 22px;gap:2px}
+.angka .kartu + .kartu{border-left:1px solid var(--garis)}
+.angka .label{font-size:13px;font-weight:600;color:var(--batu)}
+.angka .nilai{font-size:34px;font-weight:800;letter-spacing:-.035em;line-height:1.15;font-variant-numeric:tabular-nums}
+.angka .ket{font-size:12.5px;color:var(--batu);overflow-wrap:anywhere}
+
+.batang{display:flex;flex-direction:column;gap:11px}
+.batang > div{display:grid;grid-template-columns:minmax(96px,190px) minmax(0,1fr) 48px;gap:12px;align-items:center}
+.batang .nama{font-size:13.5px;font-weight:500}
+.batang .jalur{height:10px;border-radius:5px;background:var(--alas);overflow:hidden}
+.batang .jalur i{display:block;height:100%;border-radius:5px;background:var(--daun)}
+.batang .teks{font-size:13.5px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+
+.tombol{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:10px;border:1px solid var(--garis-tegas);background:var(--muka);color:var(--tinta);font-weight:600;font-size:14px;text-decoration:none}
+.tombol:hover{border-color:var(--tinta-2)}
+.tombol.utama{border-color:var(--daun);background:var(--daun);color:#fff;font-weight:700}
+.tombol.utama:hover{background:var(--daun-tua);border-color:var(--daun-tua)}
+.tombol.bahaya{border-color:var(--bata);background:var(--bata);color:#fff;font-weight:700}
+.tombol.rapat{min-height:40px;padding:7px 12px;font-size:13.5px}
+.tombol.polos{border-color:transparent;background:none;color:var(--daun-tua);padding-inline:6px;text-decoration:underline;text-underline-offset:3px}
+.baris{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .aksi{display:flex;flex-wrap:wrap;gap:8px}
-.aturan{display:flex;flex-direction:column;gap:10px}
-.aturan label{display:flex;gap:10px;align-items:flex-start;font-weight:500}
+
+.segmen{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:11px;background:var(--alas);align-self:flex-start}
+.segmen button{min-height:38px;padding:6px 14px;border:0;border-radius:8px;background:transparent;color:var(--tinta-2);font-weight:600;font-size:13.5px}
+.segmen button[aria-pressed="true"]{background:var(--muka);color:var(--tinta);box-shadow:0 1px 2px rgba(19,38,31,.14)}
+
+.lencana{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.l-baru{background:var(--nila-muda);color:var(--nila)}
+.l-ok{background:var(--daun-muda);color:var(--daun-tua)}
+.l-salah{background:var(--bata-muda);color:var(--bata-tua)}
+.l-ubah,.l-batal{background:var(--alas);color:var(--tinta-2)}
+
+.gulir{position:relative;overflow-x:auto}
+.tabel{display:flex;flex-direction:column}
+.tabel [role="row"]{display:grid;gap:12px;align-items:center;padding:11px 10px;border-bottom:1px solid var(--alas);font-size:14px}
+.tabel [role="row"].judul{padding:8px 10px;border-bottom:1px solid var(--garis);font-size:12.5px;font-weight:700;color:var(--batu)}
+.tabel [role="row"]:last-child{border-bottom:0}
+.t-pratinjau{min-width:820px}
+.t-pratinjau [role="row"]{grid-template-columns:52px 1fr 1.3fr 1fr 1fr 112px 1.5fr}
+.t-riwayat{min-width:860px}
+.t-riwayat [role="row"]{grid-template-columns:1fr .8fr 1.6fr 1.4fr .9fr 104px 180px}
+.t-kab{min-width:620px}
+.t-kab [role="row"]{grid-template-columns:minmax(0,1.3fr) minmax(0,1.3fr) 112px 60px 44px;padding:6px 8px}
+.t-rujukan{min-width:620px}
+.t-rujukan [role="row"]{grid-template-columns:96px minmax(0,1.6fr) 84px minmax(0,1.4fr);padding:8px 4px}
+.t-daftar{min-width:980px}
+.t-daftar [role="row"]{grid-template-columns:92px 104px minmax(0,1.3fr) 34px minmax(0,1.6fr) 62px 124px 214px}
+.t-daftar [role="row"].masuk{box-shadow:inset 3px 0 0 var(--padi);background:var(--padi-muda)}
+.t-daftar small{display:block;font-size:12px;color:var(--batu);overflow-wrap:anywhere}
+
+.isian{display:flex;flex-direction:column;gap:6px;min-width:0}
+.isian label{font-size:13px;font-weight:600;color:var(--tinta-2)}
+input[type="text"],input[type="number"],input[type="search"],input[type="password"],input[type="url"],select{width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--garis-tegas);border-radius:10px;background:var(--muka);color:var(--tinta)}
+input[type="text"]:hover,input[type="number"]:hover,input[type="search"]:hover,input[type="password"]:hover,input[type="url"]:hover,select:hover{border-color:var(--tinta-2)}
+select{font-weight:500}
+
+/* Impor */
+.langkah{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.langkah li{display:flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;border:1px solid var(--garis);background:var(--muka);font-size:13.5px;font-weight:600;color:var(--batu)}
+.langkah b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--alas);color:var(--tinta);font-size:12.5px}
+.langkah li.lewat b{background:var(--daun-muda);color:var(--daun-tua)}
+.langkah li[aria-current="step"]{border-color:var(--tinta-2);color:var(--tinta)}
+.langkah li[aria-current="step"] b{background:var(--malam);color:#fff}
+.jenis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.jenis button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:72px;padding:13px 16px;text-align:left;border-radius:12px;border:1px solid var(--garis);background:var(--muka);color:var(--tinta)}
+.jenis button:hover{border-color:var(--garis-tegas)}
+.jenis button[aria-pressed="true"]{border-color:var(--daun);box-shadow:inset 0 0 0 1px var(--daun);background:var(--daun-muda)}
+.jenis b{font-size:15px}
+.jenis span{font-size:12.5px;color:var(--batu)}
+.unggah{display:flex;flex-direction:column;align-items:center;gap:10px;padding:30px 20px;text-align:center;border:1.5px dashed var(--garis-tegas);border-radius:14px;background:var(--sela)}
+.unggah.seret{border-color:var(--daun);background:var(--daun-muda)}
+.unggah svg{width:30px;height:30px;fill:none;stroke:var(--batu);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.unggah input:focus-visible + label{outline:3px solid var(--nila);outline-offset:2px}
+.status{font-size:13.5px;font-weight:600;color:var(--daun-tua)}
+.peringatan{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--bata-muda);color:var(--bata-tua);font-size:14px;margin:0}
+.peringatan input{width:20px;height:20px;margin:1px 0 0;flex:none}
+.peringatan label{font-weight:600}
+details.lipat{border-top:1px solid var(--alas)}
+details.lipat summary{min-height:44px;display:flex;align-items:center;font-weight:600;font-size:14px;color:var(--tinta-2);cursor:pointer}
+details.lipat[open] summary{margin-bottom:6px}
+details.lipat p{margin-bottom:10px}
+.tiga{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tiga > div{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-radius:12px;background:var(--alas);color:var(--tinta-2)}
+.tiga > div.baik{background:var(--daun-muda);color:var(--daun-tua)}
+.tiga > div.buruk{background:var(--bata-muda);color:var(--bata-tua)}
+.tiga > div.biru{background:var(--nila-muda);color:var(--nila)}
+.tiga b{font-size:26px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.tiga span{font-size:12.5px;font-weight:600}
+
+/* Penempatan */
+.atur-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(250px,1fr);gap:28px;align-items:start}
+.atur-grid > div{display:flex;flex-direction:column;gap:14px;min-width:0}
+.atur-grid h3{font-size:14px;color:var(--tinta-2)}
+.aturan{display:flex;flex-direction:column;gap:12px}
+.aturan label{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer}
 .aturan input{width:20px;height:20px;margin:1px 0 0;flex:none}
-.posko{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
-.posko .kartu{gap:10px;padding:16px}
-.posko h3{font-size:15px}
-.posko ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
-.posko li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:baseline;font-size:13px}
-.posko li small{display:block;font-size:12px;color:var(--teks-3)}
-.posko li b{font-size:12px;color:var(--teks-2)}
-.posko li.ganda small{color:var(--jingga-tua);font-weight:600}
 .angka-isian{display:flex;flex-wrap:wrap;gap:12px}
-.angka-isian .isian{flex:1 1 150px}
-.angka-isian input{min-height:44px;width:100%;padding:8px 12px;border:1px solid var(--garis-tegas);border-radius:8px;background:#fff;font-weight:600}
-.t-kab{min-width:660px}
-.t-kab [role="row"]{grid-template-columns:minmax(0,1.3fr) minmax(0,1.3fr) 130px 70px 96px;padding:8px 12px}
-.t-kab input,.t-kab select{width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--garis-tegas);border-radius:8px;background:#fff;font-weight:500}
-.daftar{border-top:1px solid var(--alas);padding-top:6px}
-.daftar summary{min-height:44px;display:flex;align-items:center;font-weight:600;font-size:13px;cursor:pointer}
+.angka-isian .isian{flex:1 1 140px;max-width:240px}
+.wilayah{max-height:470px;overflow:auto;border:1px solid var(--alas);border-radius:12px}
+.t-kab [role="row"].judul{position:sticky;top:0;z-index:1;background:var(--muka)}
+.angka-isian input{font-weight:600}
+.posko{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.posko .kartu{padding:16px 18px;gap:10px}
+.posko ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.posko li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:baseline;font-size:13.5px}
+.posko li small{display:block;font-size:12px;color:var(--batu)}
+.posko li b{font-size:12px;color:var(--batu)}
+.posko li.ganda small{color:var(--bata-tua);font-weight:600}
+.daftar summary{min-height:40px;display:flex;align-items:center;font-weight:600;font-size:13.5px;cursor:pointer;color:var(--daun-tua)}
 .daftar ul{max-height:320px;overflow-y:auto;padding-right:6px}
-.rujukan{border:1px solid var(--garis);border-radius:10px;padding:0 14px}
-.rujukan summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:pointer}
-.rujukan .gulir{margin-bottom:12px}
-.rujukan p{margin-bottom:12px}
-.t-rujukan{min-width:640px}
-.t-rujukan [role="row"]{grid-template-columns:110px minmax(0,1.6fr) 90px minmax(0,1.5fr);padding:9px 12px}
 
-.siaran{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px;color:var(--teks-2)}
-.siaran b{color:var(--teks)}
-.titik{display:inline-block;width:10px;height:10px;flex:none;border-radius:50%;background:var(--hijau);animation:denyut 2s ease-out infinite}
-.titik.muat{background:var(--garis-tegas);animation:none}
-.titik.mati{background:var(--jingga-tua);animation:none}
-@keyframes denyut{0%{box-shadow:0 0 0 0 rgba(11,117,58,.45)}70%,100%{box-shadow:0 0 0 8px rgba(11,117,58,0)}}
-@media (prefers-reduced-motion:reduce){.titik{animation:none}}
+/* Pendaftar */
+.siaran{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13.5px;color:var(--batu)}
+.siaran b{color:var(--tinta)}
+.titik{display:inline-block;width:10px;height:10px;flex:none;border-radius:50%;background:var(--daun)}
+.titik.muat{background:var(--garis-tegas)}
+.titik.mati{background:var(--bata)}
+@media (prefers-reduced-motion:no-preference){
+  .titik:not(.muat):not(.mati){animation:denyut 2.4s ease-out infinite}
+  @keyframes denyut{0%{box-shadow:0 0 0 0 rgba(31,122,77,.45)}70%,100%{box-shadow:0 0 0 8px rgba(31,122,77,0)}}
+}
 .cari{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
-.cari .isian{flex:1 1 220px;min-width:0}
-.cari input,.cari select,.sambung input{width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);border-radius:8px;background:#fff;color:var(--teks)}
+.cari .isian{flex:1 1 220px}
 .sambung{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-.segmen.bungkus{flex-wrap:wrap;align-self:flex-start}
-.t-daftar{min-width:1000px}
-.t-daftar [role="row"]{grid-template-columns:92px 104px minmax(0,1.3fr) 36px minmax(0,1.6fr) 64px 124px 214px}
-.t-daftar [role="row"].masuk{box-shadow:inset 4px 0 0 var(--hijau);background:#F3F9F5}
-.t-daftar small{display:block;font-size:12px;color:var(--teks-3);overflow-wrap:anywhere}
 .alasan{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.alasan input{flex:1 1 100%;min-width:0;min-height:40px;padding:6px 10px;border:1px solid var(--garis-tegas);border-radius:8px}
+.alasan input{flex:1 1 100%;min-height:40px}
+.setuju{display:flex;gap:10px;align-items:flex-start;font-weight:500;cursor:pointer}
+.setuju input{width:20px;height:20px;margin:1px 0 0;flex:none}
 
+@media (max-width:900px){
+  .atur-grid{grid-template-columns:minmax(0,1fr)}
+}
 @media (max-width:860px){
   .dok button{padding:0 11px}
   .dok button span{display:none}
   .dok button[aria-current="page"] span{display:inline}
 }
+@media (max-width:760px){
+  .angka{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .angka .kartu:nth-child(3){border-left:0}
+  .angka .kartu:nth-child(n+3){border-top:1px solid var(--garis)}
+  .angka .kartu{padding:14px 16px}
+  .angka .nilai{font-size:28px}
+}
 @media (max-width:640px){
-  .angka.empat{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .angka.empat .kartu{padding:14px 16px}
-  .angka.empat .nilai{font-size:26px}
+  .t-kab{min-width:0}
+  .t-kab [role="row"].judul{display:none}
+  .t-kab [role="row"]{grid-template-columns:minmax(0,1fr) 88px 44px;grid-template-areas:"nama nama hapus" "bahasa bobot kuota";gap:6px 8px;padding:10px 8px}
+  .t-kab [role="cell"]:nth-child(1){grid-area:nama}
+  .t-kab [role="cell"]:nth-child(2){grid-area:bahasa}
+  .t-kab [role="cell"]:nth-child(3){grid-area:bobot}
+  .t-kab [role="cell"]:nth-child(4){grid-area:kuota;text-align:center}
+  .t-kab [role="cell"]:nth-child(5){grid-area:hapus}
+  .batang > div{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"nama teks" "jalur jalur";gap:4px 10px}
+  .batang .nama{grid-area:nama}
+  .batang .jalur{grid-area:jalur}
+  .batang .teks{grid-area:teks}
   .t-daftar{min-width:0}
   .t-daftar [role="row"].judul{display:none}
   .t-daftar [role="row"]{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"nama nama status" "nim jk bahasa" "jur jur jur" "waktu waktu waktu" "aksi aksi aksi";gap:4px 12px;padding:14px 4px}
   .t-daftar [role="row"].masuk{padding-left:12px}
-  .t-daftar .c-waktu{grid-area:waktu;font-size:12px;color:var(--teks-3)}
-  .t-daftar .c-waktu small{display:inline;margin-left:6px;color:var(--hijau-teks);font-weight:600}
-  .t-daftar .c-nim{grid-area:nim;color:var(--teks-2)}
-  .t-daftar .c-nama{grid-area:nama;font-size:14px}
-  .t-daftar .c-jk{grid-area:jk;color:var(--teks-2)}
-  .t-daftar .c-jk::before{content:"JK ";color:var(--teks-3)}
-  .t-daftar .c-bahasa{grid-area:bahasa;color:var(--teks-2)}
-  .t-daftar .c-bahasa::before{content:"B/M ";color:var(--teks-3)}
+  .t-daftar .c-waktu{grid-area:waktu;font-size:12px;color:var(--batu)}
+  .t-daftar .c-waktu small{display:inline;margin-left:6px;color:var(--tinta-2);font-weight:600}
+  .t-daftar .c-nim{grid-area:nim;color:var(--tinta-2)}
+  .t-daftar .c-nama{grid-area:nama;font-size:14.5px}
+  .t-daftar .c-jk{grid-area:jk;color:var(--tinta-2)}
+  .t-daftar .c-jk::before{content:"JK ";color:var(--batu)}
+  .t-daftar .c-bahasa{grid-area:bahasa;color:var(--tinta-2)}
+  .t-daftar .c-bahasa::before{content:"B/M ";color:var(--batu)}
   .t-daftar .c-jur{grid-area:jur}
   .t-daftar .c-status{grid-area:status;text-align:right}
   .t-daftar .c-aksi{grid-area:aksi;padding-top:6px}
   .masa-hari{gap:4px}
-  .masa-sel{gap:1px}
+  .masa-sel{gap:1px;height:24px}
+  .masa-sel i.lewat{height:15px}
+  .masa-sel i.kini{height:24px}
   .masa-minggu small{display:none}
 }
+@media (max-width:400px){
+  .dok{gap:2px;padding:5px}
+  .dok button{padding:0 9px;font-size:13px}
+}
 @media (max-width:560px){
-  .puncak{padding:18px 16px 0;gap:10px}
-  .puncak-atas{gap:2px 12px}
-  .merek b{font-size:22px}
-  .merek span{display:none}
-  .cip-puncak{flex:1 1 100%;gap:0 18px}
-  .cip-puncak a{padding:0;border:0;border-radius:0;background:transparent;color:var(--hijau-teks);text-decoration:underline}
+  .puncak-dalam{padding:12px 16px 16px;gap:12px}
+  .merek{font-size:17px}
+  .tautan-puncak{flex:1 1 100%;margin-left:0;gap:0 18px}
+  .tautan-puncak a{min-height:36px;font-size:13.5px}
   main{padding:20px 16px 112px}
-  .kepala h1{font-size:24px}
-  .minggu{gap:4px}
-  .minggu .panjang,.minggu .ket{display:none}
-  .minggu .pendek{display:inline}
-  .minggu .nilai{font-size:11px}
-  .batang > div{grid-template-columns:minmax(72px,96px) minmax(0,1fr) 76px}
+  .kepala h1{font-size:25px}
+  .kartu{padding:18px 16px}
+  .kosong{padding:26px 18px}
 }
 </style>
 </head>
 <body>
 <div class="app">
-<header class="puncak">
+<a class="lompat" href="#utama">Lompat ke isi</a>
+<header class="puncak"><div class="puncak-dalam">
 <div class="puncak-atas">
-<div class="merek"><b>LKH KKN</b><span>Dashboard admin</span></div>
-<span class="cip-contoh" title="Rancangan antarmuka. Angka pada halaman ini berasal dari berkas yang dimuat di peramban ini, bukan dari basis data.">Rancangan antarmuka</span>
-<div class="cip-puncak"><a href="daftar/">Formulir pendaftaran</a><a href="/">Kembali ke situs</a></div>
+<a class="merek" href="./">LKH KKN<span>Admin</span></a>
+<span class="cip-contoh" title="Rancangan antarmuka. Angka berasal dari berkas dan Sheet yang dimuat di peramban ini, bukan dari basis data.">Rancangan</span>
+<nav class="tautan-puncak" aria-label="Tautan lain"><a href="daftar/">Formulir pendaftaran</a><a href="/">Kembali ke situs</a></nav>
 </div>
 <div class="masa" id="masa"></div>
-</header>
+</div></header>
 <nav class="dok" id="menu" aria-label="Menu utama"></nav>
 <main id="utama" tabindex="-1">
 <noscript><p>Rancangan ini memerlukan JavaScript untuk ditampilkan.</p></noscript>
@@ -285,7 +328,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
 
   var IMPOR = {
     peserta: {
-      nama: 'Peserta', uraian: 'Mahasiswa KKN beserta penempatannya.',
+      nama: 'Peserta', uraian: 'Mahasiswa KKN',
       kolom: ['NIM', 'Nama', 'Prodi', 'Fakultas'], kolomLain: 'Tempat lahir, Tanggal lahir, Jenis kelamin, Hobi, Bahasa Bugis, Bahasa Makassar, Angkatan, serta Kecamatan dan Kelurahan/Desa (opsional; kosongkan bila penempatan diacak sistem)',
       tujuan: 'tabel pengguna (kode = NIM, nama, angkatan_id, peran_id, prodi_id, wilayah_id_kec) dan tabel akun. Tempat dan tanggal lahir, jenis kelamin, hobi, dan bahasa belum punya kolom di basis data.',
       contoh: 'peserta-contoh.xlsx',
@@ -305,7 +348,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
       ]
     },
     pembimbing: {
-      nama: 'Pembimbing', uraian: 'Dosen pembimbing dan kecamatan bimbingannya.',
+      nama: 'Pembimbing', uraian: 'Dosen dan kecamatannya',
       kolom: ['NIP', 'Nama', 'Angkatan', 'Kecamatan'], kolomLain: '',
       tujuan: 'tabel pengguna (kode = NIP) untuk dosennya, tabel pembimbingan (pengguna_id, kec_wilayah_id, angkatan_id) untuk kecamatannya, dan tabel daftarbimbingan untuk mahasiswa bimbingannya.',
       contoh: 'pembimbing-contoh.xlsx',
@@ -319,7 +362,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
       ]
     },
     lokasi: {
-      nama: 'Lokasi', uraian: 'Kecamatan, titik koordinat, radius, dan tanggal per lokasi.',
+      nama: 'Lokasi', uraian: 'Titik dan radius kecamatan',
       kolom: ['Kecamatan', 'Koordinat', 'Radius (m)', 'Kabupaten/Kota'], kolomLain: 'Lintang dan Bujur (digabung menjadi koordinat), Tanggal mulai dan Tanggal selesai (opsional), Bahasa daerah (tidak disimpan di basis data)',
       tujuan: 'tabel setting (koordinat, radius, tanggal_mulai, tanggal_selesai, jumlah_hari, angkatan_id, wilayah_id). Lintang dan bujur digabung menjadi satu nilai koordinat; kecamatan dicocokkan dengan tabel wilayah.',
       contoh: 'lokasi-contoh.xlsx',
@@ -333,7 +376,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
       ]
     },
     angkatan: {
-      nama: 'Angkatan', uraian: 'Nomor angkatan serta tanggal mulai dan selesai KKN.',
+      nama: 'Angkatan', uraian: 'Tanggal mulai dan selesai',
       kolom: ['Angkatan', 'Tanggal mulai', 'Tanggal selesai', 'Jumlah hari'], kolomLain: '',
       tujuan: 'tabel angkatan (nama_angkatan berupa angka, jumlah_hari, tanggal_mulai, tanggal_selesai, aktif).',
       contoh: 'angkatan-contoh.xlsx',
@@ -1144,13 +1187,13 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
   }
   function tombolSql(aksi, ket) {
     return '<div class="baris"><button type="button" class="tombol" data-a="' + aksi + '">Unduh SQL</button>' +
-      '<span class="kecil" style="flex:1 1 240px">' + ket + ' Dijalankan oleh pengelola basis data; dashboard ini tidak tersambung ke basis data.</span></div>';
+      '<span class="kecil" style="flex:1 1 240px">' + ket + ' Dijalankan oleh pengelola basis data.</span></div>';
   }
   function kotakSqlJenis() {
     if (!S.dimuat[S.jenis]) return '';
-    if (S.jenis === 'angkatan') return tombolSql('unduh-sql-angkatan', 'Berkas SQL untuk tabel angkatan.');
-    if (S.jenis === 'pembimbing') return tombolSql('unduh-sql-pembimbing', 'Berkas SQL untuk tabel pengguna, pembimbingan, dan daftarbimbingan.');
-    if (S.jenis === 'lokasi') return kotakSql('unduh-sql-lokasi', 'Unduh SQL', 'Berkas SQL untuk tabel setting.');
+    if (S.jenis === 'angkatan') return tombolSql('unduh-sql-angkatan', 'Untuk tabel angkatan.');
+    if (S.jenis === 'pembimbing') return tombolSql('unduh-sql-pembimbing', 'Untuk tabel pengguna, pembimbingan, dan daftarbimbingan.');
+    if (S.jenis === 'lokasi') return kotakSql('unduh-sql-lokasi', 'Unduh SQL', 'Untuk tabel setting.');
     return '';
   }
   function angkatanSah() {
@@ -1159,9 +1202,9 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
   }
   function kotakSql(aksi, label, ket) {
     return '<div class="baris" style="align-items:flex-end"><div class="isian" style="flex:0 1 190px"><label for="angkatan-sql">Angkatan (angka)</label>' +
-      '<input id="angkatan-sql" type="number" inputmode="numeric" min="1" max="99999" value="' + esc(S.angkatanSql) + '" style="min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);border-radius:8px;background:#fff;font-weight:600"></div>' +
+      '<input id="angkatan-sql" type="number" inputmode="numeric" min="1" max="99999" value="' + esc(S.angkatanSql) + '"></div>' +
       '<button type="button" class="tombol" data-a="' + aksi + '"' + (angkatanSah() ? '' : ' disabled') + '>' + label + '</button>' +
-      '<span class="kecil" style="flex:1 1 240px">' + (ket || 'Berkas SQL untuk tabel pengguna.') + ' Dijalankan oleh pengelola basis data; dashboard ini tidak tersambung ke basis data.</span></div>';
+      '<span class="kecil" style="flex:1 1 240px">' + (ket || 'Untuk tabel pengguna.') + ' Dijalankan oleh pengelola basis data.</span></div>';
   }
   // Kecamatan lokasi KKN Angkatan 78 beserta jumlah mahasiswanya (sumber sama dengan WILAYAH_78).
   function kecamatanBawaan() {
@@ -1209,7 +1252,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
   }
 
   // ---------------------------------------------------------------- Ringkasan
-  // Ringkasan hanya menghitung data yang dimuat lewat menu Impor data pada peramban ini.
+  // Ringkasan hanya menghitung data yang dimuat pada peramban ini (Impor data atau Pendaftar).
   function hitungMenurut(daftar, f) {
     var h = {};
     daftar.forEach(function (x) { var k = f(x); h[k] = (h[k] || 0) + 1; });
@@ -1217,29 +1260,32 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
   }
   function batangJumlah(pasangan, pembagi) {
     return '<div class="batang">' + pasangan.map(function (r) {
-      return '<div><span class="nama">' + esc(r[0]) + '</span><div class="jalur" aria-hidden="true"><i style="width:' + persen(r[1], pembagi) + '"></i></div><span class="teks">' + r[1] + ' peserta</span></div>';
+      return '<div><span class="nama">' + esc(r[0]) + '</span><div class="jalur" aria-hidden="true"><i style="width:' + persen(r[1], pembagi) + '"></i></div><span class="teks">' + r[1] + '</span></div>';
     }).join('') + '</div>';
+  }
+  function kosong(judul, teks, tombol) {
+    return '<section class="kartu kosong"><div><h2>' + judul + '</h2><p class="sub">' + teks + '</p></div><div class="baris">' + tombol + '</div></section>';
   }
   function ringkasan() {
     var P = S.pesertaAktif, D = S.dimuat, H = S.penempatan;
     var ada = P || D.angkatan || D.lokasi || D.pembimbing;
     var kosongkan = !ada ? '' : (S.tanyaKosong
-      ? '<div class="baris"><span class="kecil">Semua data yang dimuat akan dikeluarkan dari peramban ini.</span><button type="button" class="tombol bahaya rapat" data-a="kosongkan-ya">Ya, kosongkan</button><button type="button" class="tombol rapat" data-a="kosongkan-tidak">Tidak</button></div>'
-      : '<button type="button" class="tombol" data-a="kosongkan-minta">Kosongkan data</button>');
-    var kepala = '<header class="kepala"><div><h1>Ringkasan</h1><p>Angka di halaman ini hanya berasal dari berkas yang dimuat lewat menu Impor data. Datanya tersimpan di peramban ini saja.</p></div>' + kosongkan + '</header>';
+      ? '<div class="baris"><span class="kecil">Hapus semua data dari peramban ini?</span><button type="button" class="tombol bahaya rapat" data-a="kosongkan-ya">Ya, kosongkan</button><button type="button" class="tombol rapat" data-a="kosongkan-tidak">Batal</button></div>'
+      : '<button type="button" class="tombol rapat" data-a="kosongkan-minta">Kosongkan data</button>');
+    var kepala = '<header class="kepala"><h1>Ringkasan</h1>' + kosongkan + '</header>';
     if (!ada) {
-      return kepala + '<section class="kartu"><div><h2>Belum ada data</h2><p class="sub">Belum ada berkas yang dimuat. Unggah jawaban formulir pendaftaran atau templat Excel, lalu angkanya muncul di sini.</p></div>' +
-        '<div class="baris"><button type="button" class="tombol utama" data-a="layar:impor">Buka Impor data</button></div></section>';
+      return kepala + kosong('Belum ada data', 'Muat berkas lewat Impor data, atau ambil pendaftar yang sudah diverifikasi.',
+        '<button type="button" class="tombol utama" data-a="layar:impor">Impor data</button><button type="button" class="tombol" data-a="layar:pendaftar">Buka Pendaftar</button>');
     }
     var ditempatkan = H ? H.unit.reduce(function (n, u) { return n + u.anggota.length; }, 0) : 0;
     var dosen = D.pembimbing ? hitungMenurut(D.pembimbing, function (x) { return x.nip; }).length : 0;
     var kartu = [
-      ['Peserta', P ? P.length : '–', P ? 'dari ' + S.sumberPeserta : 'belum dimuat'],
-      ['Sudah ditempatkan', H ? ditempatkan : '–', H ? 'di ' + H.unit.length + ' ' + (S.satuan === 'posko' ? 'posko' : 'wilayah') : (P ? 'belum diacak' : 'belum ada peserta')],
-      ['Lokasi', D.lokasi ? D.lokasi.length : '–', D.lokasi ? 'kecamatan dengan titik dan radius' : 'belum dimuat'],
-      ['Pembimbing', D.pembimbing ? dosen : '–', D.pembimbing ? 'dosen pada ' + hitungMenurut(D.pembimbing, function (x) { return x.kec; }).length + ' kecamatan' : 'belum dimuat']
+      ['Peserta', P ? P.length : '–', P ? S.sumberPeserta : 'belum dimuat'],
+      ['Ditempatkan', H ? ditempatkan : '–', H ? H.unit.length + ' ' + (S.satuan === 'posko' ? 'posko' : 'wilayah') : (P ? 'belum diacak' : 'belum ada peserta')],
+      ['Lokasi', D.lokasi ? D.lokasi.length : '–', D.lokasi ? 'kecamatan' : 'belum dimuat'],
+      ['Pembimbing', D.pembimbing ? dosen : '–', D.pembimbing ? hitungMenurut(D.pembimbing, function (x) { return x.kec; }).length + ' kecamatan' : 'belum dimuat']
     ].map(function (k) {
-      return '<div class="kartu"><span class="label">' + k[0] + '</span><span class="nilai">' + k[1] + '</span><span class="ket" style="overflow-wrap:anywhere">' + esc(k[2]) + '</span></div>';
+      return '<div class="kartu"><span class="label">' + k[0] + '</span><span class="nilai">' + k[1] + '</span><span class="ket">' + esc(k[2]) + '</span></div>';
     }).join('');
     var html = kepala + '<section class="angka" aria-label="Angka ringkas">' + kartu + '</section>';
     if (P) {
@@ -1249,29 +1295,30 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
         ['Bugis aktif', jumlah(function (m) { return m.bugis === 2; })], ['Bugis pasif', jumlah(function (m) { return m.bugis === 1; })],
         ['Makassar aktif', jumlah(function (m) { return m.makassar === 2; })], ['Makassar pasif', jumlah(function (m) { return m.makassar === 1; })]
       ];
-      html += '<section class="dua"><div class="kartu lebar"><div><h2>Peserta per fakultas</h2><p class="sub">' + n + ' peserta dari ' + jumlahProdi(P) + ' prodi.</p></div>' +
+      html += '<section class="dua"><div class="kartu lebar"><div><h2>Peserta per fakultas</h2><p class="sub">' + jumlahProdi(P) + ' prodi</p></div>' +
         batangJumlah(hitungMenurut(P, function (m) { return m.fak; }), n) + '</div>' +
-        '<div class="kartu sempit"><div><h2>Jenis kelamin dan bahasa</h2><p class="sub">Dihitung dari isian pendaftar.</p></div>' + batangJumlah(rinci, n) + '</div></section>';
+        '<div class="kartu sempit"><h2>Jenis kelamin dan bahasa</h2>' + batangJumlah(rinci, n) + '</div></section>';
     }
     if (H) {
       var unit = H.unit.map(function (u) { return [u.nama, u.anggota.length]; });
-      html += '<section class="kartu"><div><h2>Hasil penempatan</h2><p class="sub">Benih acak ' + H.benih + '. Jumlah peserta di tiap ' + (S.satuan === 'posko' ? 'posko' : 'wilayah') + '.</p></div>' +
+      html += '<section class="kartu"><div class="atas"><h2>Hasil penempatan</h2><span class="kecil">Benih ' + H.benih + '</span></div>' +
         batangJumlah(unit, Math.max.apply(null, unit.map(function (u) { return u[1]; }))) + '</section>';
     }
     if (D.angkatan) {
-      html += '<section class="kartu"><div><h2>Angkatan</h2><p class="sub">Dari lembar Angkatan yang dimuat.</p></div><div class="batang">' + D.angkatan.map(function (a) {
-        return '<div style="grid-template-columns:minmax(84px,120px) minmax(0,1fr)"><span class="nama">Angkatan ' + esc(a.angkatan) + '</span><span class="teks" style="text-align:left">' + esc(a.mulai) + ' sampai ' + esc(a.selesai) + (a.hari ? ', ' + esc(a.hari) + ' hari' : '') + '</span></div>';
-      }).join('') + '</div></section>';
+      html += '<section class="kartu"><h2>Angkatan</h2><dl class="daftar-angkatan">' + D.angkatan.map(function (a) {
+        return '<dt>Angkatan ' + esc(a.angkatan) + '</dt><dd>' + esc(tanggalPanjang(a.mulai)) + ' sampai ' + esc(tanggalPanjang(a.selesai)) + (a.hari ? ', ' + esc(a.hari) + ' hari' : '') + '</dd>';
+      }).join('') + '</dl></section>';
     }
-    return html + '<section class="kartu"><div><h2>Kehadiran, pendaftaran wajah, dan LKH</h2><p class="sub">Belum ada data. Dashboard ini belum tersambung ke basis data, jadi absen harian belum dapat ditampilkan.</p></div></section>';
+    return html + '<p class="kecil">Kehadiran, pendaftaran wajah, dan LKH tampil setelah dashboard tersambung ke basis data.</p>';
   }
 
   // -------------------------------------------------------------------- Impor
+  var IKON_UNGGAH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M4 15v5h16v-5"/></svg>';
   function impor() {
     var J = IMPOR[S.jenis];
     var semua = barisImpor();
     var h = hitungImpor(semua);
-    var langkah = ['Pilih dan unggah', 'Periksa', 'Konfirmasi', 'Selesai'].map(function (l, i) {
+    var langkah = ['Unggah', 'Periksa', 'Konfirmasi', 'Selesai'].map(function (l, i) {
       var no = i + 1;
       return '<li' + (S.langkah === no ? ' aria-current="step"' : '') + (S.langkah > no ? ' class="lewat"' : '') + '><b>' + no + '</b>' + l + '</li>';
     }).join('');
@@ -1281,62 +1328,58 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
       var jenis = ['peserta', 'pembimbing', 'lokasi', 'angkatan'].map(function (id) {
         return '<button type="button" data-a="jenis:' + id + '" aria-pressed="' + (S.jenis === id ? 'true' : 'false') + '"><b>' + IMPOR[id].nama + '</b><span>' + IMPOR[id].uraian + '</span></button>';
       }).join('');
-      isi = '<section class="kartu"><h2>1. Pilih jenis data</h2><div class="jenis" role="group" aria-label="Jenis data">' + jenis + '</div>' +
-        '<div class="info"><b>Kolom lembar ' + J.nama + '</b><span>' + J.kolom.join(', ') + (J.kolomLain ? ', ' + J.kolomLain : '') + '</span><small>Tujuan: ' + J.tujuan + '</small></div>' +
-        '<div class="baris"><a class="tombol" href="Templat-Impor-LKH-KKN.xlsx" download>Unduh templat Excel</a>' +
-        '<span class="kecil">Satu berkas memuat lembar Angkatan, Lokasi, Pembimbing, dan Peserta.</span></div></section>' +
-        '<section class="kartu"><h2>2. Unggah berkas</h2><div class="unggah"><span class="tebal" style="font-weight:600">Berkas Excel atau CSV (.xlsx, .csv)</span>' +
-        '<span class="kecil">Berkas benar-benar dibaca: templat Excel yang sudah diisi (lembar ' + J.nama + ')' + (S.jenis === 'peserta' ? ', atau CSV hasil unduhan formulir pendaftaran' : ', atau CSV dengan judul kolom yang sama') + '. Berkas dibaca di peramban ini dan tidak dikirim ke peladen.</span>' +
-        (S.galatBerkas ? '<div class="peringatan" role="alert"><span>' + esc(S.galatBerkas) + '</span></div>' : '') +
-        '<div class="baris"><input class="sr" id="berkas" type="file" accept=".xlsx,.csv"><label class="tombol" for="berkas">Pilih berkas</label>' +
-        '</div>' +
-        (S.berkas ? '<span role="status" class="status">Berkas terpilih: ' + esc(S.berkas) + '</span>' : '') + '</div>' +
-        '<div class="baris"><button type="button" class="tombol utama" data-a="langkah:2"' + (S.berkas ? '' : ' disabled') + '>Periksa berkas</button>' +
-        (S.berkas ? '' : '<span class="kecil">Pilih berkas lebih dahulu.</span>') + '</div></section>';
+      isi = '<section class="kartu"><div class="jenis" role="group" aria-label="Jenis data">' + jenis + '</div>' +
+        '<div class="unggah" id="zona">' + IKON_UNGGAH +
+        '<input class="sr" id="berkas" type="file" accept=".xlsx,.csv"><label class="tombol" for="berkas">Pilih berkas ' + J.nama.toLowerCase() + '</label>' +
+        '<span class="kecil">atau tarik ke sini. Excel (.xlsx) atau CSV.</span>' +
+        (S.berkas ? '<span role="status" class="status">' + esc(S.berkas) + ' siap diperiksa</span>' : '') + '</div>' +
+        (S.galatBerkas ? '<p class="peringatan" role="alert">' + esc(S.galatBerkas) + '</p>' : '') +
+        '<div class="atas"><button type="button" class="tombol utama" data-a="langkah:2"' + (S.berkas ? '' : ' disabled') + '>Periksa berkas</button>' +
+        '<a class="tombol polos" href="Templat-Impor-LKH-KKN.xlsx" download>Unduh templat Excel</a></div>' +
+        '<details class="lipat"><summary>Kolom yang dibaca</summary>' +
+        '<p class="kecil"><b>Wajib:</b> ' + J.kolom.join(', ') + '.' + (J.kolomLain ? ' <b>Pilihan:</b> ' + J.kolomLain + '.' : '') + '</p>' +
+        '<p class="kecil"><b>Ditulis ke</b> ' + J.tujuan + '</p>' +
+        (S.jenis === 'peserta' ? '<p class="kecil">Unduhan Sheet pendaftaran juga terbaca tanpa disunting.</p>' : '') + '</details></section>';
     } else if (S.langkah === 2) {
       var saring = [['semua', 'Semua', h.total], ['baru', 'Baru', h.baru], ['ubah', 'Diperbarui', h.ubah], ['salah', 'Bermasalah', h.salah]].map(function (t) {
-        return tombolPilih('saring:' + t[0], t[1] + ' · ' + t[2], S.saring === t[0]);
+        return tombolPilih('saring:' + t[0], t[1] + ' (' + t[2] + ')', S.saring === t[0]);
       }).join('');
-      var asli = !!S.berkasData;
       var tersaring = semua.filter(function (r) { return S.saring === 'semua' || r.jenis === S.saring; });
       var baris = tersaring.slice(0, 300).map(function (r) {
-        return '<div role="row"><span role="cell" class="angka-rata" style="color:var(--teks-3)">' + r.baris + '</span><span role="cell" class="angka-rata">' + esc(r.c[0]) + '</span><span role="cell" class="tebal">' + esc(r.c[1]) + '</span><span role="cell">' + esc(r.c[2]) + '</span><span role="cell">' + esc(r.c[3]) + '</span>' +
-          '<span role="cell"><span class="lencana ' + LENCANA[r.jenis][1] + '">' + LENCANA[r.jenis][0] + '</span></span><span role="cell" style="font-size:12px;color:var(--teks-2)">' + esc(r.ket) + '</span></div>';
+        return '<div role="row"><span role="cell" class="angka-rata kecil">' + r.baris + '</span><span role="cell" class="angka-rata">' + esc(r.c[0]) + '</span><span role="cell" class="tebal">' + esc(r.c[1]) + '</span><span role="cell">' + esc(r.c[2]) + '</span><span role="cell">' + esc(r.c[3]) + '</span>' +
+          '<span role="cell"><span class="lencana ' + LENCANA[r.jenis][1] + '">' + LENCANA[r.jenis][0] + '</span></span><span role="cell" class="kecil">' + esc(r.ket) + '</span></div>';
       }).join('');
       var boleh = h.salah === 0 || S.lewati;
-      isi = '<section class="kartu"><div><h2>Hasil pemeriksaan ' + J.nama + '</h2><p class="sub">Berkas ' + esc(S.berkas) + ' · ' + h.total + ' baris terbaca. ' + (asli ? 'Isi berkas dibaca di peramban ini; tidak ada data yang dikirim ke peladen.' : 'Pratinjau ini memakai baris contoh.') +
-        (tersaring.length > 300 ? ' Ditampilkan 300 baris pertama dari ' + tersaring.length + '.' : '') + '</p></div>' +
-        '<div class="pil" role="group" aria-label="Saring baris">' + saring + '</div>' +
+      isi = '<section class="kartu"><div class="atas"><div><h2>' + esc(S.berkas) + '</h2><p class="sub">' + h.total + ' baris ' + J.nama.toLowerCase() + (tersaring.length > 300 ? ', menampilkan 300 pertama' : '') + '</p></div>' +
+        '<div class="segmen" role="group" aria-label="Saring baris">' + saring + '</div></div>' +
         '<div class="gulir"><div class="tabel t-pratinjau" role="table" aria-label="Pratinjau baris"><div role="row" class="judul"><span role="columnheader">Baris</span>' +
         J.kolom.map(function (k) { return '<span role="columnheader">' + k + '</span>'; }).join('') + '<span role="columnheader">Status</span><span role="columnheader">Keterangan</span></div>' + baris + '</div></div>' +
-        (h.salah > 0 ? '<div class="peringatan"><input id="lewati" type="checkbox"' + (S.lewati ? ' checked' : '') + '><label for="lewati">Lewati ' + h.salah + ' baris bermasalah dan impor sisanya. Tanpa pilihan ini, berkas harus diperbaiki dan diunggah ulang.</label></div>' : '') +
-        '<div class="baris"><button type="button" class="tombol" data-a="langkah:1">Kembali</button><button type="button" class="tombol utama" data-a="langkah:3"' + (boleh ? '' : ' disabled') + '>Lanjut ke konfirmasi</button></div></section>';
+        (h.salah > 0 ? '<div class="peringatan"><input id="lewati" type="checkbox"' + (S.lewati ? ' checked' : '') + '><label for="lewati">Lewati ' + h.salah + ' baris bermasalah dan impor sisanya</label></div>' : '') +
+        '<div class="baris"><button type="button" class="tombol" data-a="langkah:1">Kembali</button><button type="button" class="tombol utama" data-a="langkah:3"' + (boleh ? '' : ' disabled') + '>Lanjut</button></div></section>';
     } else if (S.langkah === 3) {
-      isi = '<section class="kartu sempit-maks"><h2>Konfirmasi impor ' + J.nama + '</h2><div class="tiga">' +
-        '<div style="background:var(--biru-bg);color:var(--biru)"><b>' + h.baru + '</b><span>baris baru ditambahkan</span></div>' +
-        '<div style="background:var(--netral-bg);color:var(--teks-2)"><b>' + h.ubah + '</b><span>baris lama diperbarui</span></div>' +
-        '<div style="background:var(--jingga-bg);color:var(--jingga)"><b>' + h.salah + '</b><span>baris dilewati</span></div></div>' +
-        '<p style="font-size:13px;color:var(--teks-2)">Seluruh perubahan ditulis dalam satu transaksi: tersimpan semuanya atau tidak sama sekali. Impor ini tercatat di riwayat dan dapat dibatalkan.</p>' +
+      isi = '<section class="kartu sempit-maks"><h2>Impor ' + J.nama.toLowerCase() + '?</h2><div class="tiga">' +
+        '<div class="biru"><b>' + h.baru + '</b><span>baru</span></div>' +
+        '<div><b>' + h.ubah + '</b><span>diperbarui</span></div>' +
+        '<div class="buruk"><b>' + h.salah + '</b><span>dilewati</span></div></div>' +
+        '<p class="kecil">Tercatat di Riwayat dan dapat dibatalkan.</p>' +
         '<div class="baris"><button type="button" class="tombol" data-a="langkah:2">Kembali</button><button type="button" class="tombol utama" data-a="impor">Impor sekarang</button></div></section>';
     } else {
-      isi = '<section class="kartu sempit-maks" role="status"><h2 style="font-size:18px;color:var(--hijau-teks)">Impor selesai</h2><p>' + esc(S.hasil) + '</p>' +
-        (S.jenis === 'peserta' ? '<p class="kecil">Peserta yang belum punya posko dapat ditempatkan lewat menu Penempatan.</p>' : '') +
+      isi = '<section class="kartu sempit-maks" role="status"><p class="tebal">' + esc(S.hasil) + '</p>' +
         (S.jenis === 'peserta' && S.pesertaAktif ? '<div class="baris"><button type="button" class="tombol utama" data-a="layar:penempatan">Tempatkan peserta</button></div>' + kotakSql('unduh-sql-peserta', 'Unduh SQL tanpa penempatan') : '') +
         kotakSqlJenis() +
-        '<div class="baris"><button type="button" class="tombol utama" data-a="riwayat-buka">Lihat riwayat impor</button><button type="button" class="tombol" data-a="impor-lagi">Impor berkas lain</button></div></section>';
+        '<div class="baris"><button type="button" class="tombol" data-a="impor-lagi">Impor berkas lain</button><button type="button" class="tombol polos" data-a="riwayat-buka">Lihat riwayat</button></div></section>';
     }
 
-    return '<header class="kepala"><div><h1>Impor data</h1><p>Data dari Excel diperiksa dan ditampilkan lebih dahulu. Tidak ada yang tersimpan sebelum admin menekan konfirmasi.</p></div></header>' +
-      '<ol class="langkah" aria-label="Langkah impor">' + langkah + '</ol>' + isi;
+    return '<header class="kepala"><h1>Impor data</h1><ol class="langkah" aria-label="Langkah impor">' + langkah + '</ol></header>' + isi;
   }
 
   // --------------------------------------------------------------- Penempatan
   function koma(x) { return (Math.round(x * 10) / 10).toString().replace('.', ','); }
   function penempatan() {
     if (!S.pesertaAktif) {
-      return '<header class="kepala"><div><h1>Penempatan</h1><p>Peserta ditempatkan secara acak menurut aturan prodi, bahasa daerah, jenis kelamin, dan fakultas.</p></div></header>' +
-        '<section class="kartu"><div><h2>Belum ada peserta</h2><p class="sub">Muat berkas peserta lebih dahulu lewat menu Impor data.</p></div>' +
-        '<div class="baris"><button type="button" class="tombol utama" data-a="layar:impor">Buka Impor data</button></div></section>';
+      return '<header class="kepala"><h1>Penempatan</h1></header>' +
+        kosong('Belum ada peserta', 'Muat peserta lewat Impor data, atau pakai pendaftar yang sudah diverifikasi.',
+          '<button type="button" class="tombol utama" data-a="layar:impor">Impor data</button><button type="button" class="tombol" data-a="layar:pendaftar">Buka Pendaftar</button>');
     }
     var H = S.penempatan, peserta = dataPeserta(), perKab = S.satuan === 'kabupaten';
     var susunan = susunSatuan(), satuan = susunan.satuan;
@@ -1351,25 +1394,25 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
 
     if (perKab) {
       var pilihanBahasa = function (v) {
-        return [['', 'Bukan Bugis atau Makassar'], ['bugis', 'Bugis'], ['makassar', 'Makassar'], ['keduanya', 'Bugis dan Makassar']].map(function (o) {
+        return [['', 'Lainnya'], ['bugis', 'Bugis'], ['makassar', 'Makassar'], ['keduanya', 'Bugis dan Makassar']].map(function (o) {
           return '<option value="' + o[0] + '"' + (o[0] === v ? ' selected' : '') + '>' + o[1] + '</option>';
         }).join('');
       };
       var nomorKuota = 0;
-      pengaturan = '<div class="gulir"><div class="tabel t-kab" role="table" aria-label="Daftar kabupaten atau kecamatan"><div role="row" class="judul"><span role="columnheader">Kabupaten atau kecamatan</span><span role="columnheader">Bahasa setempat</span><span role="columnheader">Daya tampung acuan</span><span role="columnheader">Kuota</span><span role="columnheader">Tindakan</span></div>' +
+      pengaturan = '<div class="gulir wilayah" role="region" tabindex="0" aria-label="Daftar wilayah, dapat digulir"><div class="tabel t-kab" role="table" aria-label="Daftar wilayah"><div role="row" class="judul"><span role="columnheader">Wilayah</span><span role="columnheader">Bahasa</span><span role="columnheader">Daya tampung</span><span role="columnheader">Kuota</span><span role="columnheader"><span class="sr">Hapus</span></span></div>' +
         S.kab.map(function (x, i) {
           var dipakai = x.nama.trim() !== '' && x.bobot > 0;
           var k = dipakai ? kuota[nomorKuota++] : 0;
-          return '<div role="row"><span role="cell"><input id="kab-nama-' + i + '" type="text" maxlength="40" aria-label="Nama kabupaten baris ' + (i + 1) + '" value="' + esc(x.nama) + '"></span>' +
+          return '<div role="row"><span role="cell"><input id="kab-nama-' + i + '" type="text" maxlength="40" aria-label="Nama wilayah baris ' + (i + 1) + '" value="' + esc(x.nama) + '"></span>' +
             '<span role="cell"><select id="kab-bahasa-' + i + '" aria-label="Bahasa setempat baris ' + (i + 1) + '">' + pilihanBahasa(x.bahasa) + '</select></span>' +
-            '<span role="cell"><input id="kab-bobot-' + i + '" type="number" inputmode="numeric" min="1" max="100000" aria-label="Daya tampung acuan baris ' + (i + 1) + '" value="' + x.bobot + '"></span>' +
+            '<span role="cell"><input id="kab-bobot-' + i + '" type="number" inputmode="numeric" min="1" max="100000" aria-label="Daya tampung baris ' + (i + 1) + '" value="' + x.bobot + '"></span>' +
             '<span role="cell" class="tebal angka-rata">' + (dipakai ? k : '–') + '</span>' +
-            '<span role="cell"><button type="button" class="tombol rapat" data-a="kab-hapus:' + i + '" aria-label="Hapus ' + esc(x.nama || 'baris ' + (i + 1)) + '">Hapus</button></span></div>';
+            '<span role="cell"><button type="button" class="tombol rapat" data-a="kab-hapus:' + i + '" aria-label="Hapus ' + esc(x.nama || 'baris ' + (i + 1)) + '" title="Hapus">✕</button></span></div>';
         }).join('') + '</div></div>' +
-        '<p class="kecil">Kuota dihitung sebanding dengan daya tampung acuan, sehingga jumlah seluruh kuota sama dengan jumlah peserta. Daya tampung bawaan adalah jumlah mahasiswa pada KKN Angkatan 78. Basis data hanya menyimpan penempatan sampai kecamatan, jadi penempatan baru tertulis ke basis data bila daftar ini berisi kecamatan.</p>' +
-        '<div class="baris"><button type="button" class="tombol" data-a="kab-tambah">Tambah baris</button><button type="button" class="tombol" data-a="kab-78">Pakai 7 kabupaten Angkatan 78</button><button type="button" class="tombol" data-a="kec-78">Pakai 21 kecamatan Angkatan 78</button></div>' +
-        '<div class="angka-isian">' + angka('isiposko', 'Perkiraan peserta per posko', S.isiPosko, 2, 100) + '</div>';
-      if (!satuan.length) peringatan += '<div class="peringatan"><span>Belum ada wilayah. Tambahkan sekurangnya satu.</span></div>';
+        '<div class="baris"><button type="button" class="tombol rapat" data-a="kab-tambah">Tambah wilayah</button><button type="button" class="tombol rapat" data-a="kab-78">7 kabupaten Angkatan 78</button><button type="button" class="tombol rapat" data-a="kec-78">21 kecamatan Angkatan 78</button></div>' +
+        '<p class="kecil">Kuota sebanding daya tampung. Basis data menyimpan kecamatan, jadi pakai daftar kecamatan bila hasilnya akan diunduh sebagai SQL.</p>' +
+        '<div class="angka-isian">' + angka('isiposko', 'Peserta per posko', S.isiPosko, 2, 100) + '</div>';
+      if (!satuan.length) peringatan += '<p class="peringatan">Tambahkan sekurangnya satu wilayah.</p>';
       if (S.aturan.bahasa) {
         [['bugis', 'Bugis'], ['makassar', 'Makassar'], ['keduanya', 'Bugis atau Makassar']].forEach(function (b) {
           var butuh = 0;
@@ -1377,83 +1420,80 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
           if (!butuh) return;
           var aktif = peserta.filter(function (m) { return tingkatBahasa(m, b[0]) === 2; }).length;
           var pasif = peserta.filter(function (m) { return tingkatBahasa(m, b[0]) === 1; }).length;
-          if (aktif + pasif < butuh) peringatan += '<div class="peringatan"><span>Penutur bahasa ' + b[1] + ' tidak cukup: dibutuhkan ' + butuh + ' orang, sedangkan yang ada ' + aktif + ' aktif dan ' + pasif + ' pasif.</span></div>';
-          else if (aktif < butuh) peringatan += '<p class="kecil">Wilayah berbahasa ' + b[1] + ' membutuhkan ' + butuh + ' penutur; yang aktif hanya ' + aktif + ', kekurangannya diisi penutur pasif.</p>';
+          if (aktif + pasif < butuh) peringatan += '<p class="peringatan">Penutur ' + b[1] + ' kurang: butuh ' + butuh + ', ada ' + aktif + ' aktif dan ' + pasif + ' pasif.</p>';
+          else if (aktif < butuh) peringatan += '<p class="kecil">Penutur aktif ' + b[1] + ' ' + aktif + ' dari ' + butuh + '; sisanya penutur pasif.</p>';
         });
       }
     } else {
       var lebih = prodiBerlebih(peserta, S.nPosko);
       var batas = lebih.reduce(function (t, p) { return t + p[1] - S.nPosko; }, 0);
-      pengaturan = '<div class="angka-isian">' + angka('nposko', 'Jumlah posko', S.nPosko, 1, 500) + angka('nbugis', 'Posko di wilayah Bugis', S.nBugis, 0, S.nPosko) + angka('nmakassar', 'Posko di wilayah Makassar', S.nMakassar, 0, S.nPosko) + '</div>';
+      pengaturan = '<div class="angka-isian">' + angka('nposko', 'Jumlah posko', S.nPosko, 1, 500) + angka('nbugis', 'Posko wilayah Bugis', S.nBugis, 0, S.nPosko) + angka('nmakassar', 'Posko wilayah Makassar', S.nMakassar, 0, S.nPosko) + '</div>';
       if (S.aturan.bahasa) {
         [['bugis', S.nBugis], ['makassar', S.nMakassar]].forEach(function (b) {
           if (!b[1]) return;
           var butuh = b[1] * MIN_PENUTUR;
           var aktif = peserta.filter(function (m) { return m[b[0]] === 2; }).length;
           var pasif = peserta.filter(function (m) { return m[b[0]] === 1; }).length;
-          if (aktif + pasif < butuh) peringatan += '<div class="peringatan"><span>Penutur bahasa ' + NAMA_BAHASA[b[0]] + ' tidak cukup: dibutuhkan ' + butuh + ' orang untuk ' + b[1] + ' posko, sedangkan yang ada ' + aktif + ' aktif dan ' + pasif + ' pasif. Sebagian posko akan kekurangan penutur.</span></div>';
-          else if (aktif < butuh) peringatan += '<p class="kecil">Penutur aktif bahasa ' + NAMA_BAHASA[b[0]] + ' hanya ' + aktif + ' dari ' + butuh + ' yang dibutuhkan; kekurangannya diisi penutur pasif.</p>';
+          if (aktif + pasif < butuh) peringatan += '<p class="peringatan">Penutur ' + NAMA_BAHASA[b[0]] + ' kurang: butuh ' + butuh + ' untuk ' + b[1] + ' posko, ada ' + aktif + ' aktif dan ' + pasif + ' pasif.</p>';
+          else if (aktif < butuh) peringatan += '<p class="kecil">Penutur aktif ' + NAMA_BAHASA[b[0]] + ' ' + aktif + ' dari ' + butuh + '; sisanya penutur pasif.</p>';
         });
       }
       if (S.aturan.prodi && lebih.length) {
-        peringatan += '<div class="peringatan"><span>Dengan ' + S.nPosko + ' posko, aturan prodi tidak dapat dipenuhi sepenuhnya: ' +
-          lebih.map(function (p) { return esc(p[0]) + ' memiliki ' + p[1] + ' peserta'; }).join(', ') +
-          '. Paling sedikit ' + batas + ' peserta akan seposko dengan rekan seprodinya.</span></div>';
+        peringatan += '<p class="peringatan">Aturan prodi tidak terpenuhi penuh dengan ' + S.nPosko + ' posko: ' +
+          lebih.map(function (p) { return esc(p[0]) + ' ' + p[1] + ' peserta'; }).join(', ') + '. Sekurangnya ' + batas + ' peserta seposko dengan rekan seprodi.</p>';
       }
     }
 
     var aturan = perKab
-      ? centang('a-bahasa', 'bahasa', 'Wilayah berbahasa Bugis atau Makassar mendapat ' + MIN_PENUTUR + ' penutur untuk tiap perkiraan posko. Penutur aktif diutamakan, penutur pasif menjadi cadangan.') +
-        centang('a-prodi', 'prodi', 'Tiap prodi disebar ke semua wilayah sebanding dengan kuotanya.') +
-        centang('a-jk', 'jk', 'Laki-laki dan perempuan dibagi sebanding ke semua wilayah.') +
-        centang('a-fak', 'fak', 'Tiap fakultas disebar ke semua wilayah sebanding dengan kuotanya.')
-      : centang('a-bahasa', 'bahasa', 'Posko di wilayah berbahasa Bugis atau Makassar mendapat sekurangnya ' + MIN_PENUTUR + ' peserta yang menguasai bahasanya. Penutur aktif diutamakan, penutur pasif menjadi cadangan.') +
-        centang('a-prodi', 'prodi', 'Tidak ada dua peserta dari prodi yang sama dalam satu posko.') +
-        centang('a-jk', 'jk', 'Laki-laki dan perempuan dibagi merata ke semua posko.') +
-        centang('a-fak', 'fak', 'Peserta dari fakultas yang sama disebar ke posko yang berbeda sejauh mungkin.');
+      ? centang('a-bahasa', 'bahasa', MIN_PENUTUR + ' penutur bahasa setempat per posko') +
+        centang('a-prodi', 'prodi', 'Prodi menyebar sebanding kuota') +
+        centang('a-jk', 'jk', 'Laki-laki dan perempuan sebanding') +
+        centang('a-fak', 'fak', 'Fakultas menyebar sebanding kuota')
+      : centang('a-bahasa', 'bahasa', MIN_PENUTUR + ' penutur bahasa setempat per posko') +
+        centang('a-prodi', 'prodi', 'Satu prodi satu orang per posko') +
+        centang('a-jk', 'jk', 'Laki-laki dan perempuan merata') +
+        centang('a-fak', 'fak', 'Fakultas tersebar ke posko berbeda');
 
-    var html = '<header class="kepala"><div><h1>Penempatan</h1><p>Peserta ditempatkan secara acak menurut aturan di bawah. Tahap pertama per kabupaten, lalu per kecamatan; pembagian ke posko menyusul. Hasilnya diperiksa admin sebelum disimpan.</p></div></header>' +
-      '<section class="kartu"><div class="atas"><div><h2>Aturan penempatan</h2><p class="sub">Sumber data: ' +
-      (S.pesertaAktif ? 'berkas ' + esc(S.sumberPeserta) + ', ' + peserta.length + ' peserta' : peserta.length + ' peserta contoh') +
-      ' dari ' + jumlahProdi(peserta) + ' prodi.' + (S.pesertaAktif ? '' : ' Untuk memakai data pendaftar, muat berkasnya lewat menu Impor data.') + '</p></div>' +
-      '<div class="segmen" role="group" aria-label="Satuan penempatan">' + tombolPilih('satuan:kabupaten', 'Per kabupaten atau kecamatan', perKab) + tombolPilih('satuan:posko', 'Per posko', !perKab) + '</div></div>' +
-      pengaturan + '<div class="aturan">' + aturan + '</div>' +
-      '<details class="rujukan"><summary>Rujukan wilayah bahasa: lokasi KKN Angkatan 78</summary>' +
+    var html = '<header class="kepala"><h1>Penempatan</h1><span class="kecil">' + peserta.length + ' peserta, ' + jumlahProdi(peserta) + ' prodi, dari ' + esc(S.sumberPeserta) + '</span></header>' +
+      '<section class="kartu"><div class="atas"><h2>Wilayah</h2>' +
+      '<div class="segmen" role="group" aria-label="Satuan penempatan">' + tombolPilih('satuan:kabupaten', 'Per wilayah', perKab) + tombolPilih('satuan:posko', 'Per posko', !perKab) + '</div></div>' +
+      '<div class="atur-grid"><div>' + pengaturan + '</div><div><h3>Aturan</h3><div class="aturan">' + aturan + '</div></div></div>' +
+      peringatan +
+      '<details class="lipat"><summary>Rujukan bahasa lokasi Angkatan 78</summary>' +
       '<div class="gulir"><div class="tabel t-rujukan" role="table" aria-label="Wilayah bahasa lokasi KKN Angkatan 78"><div role="row" class="judul"><span role="columnheader">Kabupaten</span><span role="columnheader">Kecamatan</span><span role="columnheader">Mahasiswa</span><span role="columnheader">Bahasa setempat</span></div>' +
       WILAYAH_78.map(function (w) { return '<div role="row"><span role="cell" class="tebal">' + w[0] + '</span><span role="cell">' + esc(w[1]) + '</span><span role="cell" class="angka-rata">' + w[2] + '</span><span role="cell">' + w[3] + '</span></div>'; }).join('') +
-      '</div></div><p class="kecil">Lokasi dan jumlah mahasiswa: Pengumuman Lokasi Mahasiswa KKN Angkatan 78 Tahun 2026, LP2M UIN Alauddin Makassar, 2 Maret 2026 (1.544 mahasiswa, 21 kecamatan). Bahasa setempat: artikel Bahasa Bugis dan Bahasa Makassar di Wikipedia bahasa Indonesia; keterangannya per kabupaten, belum per kecamatan atau desa, sehingga perlu dipastikan ke pemerintah setempat atau dosen pembimbing lapangan.</p></details>' +
-      peringatan +
+      '</div></div><p class="kecil">Lokasi: Pengumuman Lokasi KKN Angkatan 78, LP2M UIN Alauddin, 2 Maret 2026. Bahasa: Wikipedia bahasa Indonesia, tingkat kabupaten; pastikan ke pemerintah setempat.</p></details>' +
       '<div class="baris"><button type="button" class="tombol utama" data-a="acak"' + (satuan.length ? '' : ' disabled') + '>' + (H ? 'Acak ulang' : 'Acak penempatan') + '</button>' +
-      (H ? '<button type="button" class="tombol" data-a="simpan-penempatan"' + (S.penempatanTersimpan ? ' disabled' : '') + '>Simpan penempatan</button>' +
-        '<button type="button" class="tombol" data-a="unduh-penempatan">Unduh hasil (CSV)</button>' : '') + '</div>' +
+      (H ? '<button type="button" class="tombol" data-a="simpan-penempatan"' + (S.penempatanTersimpan ? ' disabled' : '') + '>' + (S.penempatanTersimpan ? 'Tersimpan' : 'Simpan') + '</button>' +
+        '<button type="button" class="tombol" data-a="unduh-penempatan">Unduh CSV</button>' : '') + '</div>' +
       (H ? kotakSql('unduh-sql', 'Unduh SQL') : '') +
-      (S.penempatanTersimpan ? '<span role="status" class="status">Penempatan tersimpan. Pada sistem sebenarnya, hasil ini ditulis ke basis data dan tercatat di riwayat.</span>' : '') +
+      (S.penempatanTersimpan ? '<span role="status" class="status">Penempatan disimpan di peramban ini.</span>' : '') +
       '</section>';
     if (!H) return html;
 
     var kotakBahasa = H.berbahasa
-      ? '<div style="background:' + (H.terpenuhi < H.berbahasa ? 'var(--jingga-bg);color:var(--jingga)' : 'var(--ok-bg);color:var(--hijau-teks)') + '"><b>' + H.terpenuhi + ' dari ' + H.berbahasa + '</b><span>' +
-        (perKab ? 'wilayah berbahasa daerah terpenuhi kebutuhan penuturnya' : 'posko berbahasa daerah punya ' + MIN_PENUTUR + ' penutur atau lebih') + '</span></div>'
+      ? '<div class="' + (H.terpenuhi < H.berbahasa ? 'buruk' : 'baik') + '"><b>' + H.terpenuhi + '/' + H.berbahasa + '</b><span>' +
+        (perKab ? 'wilayah berbahasa daerah cukup penutur' : 'posko berbahasa daerah cukup penutur') + '</span></div>'
       : '';
     var kotakProdi = perKab
-      ? '<div style="background:var(--netral-bg);color:var(--teks-2)"><b>' + koma(H.simpang) + '</b><span>orang, selisih terbesar sebaran prodi dari jatah sebanding' + (H.simpangProdi ? ' (' + esc(H.simpangProdi) + ')' : '') + '</span></div>' +
-        '<div style="background:var(--netral-bg);color:var(--teks-2)"><b>' + koma(H.simpangL) + '</b><span>orang, selisih terbesar jumlah laki-laki dari jatah sebanding</span></div>'
-      : '<div style="background:' + (H.ganda ? 'var(--jingga-bg);color:var(--jingga)' : 'var(--ok-bg);color:var(--hijau-teks)') + '"><b>' + H.ganda + '</b><span>peserta seposko dengan rekan seprodi</span></div>' +
-        '<div style="background:var(--netral-bg);color:var(--teks-2)"><b>' + (H.jumlahMin === H.jumlahMaks ? H.jumlahMin : H.jumlahMin + '–' + H.jumlahMaks) + '</b><span>peserta per posko</span></div>' +
-        '<div style="background:var(--netral-bg);color:var(--teks-2)"><b>' + (H.lkMin === H.lkMaks ? H.lkMin : H.lkMin + '–' + H.lkMaks) + '</b><span>laki-laki per posko</span></div>';
+      ? '<div><b>' + koma(H.simpang) + '</b><span>selisih terbesar sebaran prodi' + (H.simpangProdi ? ' (' + esc(H.simpangProdi) + ')' : '') + '</span></div>' +
+        '<div><b>' + koma(H.simpangL) + '</b><span>selisih terbesar jumlah laki-laki</span></div>'
+      : '<div class="' + (H.ganda ? 'buruk' : 'baik') + '"><b>' + H.ganda + '</b><span>peserta seposko dengan rekan seprodi</span></div>' +
+        '<div><b>' + (H.jumlahMin === H.jumlahMaks ? H.jumlahMin : H.jumlahMin + '–' + H.jumlahMaks) + '</b><span>peserta per posko</span></div>' +
+        '<div><b>' + (H.lkMin === H.lkMaks ? H.lkMin : H.lkMin + '–' + H.lkMaks) + '</b><span>laki-laki per posko</span></div>';
     html += '<section class="tiga" aria-label="Ringkasan hasil">' + kotakBahasa + kotakProdi + '</section>' +
-      '<p class="kecil">Benih acak ' + H.benih + '. Benih yang sama menghasilkan penempatan yang sama, sehingga hasil ini dapat diperiksa ulang.</p>' +
+      '<p class="kecil">Benih ' + H.benih + '. Benih yang sama memberi hasil yang sama.</p>' +
       '<section class="posko" aria-label="Hasil penempatan">' + H.unit.map(function (p) {
         var wilayah = p.bahasa
-          ? '<span class="lencana ' + (p.cukup === false ? 'l-salah' : 'l-ok') + '">Wilayah ' + NAMA_BAHASA[p.bahasa] + ' · ' + p.aktif + ' aktif, ' + p.pasif + ' pasif' + (perKab && p.butuh ? ' · butuh ' + p.butuh : '') + '</span>'
+          ? '<span class="lencana ' + (p.cukup === false ? 'l-salah' : 'l-ok') + '">' + NAMA_BAHASA[p.bahasa] + ': ' + p.aktif + ' aktif, ' + p.pasif + ' pasif' + (perKab && p.butuh ? ', butuh ' + p.butuh : '') + '</span>'
           : '';
         var anggota = '<ul>' + p.anggota.map(function (m) {
           var g = !perKab && p.hitProdi[m.kp] > 1, t = tingkatBahasa(m, p.bahasa);
-          var bahasa = t > 0 ? ' · ' + (p.bahasa === 'keduanya' ? 'bahasa daerah' : NAMA_BAHASA[p.bahasa]) + ' ' + TINGKAT[t].toLowerCase() : '';
-          return '<li' + (g ? ' class="ganda"' : '') + '><span>' + esc(m.nama) + '<small>' + esc(m.prodi) + bahasa + (g ? ' · prodi ganda' : '') + '</small></span><b>' + m.jk + '</b></li>';
+          var bahasa = t > 0 ? ', ' + (p.bahasa === 'keduanya' ? 'bahasa daerah' : NAMA_BAHASA[p.bahasa]) + ' ' + TINGKAT[t].toLowerCase() : '';
+          return '<li' + (g ? ' class="ganda"' : '') + '><span>' + esc(m.nama) + '<small>' + esc(m.prodi) + bahasa + (g ? ', prodi ganda' : '') + '</small></span><b>' + m.jk + '</b></li>';
         }).join('') + '</ul>';
-        return '<div class="kartu"><div><h3>' + esc(p.nama) + '</h3><p class="sub">' + p.anggota.length + ' peserta (' + p.L + ' L, ' + (p.anggota.length - p.L) + ' P)' + (perKab ? ' · ' + p.jumlahProdi + ' prodi' : '') + '</p></div>' + wilayah +
-          (perKab ? '<details class="daftar"><summary>Lihat daftar peserta</summary>' + anggota + '</details>' : anggota) + '</div>';
+        return '<div class="kartu"><div><h3>' + esc(p.nama) + '</h3><p class="sub">' + p.anggota.length + ' peserta, ' + p.L + ' L, ' + (p.anggota.length - p.L) + ' P' + (perKab ? ', ' + p.jumlahProdi + ' prodi' : '') + '</p></div>' + wilayah +
+          (perKab ? '<details class="daftar"><summary>Daftar peserta</summary>' + anggota + '</details>' : anggota) + '</div>';
       }).join('') + '</section>';
     return html;
   }
@@ -1523,17 +1563,17 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
   function singkatBahasa(v) { return v === 'Aktif' ? 'A' : (v === 'Pasif' ? 'P' : '–'); }
   var LENCANA_STATUS = { 'Baru': 'l-baru', 'Diverifikasi': 'l-ok', 'Ditolak': 'l-salah' };
   function pendaftar() {
-    var kepala = '<header class="kepala"><div><h1>Pendaftar</h1><p>Jawaban formulir pendaftaran dibaca langsung dari Google Sheet dan diperiksa ulang setiap ' + (JEDA_CEK / 1000) + ' detik. Admin memverifikasi atau menolak tiap pendaftar, lalu memakai yang lolos untuk penempatan.</p></div></header>';
+    var kepala = '<header class="kepala"><h1>Pendaftar</h1></header>';
     if (!S.kunciAdmin) {
-      return kepala + '<section class="kartu sempit-maks"><div><h2>Sambungkan ke Sheet pendaftaran</h2><p class="sub">Kunci admin dibuat dengan menjalankan fungsi aturKunciAdmin pada proyek Apps Script penerima formulir, lalu disalin dari Log eksekusi. Kunci disimpan di peramban ini saja.</p></div>' +
+      return kepala + '<section class="kartu sempit-maks"><div><h2>Sambungkan ke Sheet pendaftaran</h2><p class="sub">Kunci didapat dari fungsi aturKunciAdmin di Apps Script dan disimpan di peramban ini saja.</p></div>' +
         '<div class="sambung"><div class="isian"><label for="l-alamat">Alamat aplikasi web</label><input id="l-alamat" type="url" autocomplete="off" spellcheck="false" value="' + esc(S.alamatDraft || alamatAdmin()) + '"></div>' +
-        '<div class="isian"><label for="l-kunci">Kunci admin</label><input id="l-kunci" type="password" autocomplete="off" spellcheck="false" value="' + esc(S.kunciDraft) + '"></div></div>' +
+        '<div class="isian"><label for="l-kunci">Kunci admin</label><input id="l-kunci" type="password" autocomplete="off" spellcheck="false" translate="no" value="' + esc(S.kunciDraft) + '"></div></div>' +
         (S.lPesan ? '<p class="peringatan" role="alert">' + esc(S.lPesan) + '</p>' : '') +
         '<div class="baris"><button type="button" class="tombol utama" data-a="l-sambung">Sambungkan</button></div></section>';
     }
     var titik = S.lStatus === 'ok' ? '' : (S.lStatus === 'galat' ? ' mati' : ' muat');
-    var keadaan = S.lStatus === 'ok' ? '<b>Tersambung</b><span>Diperiksa pukul ' + jamMenit(S.lWaktu) + ', berikutnya otomatis.</span>'
-      : (S.lStatus === 'galat' ? '<b>Gangguan</b><span>' + esc(S.lPesan) + '</span>' : '<b>Memuat</b><span>Mengambil data dari Sheet…</span>');
+    var keadaan = S.lStatus === 'ok' ? '<b>Tersambung</b><span>diperbarui ' + jamMenit(S.lWaktu) + '</span>'
+      : (S.lStatus === 'galat' ? '<b>Gangguan</b><span>' + esc(S.lPesan) + '</span>' : '<b>Memuat</b><span>mengambil data dari Sheet</span>');
     var html = kepala + '<section class="kartu"><div class="atas"><div class="siaran" role="status"><span class="titik' + titik + '" aria-hidden="true"></span>' + keadaan + '</div>' +
       '<div class="baris"><button type="button" class="tombol rapat" data-a="l-segarkan">Periksa sekarang</button><button type="button" class="tombol rapat" data-a="l-putus">Putuskan</button></div></div></section>';
     if (!S.L) return html;
@@ -1543,7 +1583,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
     semua.forEach(function (r) { jumlah[r.status] = (jumlah[r.status] || 0) + 1; });
     var nMasuk = semua.filter(function (r) { return S.masuk[r.nim]; }).length;
     html += '<section class="angka empat">' + [
-      ['Pendaftar', jumlah.semua, nMasuk ? nMasuk + ' masuk sejak halaman dibuka' : 'seluruh isian pada Sheet'],
+      ['Pendaftar', jumlah.semua, nMasuk ? nMasuk + ' baru masuk' : 'di Sheet'],
       ['Menunggu verifikasi', jumlah.Baru, 'berstatus Baru'],
       ['Diverifikasi', jumlah.Diverifikasi, 'siap ditempatkan'],
       ['Ditolak', jumlah.Ditolak, 'tidak ikut penempatan']
@@ -1565,7 +1605,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
       } else if (r.status === 'Baru') {
         aksi = '<span class="aksi"><button type="button" class="tombol rapat" data-a="l-verif:' + r.nim + '">Verifikasi</button><button type="button" class="tombol rapat" data-a="l-tolak:' + r.nim + '">Tolak</button></span>';
       } else {
-        aksi = '<button type="button" class="tombol rapat" data-a="l-kembali:' + r.nim + '">Kembalikan ke Baru</button>';
+        aksi = '<button type="button" class="tombol rapat" data-a="l-kembali:' + r.nim + '" aria-label="Kembalikan ' + esc(r.nama) + ' ke Baru">Kembalikan</button>';
       }
       return '<div role="row"' + (S.masuk[r.nim] ? ' class="masuk"' : '') + '><span role="cell" class="c-waktu angka-rata">' + esc(r.waktu.slice(8, 10) + '/' + r.waktu.slice(5, 7) + ' ' + r.waktu.slice(11, 16).replace(':', '.')) + (S.masuk[r.nim] ? '<small>baru masuk</small>' : '') + '</span>' +
         '<span role="cell" class="c-nim angka-rata">' + esc(r.nim) + '</span><span role="cell" class="c-nama tebal" style="overflow-wrap:anywhere">' + esc(r.nama) + '</span>' +
@@ -1579,7 +1619,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
     var segmen = [['semua', 'Semua'], ['Baru', 'Baru'], ['Diverifikasi', 'Diverifikasi'], ['Ditolak', 'Ditolak']].map(function (x) {
       return tombolPilih('l-saring:' + x[0], x[1] + ' (' + (jumlah[x[0]] || 0) + ')', S.lSaring === x[0]);
     }).join('');
-    html += '<section class="kartu"><div><h2>Daftar pendaftar</h2><p class="sub">Terbaru di atas. Bahasa ditulis Bugis / Makassar: A aktif, P pasif, – tidak bisa.</p></div>' +
+    html += '<section class="kartu"><div><h2>Daftar pendaftar</h2><p class="sub">Bahasa Bugis / Makassar: A aktif, P pasif, – tidak bisa</p></div>' +
       '<div class="segmen bungkus" role="group" aria-label="Saring menurut status">' + segmen + '</div>' +
       '<div class="cari"><div class="isian"><label for="l-cari">Cari nama atau NIM</label><input id="l-cari" type="search" autocomplete="off" value="' + esc(S.lCari) + '"></div>' +
       '<div class="isian"><label for="l-fak">Fakultas</label><select id="l-fak"><option value="">Semua fakultas</option>' +
@@ -1591,8 +1631,8 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
       (terpotong ? '<p class="sub">Menampilkan ' + BATAS + ' dari ' + tampil.length + ' pendaftar. Persempit dengan pencarian atau saringan.</p>' : '') + '</section>';
 
     var dipakai = semua.filter(function (r) { return r.status !== 'Ditolak' && (!S.hanyaVerif || r.status === 'Diverifikasi'); }).length;
-    html += '<section class="kartu sempit-maks"><div><h2>Pakai untuk penempatan</h2><p class="sub">Pendaftar yang dipilih menggantikan data peserta yang sedang dimuat, lalu dapat diacak pada menu Penempatan. Sheet tidak berubah.</p></div>' +
-      '<label class="setuju" style="display:flex;gap:10px;align-items:flex-start;font-weight:500"><input id="l-hanya" type="checkbox" style="width:20px;height:20px;margin:1px 0 0;flex:none"' + (S.hanyaVerif ? ' checked' : '') + '> Hanya yang sudah diverifikasi (bila tidak dicentang, yang berstatus Baru ikut dipakai)</label>' +
+    html += '<section class="kartu sempit-maks"><div><h2>Pakai untuk penempatan</h2><p class="sub">Menggantikan peserta yang sedang dimuat. Sheet tidak berubah.</p></div>' +
+      '<label class="setuju"><input id="l-hanya" type="checkbox"' + (S.hanyaVerif ? ' checked' : '') + '> Hanya yang sudah diverifikasi</label>' +
       '<div class="baris"><button type="button" class="tombol utama" data-a="l-pakai"' + (dipakai ? '' : ' disabled') + '>Pakai ' + dipakai + ' pendaftar</button></div></section>';
     return html;
   }
@@ -1635,21 +1675,24 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
 
   // ------------------------------------------------------------------ Riwayat
   function riwayat() {
+    var kepala = '<header class="kepala"><h1>Riwayat impor</h1></header>';
+    if (!S.riwayat.length) {
+      return kepala + kosong('Belum ada impor', 'Setiap impor di peramban ini tercatat di sini dan dapat dibatalkan.', '<button type="button" class="tombol utama" data-a="layar:impor">Impor data</button>');
+    }
     var baris = S.riwayat.map(function (r) {
       var aksi = '';
       if (S.tanyaBatal === r.id) {
         aksi = '<button type="button" class="tombol bahaya rapat" data-a="batal-ya:' + r.id + '">Ya, batalkan</button><button type="button" class="tombol rapat" data-a="batal-tidak">Tidak</button>';
       } else if (r.status === 'Berhasil') {
-        aksi = '<button type="button" class="tombol rapat" data-a="batal-minta:' + r.id + '">Batalkan impor</button>';
+        aksi = '<button type="button" class="tombol rapat" data-a="batal-minta:' + r.id + '">Batalkan</button>';
       }
       return '<div role="row"><span role="cell">' + r.waktu + '</span><span role="cell" class="tebal">' + r.jenis + '</span><span role="cell" style="overflow-wrap:anywhere">' + esc(r.berkas) + '</span>' +
-        '<span role="cell" style="font-size:12px;color:var(--teks-2)">' + r.baru + ' baru, ' + r.ubah + ' diperbarui, ' + r.lewat + ' dilewati</span><span role="cell">' + r.oleh + '</span>' +
+        '<span role="cell" class="kecil">' + r.baru + ' baru, ' + r.ubah + ' diperbarui, ' + r.lewat + ' dilewati</span><span role="cell">' + r.oleh + '</span>' +
         '<span role="cell"><span class="lencana ' + (r.status === 'Berhasil' ? 'l-ok' : 'l-batal') + '">' + r.status + '</span></span><span role="cell" class="aksi">' + aksi + '</span></div>';
     }).join('');
-    return '<header class="kepala"><div><h1>Riwayat impor</h1><p>Catatan impor yang dilakukan pada peramban ini. Membatalkan impor mengeluarkan datanya dari dashboard; basis data tidak ikut berubah.</p></div></header>' +
-      '<section class="kartu"><div class="gulir"><div class="tabel t-riwayat" role="table" aria-label="Riwayat impor"><div role="row" class="judul">' +
-      ['Waktu', 'Jenis data', 'Berkas', 'Hasil', 'Oleh', 'Status', 'Tindakan'].map(function (k) { return '<span role="columnheader">' + k + '</span>'; }).join('') + '</div>' + baris + '</div></div>' +
-      (S.riwayat.length ? '' : '<p class="sub">Belum ada impor pada peramban ini.</p>') + '</section>';
+    return kepala + '<section class="kartu"><div class="gulir"><div class="tabel t-riwayat" role="table" aria-label="Riwayat impor"><div role="row" class="judul">' +
+      ['Waktu', 'Jenis', 'Sumber', 'Hasil', 'Oleh', 'Status', '<span class="sr">Tindakan</span>'].map(function (k) { return '<span role="columnheader">' + k + '</span>'; }).join('') + '</div>' + baris + '</div></div>' +
+      '<p class="kecil">Membatalkan impor hanya mengeluarkan datanya dari dashboard. Basis data tidak berubah.</p></section>';
   }
 
   // ------------------------------------------------------------------- render
@@ -1662,7 +1705,15 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
   function hariIni() { var t = new Date(); return t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); }
   function garisWaktu() {
     var daftar = (S.dimuat.angkatan || []).filter(function (a) { return a.mulai && a.selesai; }).sort(function (a, b) { return a.mulai < b.mulai ? -1 : 1; });
-    if (!daftar.length) return '<div class="masa-teks"><span><b>Belum ada angkatan dimuat.</b> Garis waktu masa KKN muncul setelah lembar Angkatan diimpor.</span></div>';
+    if (!daftar.length) {
+      var hantu = '';
+      for (var w = 0; w * 7 < LAMA; w++) {
+        var c = Math.min(7, LAMA - w * 7), kosongSel = '';
+        for (var d = 0; d < c; d++) kosongSel += '<i></i>';
+        hantu += '<div class="masa-minggu" style="flex:' + c + ' 1 0"><div class="masa-sel">' + kosongSel + '</div><small>Minggu ' + (w + 1) + '</small></div>';
+      }
+      return '<div class="masa-teks"><span><b>Belum ada angkatan.</b> Impor lembar Angkatan untuk melihat hari ke berapa.</span></div><div class="masa-hari hantu" aria-hidden="true">' + hantu + '</div>';
+    }
     var kini = hariIni();
     var A = daftar.filter(function (a) { return a.selesai >= kini; })[0] || daftar[daftar.length - 1];
     var total = Math.max(1, Math.min(366, Number(A.hari) || selisihHari(A.mulai, A.selesai) + 1));
@@ -1675,7 +1726,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
       for (var h = m * 7 + 1; h <= m * 7 + isi; h++) sel += '<i' + (h < n ? ' class="lewat"' : (h === n ? ' class="kini"' : '')) + '></i>';
       html += '<div class="masa-minggu" style="flex:' + isi + ' 1 0"><div class="masa-sel">' + sel + '</div><small>Minggu ' + (m + 1) + '</small></div>';
     }
-    return '<div class="masa-teks"><span><b>Angkatan ' + esc(A.angkatan) + '</b> · ' + ket + '</span><span>' + kanan + '</span></div>' +
+    return '<div class="masa-teks"><span><b>Angkatan ' + esc(A.angkatan) + '</b>, ' + ket + '</span><span>' + kanan + '</span></div>' +
       '<div class="masa-hari" role="img" aria-label="Angkatan ' + esc(A.angkatan) + ', ' + ket + ', ' + total + ' hari">' + html + '</div>';
   }
   var IKON_MENU = {
@@ -1759,7 +1810,7 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
         riwayat: [{ id: id, kunci: S.jenis, waktu: new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }), jenis: J.nama, berkas: S.berkas, baru: h.baru, ubah: h.ubah, lewat: h.salah, oleh: 'Peramban ini', status: 'Berhasil' }]
           .concat(S.riwayat.map(function (r) { return r.kunci === S.jenis && r.status === 'Berhasil' ? Object.assign({}, r, { status: 'Digantikan' }) : r; })),
         hasil: asli
-          ? h.baru + ' ' + (S.jenis === 'peserta' ? 'peserta' : 'baris ' + J.nama.toLowerCase()) + ' dimuat dari berkas ' + S.berkas + ' dan ' + h.salah + ' baris dilewati. Data ini tersimpan di peramban ini saja dan tidak dikirim ke mana pun.'
+          ? h.baru + ' ' + (S.jenis === 'peserta' ? 'peserta' : 'baris ' + J.nama.toLowerCase()) + ' dimuat dari berkas ' + S.berkas + ' dan ' + h.salah + ' baris dilewati.'
           : h.baru + ' baris ' + J.nama.toLowerCase() + ' ditambahkan, ' + h.ubah + ' diperbarui, dan ' + h.salah + ' dilewati dari berkas ' + S.berkas + '.'
       }, 'riwayat-buka');
     }
@@ -1887,6 +1938,19 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
     else if (t.id === 'alasan') S.alasan = t.value;
     else if (t.id === 'l-kunci') S.kunciDraft = t.value;
     else if (t.id === 'l-alamat') S.alamatDraft = t.value;
+  });
+
+  // Berkas dapat ditarik ke zona unggah.
+  function zona(e) { return e.target && e.target.closest ? e.target.closest('#zona') : null; }
+  document.addEventListener('dragover', function (e) { var z = zona(e); if (!z) return; e.preventDefault(); z.classList.add('seret'); });
+  document.addEventListener('dragleave', function (e) { var z = zona(e); if (z && !z.contains(e.relatedTarget)) z.classList.remove('seret'); });
+  document.addEventListener('drop', function (e) {
+    var z = zona(e), inp = document.getElementById('berkas');
+    if (!z || !inp) return;
+    e.preventDefault(); z.classList.remove('seret');
+    if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+    inp.files = e.dataTransfer.files;
+    inp.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
   muat();

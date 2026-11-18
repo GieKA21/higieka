@@ -28,8 +28,17 @@ menjadi berkas terpisah tanpa diminta; sifat satu-berkas adalah keputusan desain
 yang disengaja.
 
 Halaman `/kkn/` adalah rancangan antarmuka dashboard admin LKH KKN yang berdiri
-sendiri: satu berkas, memakai tampilannya sendiri (hijau, Inter), bukan gaya
-portofolio. Halaman itu tidak memuat data contoh: angkanya hanya berasal dari berkas
+sendiri: satu berkas, memakai tampilannya sendiri, bukan gaya portofolio. Halaman
+`/kkn/` dan `/kkn/daftar/` berbagi satu set warna di `:root`: hijau malam `--malam`
+(pita atas dan dok), hijau daun `--daun` (tombol utama), kuning padi `--padi` (hanya
+untuk hari ini pada garis waktu dan pendaftar yang baru masuk), merah bata `--bata`
+(galat dan penolakan), serta latar `--kertas`. Hurufnya Plus Jakarta Sans saja.
+Elemen yang menonjol hanya satu: garis 45 hari di pita atas yang digambar seperti
+batang padi tumbuh (hari yang lewat tinggi dan hijau, hari ini kuning, hari depan
+pendek). Teks dibuat pendek: tanpa paragraf penjelas di bawah judul layar;
+keterangan teknis masuk ke lipatan `details.lipat`. Galat isian formulir memakai
+`:user-invalid`, jadi baru tampil setelah isian disentuh atau formulir dicoba
+dikirim. Halaman itu tidak memuat data contoh: angkanya hanya berasal dari berkas
 yang dimuat lewat menu Impor data dan disimpan di `localStorage` peramban (kunci
 `kkn-dashboard-v1`), tidak dikirim ke mana pun. Halaman itu diberi `noindex`, serta
 tidak dicantumkan pada `sitemap.xml`. Jangan memasukkan data mahasiswa sungguhan.
@@ -138,6 +147,20 @@ Atribut `lang` pada elemen `html` adalah `id`.
 
 Jangan mencantumkan karya milik orang lain pada situs ini. Beberapa judul skripsi
 yang pernah dibahas pemilik situs adalah milik rekannya, bukan miliknya sendiri.
+
+## Skill untuk pekerjaan web
+
+Folder `.claude/skills/` berisi skill proyek yang dipasang dengan `npx skills`
+(sumber dan komitnya tercatat di `skills-lock.json`):
+
+- `modern-web-guidance` (Google Chrome): cari panduan dengan
+  `npx -y modern-web-guidance@latest search "<kueri>"` sebelum menulis HTML, CSS,
+  atau JavaScript sisi klien, lalu `retrieve` panduan yang cocok
+- `frontend-design` (Anthropic): arah visual dan cara menghindari kesan templat
+- `ui-ux-pro-max` (nextlevelbuilder): data pedoman UX, palet, dan pasangan huruf
+- `web-design-guidelines` (Vercel): audit akhir terhadap Web Interface Guidelines
+
+Berkas lisensi tiap skill ada di foldernya masing-masing.
 
 ## Verifikasi sebelum push
 
