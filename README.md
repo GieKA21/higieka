@@ -14,7 +14,7 @@ selain berkas font yang dimuat dari Google Fonts.
 | `.nojekyll`    | Menyajikan berkas apa adanya, tanpa Jekyll    |
 | `robots.txt`   | Izin perayapan mesin pencari                  |
 | `sitemap.xml`  | Peta situs                                    |
-| `kkn/index.html` | Rancangan dashboard admin LKH KKN (hanya menampilkan berkas yang dimuat) |
+| `kkn/index.html` | Rancangan dashboard admin LKH KKN: berkas yang dimuat, serta tabel pendaftar yang dibaca langsung dari Google Sheet |
 | `kkn/Templat-Impor-LKH-KKN.xlsx` | Templat Excel impor data, diunduh dari halaman rancangan |
 | `kkn/daftar/index.html` | Formulir uji coba pendaftaran KKN; jawabannya dikirim ke Google Sheet lewat Apps Script bila `ALAMAT_PENERIMA` diisi |
 
