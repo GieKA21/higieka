@@ -184,13 +184,52 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
 .t-rujukan{min-width:640px}
 .t-rujukan [role="row"]{grid-template-columns:110px minmax(0,1.6fr) 90px minmax(0,1.5fr);padding:9px 12px}
 
-@media (max-width:640px){
-  .masa-hari{gap:4px}
-  .masa-sel{gap:1px}
-  .masa-minggu small{display:none}
+.siaran{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px;color:var(--teks-2)}
+.siaran b{color:var(--teks)}
+.titik{display:inline-block;width:10px;height:10px;flex:none;border-radius:50%;background:var(--hijau);animation:denyut 2s ease-out infinite}
+.titik.muat{background:var(--garis-tegas);animation:none}
+.titik.mati{background:var(--jingga-tua);animation:none}
+@keyframes denyut{0%{box-shadow:0 0 0 0 rgba(11,117,58,.45)}70%,100%{box-shadow:0 0 0 8px rgba(11,117,58,0)}}
+@media (prefers-reduced-motion:reduce){.titik{animation:none}}
+.cari{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.cari .isian{flex:1 1 220px;min-width:0}
+.cari input,.cari select,.sambung input{width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);border-radius:8px;background:#fff;color:var(--teks)}
+.sambung{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.segmen.bungkus{flex-wrap:wrap;align-self:flex-start}
+.t-daftar{min-width:1000px}
+.t-daftar [role="row"]{grid-template-columns:92px 104px minmax(0,1.3fr) 36px minmax(0,1.6fr) 64px 124px 214px}
+.t-daftar [role="row"].masuk{box-shadow:inset 4px 0 0 var(--hijau);background:#F3F9F5}
+.t-daftar small{display:block;font-size:12px;color:var(--teks-3);overflow-wrap:anywhere}
+.alasan{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.alasan input{flex:1 1 100%;min-width:0;min-height:40px;padding:6px 10px;border:1px solid var(--garis-tegas);border-radius:8px}
+
+@media (max-width:860px){
   .dok button{padding:0 11px}
   .dok button span{display:none}
   .dok button[aria-current="page"] span{display:inline}
+}
+@media (max-width:640px){
+  .angka.empat{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .angka.empat .kartu{padding:14px 16px}
+  .angka.empat .nilai{font-size:26px}
+  .t-daftar{min-width:0}
+  .t-daftar [role="row"].judul{display:none}
+  .t-daftar [role="row"]{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"nama nama status" "nim jk bahasa" "jur jur jur" "waktu waktu waktu" "aksi aksi aksi";gap:4px 12px;padding:14px 4px}
+  .t-daftar [role="row"].masuk{padding-left:12px}
+  .t-daftar .c-waktu{grid-area:waktu;font-size:12px;color:var(--teks-3)}
+  .t-daftar .c-waktu small{display:inline;margin-left:6px;color:var(--hijau-teks);font-weight:600}
+  .t-daftar .c-nim{grid-area:nim;color:var(--teks-2)}
+  .t-daftar .c-nama{grid-area:nama;font-size:14px}
+  .t-daftar .c-jk{grid-area:jk;color:var(--teks-2)}
+  .t-daftar .c-jk::before{content:"JK ";color:var(--teks-3)}
+  .t-daftar .c-bahasa{grid-area:bahasa;color:var(--teks-2)}
+  .t-daftar .c-bahasa::before{content:"B/M ";color:var(--teks-3)}
+  .t-daftar .c-jur{grid-area:jur}
+  .t-daftar .c-status{grid-area:status;text-align:right}
+  .t-daftar .c-aksi{grid-area:aksi;padding-top:6px}
+  .masa-hari{gap:4px}
+  .masa-sel{gap:1px}
+  .masa-minggu small{display:none}
 }
 @media (max-width:560px){
   .puncak{padding:18px 16px 0;gap:10px}
@@ -238,7 +277,10 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
     satuan: 'kabupaten', kab: null, isiPosko: 10, angkatanSql: '',
     nPosko: 12, nBugis: 4, nMakassar: 3, aturan: { bahasa: true, prodi: true, jk: true, fak: true }, penempatan: null, penempatanTersimpan: false,
     berkasData: null, galatBerkas: '', pesertaAktif: null, sumberPeserta: '', dimuat: {},
-    riwayat: [], tanyaKosong: false
+    riwayat: [], tanyaKosong: false,
+    // Tabel pendaftar langsung dari Google Sheet.
+    alamatAdmin: '', kunciAdmin: '', alamatDraft: '', kunciDraft: '', L: null, lStatus: '', lPesan: '', lWaktu: 0,
+    lSaring: 'semua', lFak: '', lCari: '', tolakNim: null, alasan: '', lPesanBaris: '', mengubah: {}, masuk: {}, hanyaVerif: true
   };
 
   var IMPOR = {
@@ -1416,6 +1458,179 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
     return html;
   }
 
+  // ---------------------------------------------------------------- Pendaftar
+  // Jawaban formulir dibaca langsung dari Google Sheet lewat aplikasi web Apps Script
+  // yang sama dengan penerima formulir. Membaca dan mengubah status memerlukan kunci admin.
+  var ALAMAT_BAWAAN = 'https://script.google.com/macros/s/AKfycbxRIzDceksX9st1HmIkNB4B6aosZym5mstbhWQ1xsKAoi43OhRRc87TWB3VcvAJzTkW/exec';
+  var POLA_ALAMAT = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/;
+  var JEDA_CEK = 15000;
+  var POLA_CATATAN = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9]/;
+  function alamatAdmin() { return S.alamatAdmin || ALAMAT_BAWAAN; }
+  function mintaAdmin(isi) {
+    var batas = new AbortController(), jam = setTimeout(function () { batas.abort(); }, 30000);
+    isi.kunci = S.kunciAdmin;
+    // Formulir biasa tanpa kepala khusus, sebab Apps Script tidak melayani preflight.
+    return fetch(alamatAdmin(), { method: 'POST', body: new URLSearchParams(isi), signal: batas.signal }).then(function (r) {
+      clearTimeout(jam);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }, function (e) { clearTimeout(jam); throw e; });
+  }
+  var sedangCek = false;
+  function cekPendaftar() {
+    if (!S.kunciAdmin || sedangCek) return;
+    sedangCek = true;
+    if (!S.L) { S.lStatus = 'muat'; if (S.layar === 'pendaftar') render(); }
+    mintaAdmin({ aksi: 'daftar', versi: S.L ? S.L.versi : '' }).then(function (j) {
+      sedangCek = false;
+      if (!j || !j.ok) {
+        S.lStatus = 'galat';
+        S.lPesan = j && j.kode === 'kunci' ? 'Kunci admin ditolak. Periksa kunci dari fungsi aturKunciAdmin, lalu sambungkan ulang.' : ((j && j.pesan) || 'Jawaban peladen tidak dikenal.');
+      } else {
+        if (!j.sama) {
+          if (S.L) {
+            var lama = {};
+            S.L.baris.forEach(function (b) { lama[b[1]] = true; });
+            j.baris.forEach(function (b) { if (!lama[b[1]]) S.masuk[b[1]] = true; });
+          }
+          S.L = { versi: j.versi, kepala: j.kepala, baris: j.baris };
+        }
+        S.lStatus = 'ok'; S.lPesan = ''; S.lWaktu = Date.now();
+      }
+      if (S.layar === 'pendaftar') render();
+    }, function () {
+      sedangCek = false;
+      S.lStatus = 'galat';
+      S.lPesan = 'Peladen tidak dapat dihubungi. Periksa sambungan internet, alamat aplikasi web, dan pengaturan akses "Siapa saja". Pemeriksaan dicoba lagi otomatis.';
+      if (S.layar === 'pendaftar') render();
+    });
+  }
+  function barisLangsung() {
+    if (!S.L) return [];
+    var k = S.L.kepala, i = function (n) { return k.indexOf(n); };
+    var iS = i('Status'), iC = i('Catatan');
+    return S.L.baris.map(function (b) {
+      return {
+        asli: b, waktu: b[i('Timestamp')] || '', nim: b[i('NIM')] || '', nama: b[i('Nama lengkap')] || '', jk: b[i('Jenis kelamin')] || '',
+        fak: b[i('Fakultas')] || '', jur: b[i('Jurusan')] || '', bugis: b[i('Bahasa Bugis')] || '', makassar: b[i('Bahasa Makassar')] || '',
+        status: (iS >= 0 && b[iS]) || 'Baru', catatan: (iC >= 0 && b[iC]) || ''
+      };
+    });
+  }
+  function jamMenit(ms) { var t = new Date(ms); return ('0' + t.getHours()).slice(-2) + '.' + ('0' + t.getMinutes()).slice(-2) + '.' + ('0' + t.getSeconds()).slice(-2); }
+  function singkatBahasa(v) { return v === 'Aktif' ? 'A' : (v === 'Pasif' ? 'P' : '–'); }
+  var LENCANA_STATUS = { 'Baru': 'l-baru', 'Diverifikasi': 'l-ok', 'Ditolak': 'l-salah' };
+  function pendaftar() {
+    var kepala = '<header class="kepala"><div><h1>Pendaftar</h1><p>Jawaban formulir pendaftaran dibaca langsung dari Google Sheet dan diperiksa ulang setiap ' + (JEDA_CEK / 1000) + ' detik. Admin memverifikasi atau menolak tiap pendaftar, lalu memakai yang lolos untuk penempatan.</p></div></header>';
+    if (!S.kunciAdmin) {
+      return kepala + '<section class="kartu sempit-maks"><div><h2>Sambungkan ke Sheet pendaftaran</h2><p class="sub">Kunci admin dibuat dengan menjalankan fungsi aturKunciAdmin pada proyek Apps Script penerima formulir, lalu disalin dari Log eksekusi. Kunci disimpan di peramban ini saja.</p></div>' +
+        '<div class="sambung"><div class="isian"><label for="l-alamat">Alamat aplikasi web</label><input id="l-alamat" type="url" autocomplete="off" spellcheck="false" value="' + esc(S.alamatDraft || alamatAdmin()) + '"></div>' +
+        '<div class="isian"><label for="l-kunci">Kunci admin</label><input id="l-kunci" type="password" autocomplete="off" spellcheck="false" value="' + esc(S.kunciDraft) + '"></div></div>' +
+        (S.lPesan ? '<p class="peringatan" role="alert">' + esc(S.lPesan) + '</p>' : '') +
+        '<div class="baris"><button type="button" class="tombol utama" data-a="l-sambung">Sambungkan</button></div></section>';
+    }
+    var titik = S.lStatus === 'ok' ? '' : (S.lStatus === 'galat' ? ' mati' : ' muat');
+    var keadaan = S.lStatus === 'ok' ? '<b>Tersambung</b><span>Diperiksa pukul ' + jamMenit(S.lWaktu) + ', berikutnya otomatis.</span>'
+      : (S.lStatus === 'galat' ? '<b>Gangguan</b><span>' + esc(S.lPesan) + '</span>' : '<b>Memuat</b><span>Mengambil data dari Sheet…</span>');
+    var html = kepala + '<section class="kartu"><div class="atas"><div class="siaran" role="status"><span class="titik' + titik + '" aria-hidden="true"></span>' + keadaan + '</div>' +
+      '<div class="baris"><button type="button" class="tombol rapat" data-a="l-segarkan">Periksa sekarang</button><button type="button" class="tombol rapat" data-a="l-putus">Putuskan</button></div></div></section>';
+    if (!S.L) return html;
+
+    var semua = barisLangsung();
+    var jumlah = { semua: semua.length, Baru: 0, Diverifikasi: 0, Ditolak: 0 };
+    semua.forEach(function (r) { jumlah[r.status] = (jumlah[r.status] || 0) + 1; });
+    var nMasuk = semua.filter(function (r) { return S.masuk[r.nim]; }).length;
+    html += '<section class="angka empat">' + [
+      ['Pendaftar', jumlah.semua, nMasuk ? nMasuk + ' masuk sejak halaman dibuka' : 'seluruh isian pada Sheet'],
+      ['Menunggu verifikasi', jumlah.Baru, 'berstatus Baru'],
+      ['Diverifikasi', jumlah.Diverifikasi, 'siap ditempatkan'],
+      ['Ditolak', jumlah.Ditolak, 'tidak ikut penempatan']
+    ].map(function (c) { return '<div class="kartu"><span class="label">' + c[0] + '</span><span class="nilai">' + c[1] + '</span><span class="ket">' + c[2] + '</span></div>'; }).join('') + '</section>';
+
+    var fakultas = semua.map(function (r) { return r.fak; }).filter(function (f, i, a) { return f && a.indexOf(f) === i; }).sort();
+    var cari = kunci(S.lCari);
+    var tampil = semua.filter(function (r) {
+      return (S.lSaring === 'semua' || r.status === S.lSaring) && (!S.lFak || r.fak === S.lFak) &&
+        (!cari || kunci(r.nama).indexOf(cari) >= 0 || r.nim.indexOf(cari) >= 0);
+    }).reverse();
+    var BATAS = 300, terpotong = tampil.length > BATAS;
+    var baris = tampil.slice(0, BATAS).map(function (r) {
+      var aksi;
+      if (S.mengubah[r.nim]) aksi = '<span class="kecil">Menyimpan…</span>';
+      else if (S.tolakNim === r.nim) {
+        aksi = '<div class="alasan"><input id="alasan" type="text" maxlength="200" placeholder="Alasan penolakan" aria-label="Alasan penolakan ' + esc(r.nama) + '" value="' + esc(S.alasan) + '">' +
+          '<button type="button" class="tombol bahaya rapat" data-a="l-tolak-ya:' + r.nim + '">Tolak</button><button type="button" class="tombol rapat" data-a="l-tolak-batal:' + r.nim + '">Batal</button></div>';
+      } else if (r.status === 'Baru') {
+        aksi = '<span class="aksi"><button type="button" class="tombol rapat" data-a="l-verif:' + r.nim + '">Verifikasi</button><button type="button" class="tombol rapat" data-a="l-tolak:' + r.nim + '">Tolak</button></span>';
+      } else {
+        aksi = '<button type="button" class="tombol rapat" data-a="l-kembali:' + r.nim + '">Kembalikan ke Baru</button>';
+      }
+      return '<div role="row"' + (S.masuk[r.nim] ? ' class="masuk"' : '') + '><span role="cell" class="c-waktu angka-rata">' + esc(r.waktu.slice(8, 10) + '/' + r.waktu.slice(5, 7) + ' ' + r.waktu.slice(11, 16).replace(':', '.')) + (S.masuk[r.nim] ? '<small>baru masuk</small>' : '') + '</span>' +
+        '<span role="cell" class="c-nim angka-rata">' + esc(r.nim) + '</span><span role="cell" class="c-nama tebal" style="overflow-wrap:anywhere">' + esc(r.nama) + '</span>' +
+        '<span role="cell" class="c-jk" title="' + esc(r.jk) + '">' + (r.jk === 'Laki-laki' ? 'L' : (r.jk === 'Perempuan' ? 'P' : '–')) + '</span>' +
+        '<span role="cell" class="c-jur" style="overflow-wrap:anywhere">' + esc(r.jur) + '<small>' + esc(r.fak) + '</small></span>' +
+        '<span role="cell" class="c-bahasa" title="Bugis ' + esc(r.bugis) + ', Makassar ' + esc(r.makassar) + '">' + singkatBahasa(r.bugis) + ' / ' + singkatBahasa(r.makassar) + '</span>' +
+        '<span role="cell" class="c-status"><span class="lencana ' + LENCANA_STATUS[r.status] + '">' + esc(r.status) + '</span>' + (r.catatan ? '<small>' + esc(r.catatan) + '</small>' : '') + '</span>' +
+        '<span role="cell" class="c-aksi">' + aksi + '</span></div>';
+    }).join('');
+
+    var segmen = [['semua', 'Semua'], ['Baru', 'Baru'], ['Diverifikasi', 'Diverifikasi'], ['Ditolak', 'Ditolak']].map(function (x) {
+      return tombolPilih('l-saring:' + x[0], x[1] + ' (' + (jumlah[x[0]] || 0) + ')', S.lSaring === x[0]);
+    }).join('');
+    html += '<section class="kartu"><div><h2>Daftar pendaftar</h2><p class="sub">Terbaru di atas. Bahasa ditulis Bugis / Makassar: A aktif, P pasif, – tidak bisa.</p></div>' +
+      '<div class="segmen bungkus" role="group" aria-label="Saring menurut status">' + segmen + '</div>' +
+      '<div class="cari"><div class="isian"><label for="l-cari">Cari nama atau NIM</label><input id="l-cari" type="search" autocomplete="off" value="' + esc(S.lCari) + '"></div>' +
+      '<div class="isian"><label for="l-fak">Fakultas</label><select id="l-fak"><option value="">Semua fakultas</option>' +
+      fakultas.map(function (f) { return '<option' + (S.lFak === f ? ' selected' : '') + '>' + esc(f) + '</option>'; }).join('') + '</select></div></div>' +
+      (S.lPesanBaris ? '<p class="peringatan" role="alert">' + esc(S.lPesanBaris) + '</p>' : '') +
+      '<div class="gulir"><div class="tabel t-daftar" role="table" aria-label="Daftar pendaftar"><div role="row" class="judul">' +
+      ['Masuk', 'NIM', 'Nama', 'JK', 'Jurusan', 'Bahasa', 'Status', 'Tindakan'].map(function (k) { return '<span role="columnheader">' + k + '</span>'; }).join('') + '</div>' + baris + '</div></div>' +
+      (tampil.length ? '' : '<p class="sub">Tidak ada pendaftar yang cocok.</p>') +
+      (terpotong ? '<p class="sub">Menampilkan ' + BATAS + ' dari ' + tampil.length + ' pendaftar. Persempit dengan pencarian atau saringan.</p>' : '') + '</section>';
+
+    var dipakai = semua.filter(function (r) { return r.status !== 'Ditolak' && (!S.hanyaVerif || r.status === 'Diverifikasi'); }).length;
+    html += '<section class="kartu sempit-maks"><div><h2>Pakai untuk penempatan</h2><p class="sub">Pendaftar yang dipilih menggantikan data peserta yang sedang dimuat, lalu dapat diacak pada menu Penempatan. Sheet tidak berubah.</p></div>' +
+      '<label class="setuju" style="display:flex;gap:10px;align-items:flex-start;font-weight:500"><input id="l-hanya" type="checkbox" style="width:20px;height:20px;margin:1px 0 0;flex:none"' + (S.hanyaVerif ? ' checked' : '') + '> Hanya yang sudah diverifikasi (bila tidak dicentang, yang berstatus Baru ikut dipakai)</label>' +
+      '<div class="baris"><button type="button" class="tombol utama" data-a="l-pakai"' + (dipakai ? '' : ' disabled') + '>Pakai ' + dipakai + ' pendaftar</button></div></section>';
+    return html;
+  }
+  function ubahStatusPendaftar(nim, status, catatan) {
+    S.mengubah[nim] = true; S.lPesanBaris = '';
+    if (S.tolakNim === nim) S.tolakNim = null;
+    render();
+    mintaAdmin({ aksi: 'status', nim: nim, status: status, catatan: catatan }).then(function (j) {
+      delete S.mengubah[nim];
+      if (j && j.ok) {
+        var k = S.L.kepala, iS = k.indexOf('Status'), iC = k.indexOf('Catatan');
+        S.L.baris.forEach(function (b) { if (b[1] === nim) { if (iS >= 0) b[iS] = status; if (iC >= 0) b[iC] = catatan; } });
+      } else S.lPesanBaris = 'Status NIM ' + nim + ' belum tersimpan. ' + ((j && j.pesan) || '');
+      if (S.layar === 'pendaftar') render();
+      cekPendaftar();
+    }, function () {
+      delete S.mengubah[nim];
+      S.lPesanBaris = 'Status NIM ' + nim + ' belum tersimpan karena peladen tidak dapat dihubungi. Coba lagi.';
+      if (S.layar === 'pendaftar') render();
+    });
+  }
+  function pakaiPendaftar() {
+    var dipilih = barisLangsung().filter(function (r) { return r.status !== 'Ditolak' && (!S.hanyaVerif || r.status === 'Diverifikasi'); });
+    if (!dipilih.length) return;
+    var hasil = olahPeserta([S.L.kepala].concat(dipilih.map(function (r) { return r.asli; })));
+    var dimuat = hasil.filter(function (h) { return h.peserta; }).map(function (h) { return h.peserta; });
+    if (!dimuat.length) { atur({ lPesanBaris: 'Tidak ada pendaftar yang lolos pemeriksaan isian.' }); return; }
+    var sumber = 'Sheet pendaftaran, ' + new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    var id = S.riwayat.reduce(function (m, r) { return Math.max(m, r.id); }, 0) + 1;
+    S.pesertaAktif = dimuat; S.sumberPeserta = sumber;
+    S.penempatan = null; S.penempatanTersimpan = false;
+    S.nPosko = Math.max(1, Math.min(S.nPosko, dimuat.length));
+    S.nBugis = Math.min(S.nBugis, S.nPosko); S.nMakassar = Math.min(S.nMakassar, S.nPosko - S.nBugis);
+    atur({
+      layar: 'penempatan', lPesanBaris: '',
+      riwayat: [{ id: id, kunci: 'peserta', waktu: new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }), jenis: 'Peserta', berkas: 'Google Sheet pendaftaran (langsung)', baru: dimuat.length, ubah: 0, lewat: hasil.length - dimuat.length, oleh: 'Peramban ini', status: 'Berhasil' }]
+        .concat(S.riwayat.map(function (r) { return r.kunci === 'peserta' && r.status === 'Berhasil' ? Object.assign({}, r, { status: 'Digantikan' }) : r; }))
+    }, 'layar:penempatan');
+  }
+
   // ------------------------------------------------------------------ Riwayat
   function riwayat() {
     var baris = S.riwayat.map(function (r) {
@@ -1465,26 +1680,33 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
     ringkasan: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
     impor: '<path d="M12 15V4M8 8l4-4 4 4M4 15v5h16v-5"/>',
     penempatan: '<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
-    riwayat: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+    riwayat: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    pendaftar: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.6a6.5 6.5 0 0 1 3.5 5.4"/>'
   };
 
   function render(fokusKe) {
     var aktif = document.activeElement;
     var kunci = fokusKe || (aktif && (aktif.getAttribute('data-a') || aktif.id)) || '';
-    menu.innerHTML = [['ringkasan', 'Ringkasan'], ['impor', 'Impor data'], ['penempatan', 'Penempatan'], ['riwayat', 'Riwayat impor']].map(function (n) {
+    // Posisi kursor pada isian teks dipulihkan sesudah halaman digambar ulang.
+    var pilihan = null;
+    try { if (!fokusKe && aktif && aktif.tagName === 'INPUT' && aktif.id && typeof aktif.selectionStart === 'number') pilihan = [aktif.selectionStart, aktif.selectionEnd]; } catch (e) { pilihan = null; }
+    menu.innerHTML = [['ringkasan', 'Ringkasan'], ['pendaftar', 'Pendaftar'], ['impor', 'Impor data'], ['penempatan', 'Penempatan'], ['riwayat', 'Riwayat impor']].map(function (n) {
       return '<button type="button" data-a="layar:' + n[0] + '" title="' + n[1] + '" aria-label="' + n[1] + '"' + (S.layar === n[0] ? ' aria-current="page"' : '') + '>' +
         '<svg viewBox="0 0 24 24" aria-hidden="true">' + IKON_MENU[n[0]] + '</svg><span>' + n[1] + '</span></button>';
     }).join('');
     masa.innerHTML = garisWaktu();
-    utama.innerHTML = S.layar === 'ringkasan' ? ringkasan() : (S.layar === 'impor' ? impor() : (S.layar === 'penempatan' ? penempatan() : riwayat()));
+    utama.innerHTML = S.layar === 'ringkasan' ? ringkasan() : S.layar === 'pendaftar' ? pendaftar() : (S.layar === 'impor' ? impor() : (S.layar === 'penempatan' ? penempatan() : riwayat()));
     if (kunci) {
       var el = document.querySelector('[data-a="' + kunci + '"]') || document.getElementById(kunci);
-      if (el && !el.disabled) el.focus({ preventScroll: true });
+      if (el && !el.disabled) {
+        el.focus({ preventScroll: true });
+        if (pilihan) { try { el.setSelectionRange(pilihan[0], pilihan[1]); } catch (e) { /* jenis isian tanpa kursor */ } }
+      }
     }
   }
   // Data yang dimuat disimpan di peramban ini saja, supaya tidak hilang saat halaman dimuat ulang.
   var KUNCI_SIMPAN = 'kkn-dashboard-v1';
-  var DISIMPAN = ['pesertaAktif', 'sumberPeserta', 'dimuat', 'riwayat', 'penempatan', 'penempatanTersimpan', 'satuan', 'kab', 'isiPosko', 'nPosko', 'nBugis', 'nMakassar', 'aturan', 'angkatanSql'];
+  var DISIMPAN = ['pesertaAktif', 'sumberPeserta', 'dimuat', 'riwayat', 'penempatan', 'penempatanTersimpan', 'satuan', 'kab', 'isiPosko', 'nPosko', 'nBugis', 'nMakassar', 'aturan', 'angkatanSql', 'alamatAdmin', 'kunciAdmin', 'lSaring', 'hanyaVerif'];
   function simpan() {
     try { var d = {}; DISIMPAN.forEach(function (k) { d[k] = S[k]; }); localStorage.setItem(KUNCI_SIMPAN, JSON.stringify(d)); } catch (e) { /* penyimpanan peramban tidak tersedia */ }
   }
@@ -1539,6 +1761,25 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
           : h.baru + ' baris ' + J.nama.toLowerCase() + ' ditambahkan, ' + h.ubah + ' diperbarui, dan ' + h.salah + ' dilewati dari berkas ' + S.berkas + '.'
       }, 'riwayat-buka');
     }
+    else if (a === 'l-sambung') {
+      var alamat = (S.alamatDraft || alamatAdmin()).trim(), kunciBaru = S.kunciDraft.trim();
+      if (!POLA_ALAMAT.test(alamat)) atur({ lPesan: 'Alamat harus berbentuk https://script.google.com/macros/s/.../exec.' }, 'l-alamat');
+      else if (kunciBaru.length < 32) atur({ lPesan: 'Kunci admin terlalu pendek. Salin seluruh kunci dari Log eksekusi.' }, 'l-kunci');
+      else { atur({ alamatAdmin: alamat === ALAMAT_BAWAAN ? '' : alamat, kunciAdmin: kunciBaru, kunciDraft: '', alamatDraft: '', L: null, lStatus: 'muat', lPesan: '', masuk: {} }, 'l-segarkan'); cekPendaftar(); }
+    }
+    else if (a === 'l-putus') atur({ kunciAdmin: '', L: null, lStatus: '', lPesan: '', lPesanBaris: '', tolakNim: null, masuk: {} }, 'l-kunci');
+    else if (a === 'l-segarkan') cekPendaftar();
+    else if (a === 'l-saring') atur({ lSaring: v });
+    else if (a === 'l-verif') ubahStatusPendaftar(v, 'Diverifikasi', '');
+    else if (a === 'l-kembali') ubahStatusPendaftar(v, 'Baru', '');
+    else if (a === 'l-tolak') atur({ tolakNim: v, alasan: '', lPesanBaris: '' }, 'alasan');
+    else if (a === 'l-tolak-batal') atur({ tolakNim: null }, 'l-tolak:' + v);
+    else if (a === 'l-tolak-ya') {
+      var alasan = S.alasan.replace(/\s+/g, ' ').trim();
+      if (alasan && !POLA_CATATAN.test(alasan)) atur({ lPesanBaris: 'Alasan harus diawali huruf atau angka.' }, 'alasan');
+      else ubahStatusPendaftar(v, 'Ditolak', alasan);
+    }
+    else if (a === 'l-pakai') pakaiPendaftar();
     else if (a === 'riwayat-buka') atur({ layar: 'riwayat', langkah: 1, berkas: null, berkasData: null, lewati: false, saring: 'semua' }, 'layar:riwayat');
     else if (a === 'impor-lagi') { atur({ langkah: 1, berkas: null, berkasData: null, lewati: false, saring: 'semua' }); utama.focus({ preventScroll: true }); }
     else if (a === 'acak') {
@@ -1594,6 +1835,8 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
     var t = e.target;
     if (t.id === 'angkatan') atur({ angkatan: t.value });
     else if (t.id === 'lewati') atur({ lewati: t.checked });
+    else if (t.id === 'l-fak') atur({ lFak: t.value });
+    else if (t.id === 'l-hanya') atur({ hanyaVerif: t.checked });
     else if (/^kab-(nama|bahasa|bobot)-\d+$/.test(t.id)) {
       var bagian = t.id.split('-'), baris = S.kab[Number(bagian[2])];
       if (!baris) return;
@@ -1636,8 +1879,19 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
     }
   });
 
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.id === 'l-cari') atur({ lCari: t.value });
+    else if (t.id === 'alasan') S.alasan = t.value;
+    else if (t.id === 'l-kunci') S.kunciDraft = t.value;
+    else if (t.id === 'l-alamat') S.alamatDraft = t.value;
+  });
+
   muat();
   render();
+  cekPendaftar();
+  setInterval(function () { if (document.visibilityState !== 'hidden') cekPendaftar(); }, JEDA_CEK);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') cekPendaftar(); });
 })();
 </script>
 </body>

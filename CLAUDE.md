@@ -47,6 +47,13 @@ judul kolom yang dikenali pengimpor di `/kkn/`. Formulir ini terbuka tanpa masuk
 jadi hanya untuk data karangan sampai ada keputusan tentang pemilik formulir resmi.
 Berkas pendaftar yang dimuat ke dashboard dibaca di peramban dan tidak dikirim ke peladen.
 
+Menu Pendaftar pada `/kkn/` membaca Sheet yang sama lewat aplikasi web yang sama
+(`aksi=daftar`) setiap 15 detik dan dapat mengubah kolom Status serta Catatan
+(`aksi=status`). Kedua permintaan itu memerlukan kunci admin yang ditempel admin pada
+dashboard dan disimpan di `localStorage` peramban itu saja; kunci tidak pernah ditulis
+ke repositori. Isi Sheet tidak disimpan di peramban; hanya pendaftar yang dipakai untuk
+penempatan yang masuk ke data peserta.
+
 ## Arah desain
 
 Atas permintaan pemilik situs, tampilan dirancang agar sederhana, elegan, dan
