@@ -34,12 +34,18 @@ yang dimuat lewat menu Impor data dan disimpan di `localStorage` peramban (kunci
 `kkn-dashboard-v1`), tidak dikirim ke mana pun. Halaman itu diberi `noindex`, serta
 tidak dicantumkan pada `sitemap.xml`. Jangan memasukkan data mahasiswa sungguhan.
 
-Halaman `/kkn/daftar/` adalah formulir uji coba pendaftaran KKN. Sejak pindah ke
-GitHub Pages isiannya tidak dapat disimpan, sehingga tombol kirimnya dinonaktifkan;
-markah Netlify Forms (`pendaftaran-kkn`) dibiarkan sebagai rujukan. Nama tiap isian
-(`nama_lengkap`, `nim`, `jurusan`, `bahasa_bugis`, dan seterusnya) dibaca oleh
-pengimpor di `/kkn/`, jadi jangan diubah tanpa menyesuaikan pengimpornya. Berkas
-pendaftar dibaca di peramban dan tidak pernah dikirim ke peladen.
+Halaman `/kkn/daftar/` adalah formulir uji coba pendaftaran KKN. GitHub Pages tidak
+dapat menyimpan isian, jadi halaman itu mengirim isiannya ke aplikasi web Google Apps
+Script milik pemilik situs, yang menambahkan satu baris ke Google Sheet. Alamatnya
+disimpan pada variabel `ALAMAT_PENERIMA` di dalam halaman; selama kosong atau bukan
+alamat `https://script.google.com/macros/s/.../exec`, tombol kirim tetap nonaktif.
+Kode penerimanya (`terima-pendaftaran.gs`) tidak disimpan di repositori ini. Isian
+dikirim sebagai formulir biasa tanpa kepala khusus, sebab Apps Script tidak melayani
+permintaan pendahuluan (preflight). Pola isian yang diketik (nama, tempat lahir, hobi)
+sama dengan pola pada penerima; ubah keduanya bersamaan. Judul kolom Sheet sama dengan
+judul kolom yang dikenali pengimpor di `/kkn/`. Formulir ini terbuka tanpa masuk akun,
+jadi hanya untuk data karangan sampai ada keputusan tentang pemilik formulir resmi.
+Berkas pendaftar yang dimuat ke dashboard dibaca di peramban dan tidak dikirim ke peladen.
 
 ## Arah desain
 

@@ -16,7 +16,7 @@ selain berkas font yang dimuat dari Google Fonts.
 | `sitemap.xml`  | Peta situs                                    |
 | `kkn/index.html` | Rancangan dashboard admin LKH KKN (hanya menampilkan berkas yang dimuat) |
 | `kkn/Templat-Impor-LKH-KKN.xlsx` | Templat Excel impor data, diunduh dari halaman rancangan |
-| `kkn/daftar/index.html` | Formulir uji coba pendaftaran KKN (pengiriman tidak aktif) |
+| `kkn/daftar/index.html` | Formulir uji coba pendaftaran KKN; jawabannya dikirim ke Google Sheet lewat Apps Script bila `ALAMAT_PENERIMA` diisi |
 
 ## Menjalankan secara lokal
 
