@@ -1485,7 +1485,9 @@ select{min-height:44px;padding:8px 12px;border:1px solid var(--garis-tegas);bord
       sedangCek = false;
       if (!j || !j.ok) {
         S.lStatus = 'galat';
-        S.lPesan = j && j.kode === 'kunci' ? 'Kunci admin ditolak. Periksa kunci dari fungsi aturKunciAdmin, lalu sambungkan ulang.' : ((j && j.pesan) || 'Jawaban peladen tidak dikenal.');
+        S.lPesan = j && j.kode === 'kunci' ? 'Kunci admin ditolak. Periksa kunci dari fungsi aturKunciAdmin, lalu sambungkan ulang.'
+          : j && j.kode === 'isian' ? 'Penerima di Google masih versi lama. Tempel terima-pendaftaran.gs terbaru, lalu terapkan ulang dengan Versi baru.'
+          : ((j && j.pesan) || 'Jawaban peladen tidak dikenal.');
       } else {
         if (!j.sama) {
           if (S.L) {
