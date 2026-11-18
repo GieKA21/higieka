@@ -65,17 +65,16 @@ fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;
 <h1>Pendaftaran KKN</h1>
 <p class="pengantar">Isi data berikut dengan lengkap. Penempatan posko ditentukan panitia secara acak berdasarkan jurusan, jenis kelamin, dan penguasaan bahasa daerah.</p>
 </div>
-<p class="catatan">Formulir uji coba. Formulir ini belum menjadi pendaftaran resmi KKN, dan penyimpanan jawabannya sedang tidak aktif sehingga isian tidak dapat dikirim.</p>
+<p class="catatan" id="catatan">Formulir uji coba. Formulir ini belum menjadi pendaftaran resmi KKN, dan penyimpanan jawabannya sedang tidak aktif sehingga isian tidak dapat dikirim.</p>
 
-<form id="formulir" name="pendaftaran-kkn" method="POST" action="/kkn/daftar/" data-netlify="true" netlify-honeypot="situs">
-<input type="hidden" name="form-name" value="pendaftaran-kkn">
+<form id="formulir" name="pendaftaran-kkn" method="POST" novalidate>
 <p class="sembunyi"><label>Kosongkan kolom ini <input name="situs" tabindex="-1" autocomplete="off"></label></p>
 
 <div class="kartu">
 <h2>Data diri</h2>
 <div class="isian">
 <label for="nama">Nama lengkap</label>
-<input id="nama" name="nama_lengkap" type="text" autocomplete="name" maxlength="120" required>
+<input id="nama" name="nama_lengkap" type="text" autocomplete="name" minlength="2" maxlength="120" required>
 </div>
 <div class="dua">
 <div class="isian">
@@ -94,7 +93,7 @@ fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;
 <div class="dua">
 <div class="isian">
 <label for="tempat">Tempat lahir</label>
-<input id="tempat" name="tempat_lahir" type="text" maxlength="80" required>
+<input id="tempat" name="tempat_lahir" type="text" minlength="2" maxlength="80" required>
 </div>
 <div class="isian">
 <label for="tanggal">Tanggal lahir</label>
@@ -244,6 +243,9 @@ fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;
   var galat = document.getElementById('galat');
   var tombol = document.getElementById('kirim');
   var tanggal = document.getElementById('tanggal');
+  // Alamat aplikasi web Apps Script yang menampung jawaban (berakhiran /exec).
+  // Selama kosong, tombol kirim tetap nonaktif.
+  var ALAMAT_PENERIMA = '';
   tanggal.max = new Date().toISOString().slice(0, 10);
 
   // Daftar jurusan mengikuti fakultas yang dipilih. Tanpa JavaScript, semua
@@ -276,41 +278,81 @@ fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;
     ['jurusan', 'Jurusan'], ['hobi', 'Hobi'], ['bahasa_bugis', 'Bahasa Bugis'], ['bahasa_makassar', 'Bahasa Makassar']
   ];
 
+  // Isian yang diketik diperiksa dengan pola yang sama dengan pola pada penerima.
+  var POLA = {
+    nama: [/^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ0-9 .,'’`-]*$/, 'Hanya huruf, angka, spasi, titik, koma, dan tanda petik, diawali huruf.'],
+    tempat: [/^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ0-9 .,'’`-]*$/, 'Hanya huruf, angka, spasi, titik, koma, dan tanda petik, diawali huruf.'],
+    hobi: [/^[A-Za-zÀ-ÖØ-öø-ÿ0-9][A-Za-zÀ-ÖØ-öø-ÿ0-9 .,'’`&()\/-]*$/, 'Hanya huruf, angka, spasi, dan tanda baca biasa, diawali huruf atau angka.']
+  };
+  function periksaPola() {
+    Object.keys(POLA).forEach(function (id) {
+      var el = document.getElementById(id), v = el.value.replace(/\s+/g, ' ').trim();
+      el.setCustomValidity(v === '' || POLA[id][0].test(v) ? '' : POLA[id][1]);
+    });
+  }
+  Object.keys(POLA).forEach(function (id) { document.getElementById(id).addEventListener('input', periksaPola); });
+
+  var aktif = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(ALAMAT_PENERIMA);
+  if (aktif) {
+    document.getElementById('catatan').textContent = 'Formulir uji coba, belum menjadi pendaftaran resmi KKN. Isian tersimpan pada lembar kerja milik penguji, jadi gunakan data karangan.';
+    tombol.disabled = false;
+    tombol.style.cursor = '';
+    tombol.textContent = 'Kirim pendaftaran';
+  }
+
+  function tampilGalat(pesan) {
+    galat.textContent = pesan;
+    galat.hidden = false;
+    tombol.disabled = false;
+    tombol.textContent = 'Kirim pendaftaran';
+  }
+  function tampilBerhasil(data, sudahAda) {
+    var rekap = document.getElementById('rekap');
+    rekap.textContent = '';
+    LABEL.forEach(function (l) {
+      var dt = document.createElement('dt'), dd = document.createElement('dd');
+      dt.textContent = l[1];
+      dd.textContent = l[0] === 'jenis_kelamin' ? (data.get(l[0]) === 'L' ? 'Laki-laki' : 'Perempuan') : data.get(l[0]);
+      rekap.appendChild(dt); rekap.appendChild(dd);
+    });
+    form.hidden = true;
+    var berhasil = document.getElementById('berhasil');
+    berhasil.querySelector('p').textContent = sudahAda
+      ? 'Data berikut telah tersimpan sejak pengiriman sebelumnya dan tidak dicatat dua kali. Penempatan posko diumumkan oleh panitia.'
+      : 'Data berikut telah diterima. Penempatan posko diumumkan oleh panitia.';
+    berhasil.hidden = false;
+    berhasil.focus();
+  }
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
+    if (!aktif) return;
+    galat.hidden = true;
     // Rapikan spasi berlebih pada isian yang diketik.
     ['nama', 'tempat', 'hobi'].forEach(function (id) {
       var el = document.getElementById(id);
       el.value = el.value.replace(/\s+/g, ' ').trim();
     });
+    periksaPola();
     if (!form.reportValidity()) return;
     var data = new FormData(form);
-    galat.hidden = true;
     tombol.disabled = true;
     tombol.textContent = 'Mengirim…';
-    fetch(form.getAttribute('action'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(data).toString()
-    }).then(function (r) {
+    var batas = new AbortController();
+    var jam = setTimeout(function () { batas.abort(); }, 45000);
+    // Isian dikirim sebagai formulir biasa (tanpa kepala khusus), sebab penerima
+    // di Google tidak melayani permintaan pendahuluan (preflight).
+    fetch(ALAMAT_PENERIMA, { method: 'POST', body: new URLSearchParams(data), signal: batas.signal }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      var rekap = document.getElementById('rekap');
-      rekap.textContent = '';
-      LABEL.forEach(function (l) {
-        var dt = document.createElement('dt'), dd = document.createElement('dd');
-        dt.textContent = l[1];
-        dd.textContent = l[0] === 'jenis_kelamin' ? (data.get(l[0]) === 'L' ? 'Laki-laki' : 'Perempuan') : data.get(l[0]);
-        rekap.appendChild(dt); rekap.appendChild(dd);
-      });
-      form.hidden = true;
-      var berhasil = document.getElementById('berhasil');
-      berhasil.hidden = false;
-      berhasil.focus();
-    }).catch(function (err) {
-      galat.textContent = 'Pendaftaran belum tersimpan (' + err.message + '). Periksa sambungan internet lalu coba lagi. Bila tetap gagal, penyimpanan formulir pada situs ini belum diaktifkan.';
-      galat.hidden = false;
-      tombol.disabled = false;
-      tombol.textContent = 'Kirim pendaftaran';
+      return r.json();
+    }).then(function (j) {
+      clearTimeout(jam);
+      if (j && j.ok) return tampilBerhasil(data, !!j.sudahAda);
+      if (j && j.kode === 'ganda') return tampilGalat('NIM ini sudah terdaftar dengan isian yang berbeda. Satu NIM hanya dapat mendaftar satu kali.');
+      tampilGalat((j && j.pesan) || 'Pendaftaran belum tersimpan. Coba kirim lagi.');
+    }).catch(function () {
+      clearTimeout(jam);
+      tampilGalat('Jawaban peladen tidak sampai, sehingga belum dapat dipastikan pendaftaran ini tersimpan. Periksa sambungan internet lalu tekan Kirim pendaftaran sekali lagi; isian yang telah tersimpan tidak akan tercatat dua kali.');
     });
   });
 })();
