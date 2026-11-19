@@ -73,8 +73,11 @@ korpus (filter periode, relevansi kata kunci, bahasa, Melayu, deduplikasi, pseud
 HMAC, penyamaran kontak, subset seimbang, sampel verifikasi) dan memeriksa ulang lewat
 oEmbed X dan TikTok. Keluaran berupa CSV, `DATA_SIAP_PAKAI.xlsx` (SheetJS), log JSONL,
 dan `MANIFEST.json` berisi hash SHA-256, dikemas dengan JSZip; kedua pustaka dimuat dari
-cdnjs. Token tidak pernah disimpan; antrean run, draf, dan kunci pseudonim disimpan di
-`localStorage` peramban pengguna. Pemetaan kolom aktor mengikuti `korpus_agama.py`.
+cdnjs. Token tidak pernah disimpan. Riwayat bekerja tanpa akun: daftar proyek (config
+dan antrean run), log, draf, dan kunci pseudonim disimpan di `localStorage`, sedangkan
+hasil olahan dan salinan data mentah per run disimpan di IndexedDB (basis data `pukat`,
+store `hasil` dan `mentah`) pada peramban pengguna. Bila data peramban hilang, run dapat
+dipulihkan dari riwayat run di akun Apify. Pemetaan kolom aktor mengikuti `korpus_agama.py`.
 Jangan menambahkan token, kunci, atau data mentah ke repositori.
 
 ## Arah desain

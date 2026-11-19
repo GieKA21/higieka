@@ -435,9 +435,28 @@ td a{color:var(--accent)}
 
   <div class="banner" id="banner" hidden><span aria-hidden="true">●</span><span id="bannerTxt"></span></div>
 
+  <section class="panel" style="margin-bottom:18px" aria-labelledby="h-riwayat">
+    <div class="panel-head"><h2 id="h-riwayat">Riwayat proyek</h2><span class="hint">tersimpan di peramban ini</span></div>
+    <div id="riwayatEmpty" class="empty">Belum ada proyek. Setiap kali Jalankan ditekan, proyek baru tercatat di sini beserta run, log, dan hasilnya.</div>
+    <div class="tbl-wrap" id="riwayatWrap" hidden>
+      <table>
+        <thead><tr><th>Proyek</th><th>Dibuat</th><th class="r">Run</th><th class="r">Dokumen</th><th class="r">Biaya</th><th>Status</th><th></th></tr></thead>
+        <tbody id="riwayatBody"></tbody>
+      </table>
+    </div>
+    <details class="adv" style="margin-top:14px">
+      <summary>Pulihkan dari akun Apify</summary>
+      <div class="adv-body">
+        <p class="hint">Untuk peramban atau laptop lain, atau bila data peramban terhapus: Apify menyimpan riwayat run di akun Anda. Pilih run yang ingin dimasukkan kembali, lalu olah ulang tanpa biaya selama datasetnya belum kedaluwarsa.</p>
+        <div class="btnrow"><button type="button" id="btnApifyHist">Baca riwayat run Apify</button></div>
+        <div id="apifyHist"></div>
+      </div>
+    </details>
+  </section>
+
   <section class="panel" style="margin-bottom:18px">
     <div class="panel-head"><h2>Antrean run</h2><span class="hint" id="queueMeta"></span></div>
-    <div id="queueEmpty" class="empty">Belum ada run. Jalankan dari halaman Proyek, atau olah run lama di bawah.</div>
+    <div id="queueEmpty" class="empty">Belum ada proyek aktif. Jalankan dari halaman Proyek, buka proyek dari riwayat, atau olah run lama di bawah.</div>
     <div class="tbl-wrap" id="queueWrap" hidden>
       <table>
         <thead><tr><th>Platform</th><th>Periode</th><th>Run ID</th><th>Status</th><th class="r">Item</th><th class="r">Biaya</th><th></th></tr></thead>
@@ -447,7 +466,7 @@ td a{color:var(--accent)}
     <div class="btnrow" style="margin-top:12px">
       <button type="button" id="btnOlah" class="primary" disabled>Olah hasil</button>
       <button type="button" id="btnAbortAll" disabled>Hentikan semua run</button>
-      <button type="button" id="btnReset" class="ghost">Kosongkan antrean</button>
+      <button type="button" id="btnReset" class="ghost">Tutup proyek</button>
     </div>
     <details class="adv" style="margin-top:14px">
       <summary>Olah run yang sudah ada</summary>
@@ -612,18 +631,51 @@ let keywords = [...DEFAULT_KW];
 let oldIds = new Set(); let oldIdCount = 0;
 let token = '';
 let account = null; // {plan, free, left, ret}
-let queue = store.get('pukat-antrean', []);  // [{runId, platform, periode, datasetId, status, items, usd, actor, input, started, finished, build}]
-let projSnap = store.get('pukat-proyek-run', null); // config snapshot of the running project
-let hasil = null;   // processed result
-let rawCache = {};  // runId -> items
-const logLines = [];
+
+// ================= PENYIMPANAN LOKAL =================
+// localStorage: daftar proyek (config + antrean run) dan log. IndexedDB: hasil olahan dan data mentah per run.
+const IDB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('pukat', 1);
+    r.onupgradeneeded = () => { const d = r.result; d.createObjectStore('hasil'); d.createObjectStore('mentah'); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const tx = async (s, mode, fn) => { const d = await open(); return new Promise((res, rej) => { const t = d.transaction(s, mode); const req = fn(t.objectStore(s)); t.oncomplete = () => res(req && req.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); }); };
+  return {
+    get: (s, k) => tx(s, 'readonly', o => o.get(k)).catch(() => undefined),
+    put: (s, k, v) => tx(s, 'readwrite', o => o.put(v, k)).then(() => true).catch(e => { log('Gagal menyimpan ke peramban: ' + (e && e.message || e)); return false; }),
+    del: (s, k) => tx(s, 'readwrite', o => o.delete(k)).catch(() => {})
+  };
+})();
+let projects = store.get('pukat-proyek', []);
+// migrasi dari versi sebelumnya (satu antrean tanpa riwayat)
+(() => {
+  const lama = store.get('pukat-antrean', null), snap = store.get('pukat-proyek-run', null);
+  if (Array.isArray(lama) && lama.length && !projects.length){
+    projects.push({id: 'p' + Date.now().toString(36), nama: (snap && snap.cfg && snap.cfg.proyek) || 'proyek lama', dibuat: (snap && snap.dibuat) || new Date().toISOString(), cfg: snap ? snap.cfg : null, akun: snap ? snap.akun : null, queue: lama});
+    store.set('pukat-aktif', projects[0].id);
+  }
+  store.del('pukat-antrean'); store.del('pukat-proyek-run');
+})();
+let projSnap = projects.find(p => p.id === store.get('pukat-aktif', null)) || null; // proyek aktif
+let queue = projSnap ? projSnap.queue : [];  // [{runId, platform, periode, datasetId, status, items, usd, actor, input, started, finished, build}]
+let hasil = null;   // hasil olahan proyek aktif
+let rawCache = {};  // runId -> items (cache memori; salinan tetap di IndexedDB)
+const saveProjects = () => { try{ localStorage.setItem('pukat-proyek', JSON.stringify(projects)); }catch(e){ console.warn(e); } };
+let logLines = projSnap ? store.get('pukat-log-' + projSnap.id, []) : [];
+let logTimer = null;
 
 // ================= LOG =================
 function log(msg){
-  const t = new Date().toLocaleTimeString('id-ID', {hour12:false});
-  logLines.push(`[${t}] ${msg}`);
-  const el = $('#log'); el.textContent = logLines.slice(-400).join('\n'); el.scrollTop = el.scrollHeight;
+  const t = new Date();
+  const stamp = t.toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit'}) + ' ' + t.toLocaleTimeString('id-ID', {hour12:false});
+  logLines.push(`[${stamp}] ${msg}`);
+  if (logLines.length > 3000) logLines = logLines.slice(-3000);
+  renderLog();
+  if (projSnap){ const id = projSnap.id; clearTimeout(logTimer); logTimer = setTimeout(() => store.set('pukat-log-' + id, logLines), 400); }
 }
+function renderLog(){ const el = $('#log'); el.textContent = logLines.slice(-400).join('\n'); el.scrollTop = el.scrollHeight; }
 function toast(msg){
   const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role','status'); t.textContent = msg;
   document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
@@ -882,14 +934,32 @@ $('#saveDraft').onclick = () => { store.set('pukat-draf', config()); toast('Draf
 
 // ================= JALANKAN =================
 const isActive = s => ['READY','RUNNING','MEMULAI','TIMING-OUT','ABORTING'].includes(s);
-const saveQueue = () => store.set('pukat-antrean', queue.map(q => ({...q})));
+const saveQueue = () => { if (projSnap){ projSnap.queue = queue; projSnap.diubah = new Date().toISOString(); } saveProjects(); renderRiwayat(); };
+function buatProyek(cfg, extra){
+  const p = {id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,5), nama: cfg.proyek, dibuat: new Date().toISOString(), cfg, akun: account ? account.user : null, queue: [], ...extra};
+  projects.unshift(p); aktifkan(p, true); return p;
+}
+function aktifkan(p, baru){
+  if (oeRunning) oeStop = true;
+  projSnap = p; queue = p ? p.queue : []; hasil = null; rawCache = {};
+  store.set('pukat-aktif', p ? p.id : null);
+  logLines = p && !baru ? store.get('pukat-log-' + p.id, []) : [];
+  renderLog(); saveProjects(); renderQueue(); renderHasil(); renderRiwayat();
+  if (p && !baru) muatHasil(p);
+}
+async function muatHasil(p){
+  const h = await IDB.get('hasil', p.id);
+  if (h && projSnap === p){ hasil = h; renderHasil(); banner(`Hasil tersimpan dimuat: ${fmt.format(h.rows.length)} dokumen bersih (diolah ${new Date(h.dibuat).toLocaleString('id-ID')}).`, 'ok'); }
+  else if (p.queue.some(q => isActive(q.status) || q.status === 'ANTRE')) banner('Proyek ini masih punya run berjalan. Uji token di halaman Proyek untuk melanjutkan pemantauan.', 'warn');
+  else if (p.queue.some(q => q.datasetId)) banner('Hasil olahan belum tersimpan. Tekan “Olah hasil” untuk mengolah ulang dari data run.', 'warn');
+  else banner('');
+}
 $('#form').addEventListener('submit', async e => {
   e.preventDefault(); update(); if ($('#runBtn').disabled) return;
   const {cfg, pl} = last;
-  queue = pl.runs.map(r => ({platform: r.platform, periode: r.periode, actor: PF[r.platform].actor, input: r.input, maxItems: r.maxItems, maxUsd: r.maxUsd, status:'ANTRE', items:0, usd:0}));
-  projSnap = {cfg, dibuat: new Date().toISOString(), akun: account ? account.user : null};
-  store.set('pukat-proyek-run', projSnap); hasil = null; rawCache = {};
-  saveQueue(); log(`Proyek ${cfg.proyek}: ${queue.length} run disiapkan.`);
+  const p = buatProyek(cfg);
+  queue = p.queue = pl.runs.map(r => ({platform: r.platform, periode: r.periode, actor: PF[r.platform].actor, input: r.input, maxItems: r.maxItems, maxUsd: r.maxUsd, status:'ANTRE', items:0, usd:0}));
+  saveQueue(); log(`Proyek ${cfg.proyek} dibuat: ${queue.length} run disiapkan.`);
   location.hash = 'hasil'; renderQueue(); renderHasil();
   startQueue();
 });
@@ -950,14 +1020,15 @@ $('#btnAbortAll').onclick = async () => {
   saveQueue(); renderQueue();
 };
 $('#btnReset').onclick = () => {
-  if (queue.some(q => isActive(q.status))){ toast('Hentikan run yang masih berjalan dulu.'); return; }
-  queue = []; hasil = null; rawCache = {}; saveQueue(); store.del('pukat-proyek-run'); projSnap = null; banner(''); renderQueue(); renderHasil(); update();
+  if (pumping){ toast('Tunggu antrean selesai atau hentikan run dulu.'); return; }
+  aktifkan(null); banner(''); update(); toast('Proyek ditutup. Masih bisa dibuka lagi dari Riwayat proyek.');
 };
-$('#btnImport').onclick = async () => {
+$('#btnImport').onclick = () => imporRun($('#oldRuns').value.split(/[\s,]+/).map(s => s.trim()).filter(Boolean));
+async function imporRun(ids){
   if (!token){ toast('Uji token Apify dulu di halaman Proyek.'); return; }
-  const ids = $('#oldRuns').value.split(/[\s,]+/).map(s => s.trim()).filter(Boolean);
-  if (!ids.length){ toast('Isi minimal satu run ID.'); return; }
-  if (!projSnap){ projSnap = {cfg: config(), dibuat: new Date().toISOString(), akun: account ? account.user : null, impor: true}; store.set('pukat-proyek-run', projSnap); }
+  if (!ids.length){ toast('Pilih atau isi minimal satu run ID.'); return; }
+  if (pumping){ toast('Tunggu antrean yang sedang berjalan selesai dulu.'); return; }
+  if (!projSnap){ const c = config(); buatProyek(c, {impor: true, nama: c.proyek + ' (pulihan)'}); }
   for (const id of ids){
     if (queue.some(q => q.runId === id)) continue;
     try{
@@ -971,6 +1042,24 @@ $('#btnImport').onclick = async () => {
     }catch(err){ log(`Run ${id} tidak dapat dibaca: ${err.message}`); }
   }
   saveQueue(); await pollAllDone(); renderQueue();
+  if (queue.some(q => isActive(q.status))) startQueue();
+}
+$('#btnApifyHist').onclick = async () => {
+  if (!token){ toast('Uji token Apify dulu di halaman Proyek.'); return; }
+  const box = $('#apifyHist'); box.innerHTML = '<p class="hint">Membaca riwayat run di akun Apify…</p>';
+  try{
+    const runs = (await api('/actor-runs?desc=1&limit=100')).data.items || [];
+    const actCache = {}; const rows = [];
+    for (const r of runs){
+      if (!(r.actId in actCache)){ try{ const a = (await api(`/acts/${r.actId}`)).data; actCache[r.actId] = `${a.username}/${a.name}`.toLowerCase(); }catch(_){ actCache[r.actId] = ''; } }
+      const pid = ACTOR_PF[actCache[r.actId]]; if (pid) rows.push({r, pid});
+    }
+    if (!rows.length){ box.innerHTML = '<p class="hint">Tidak ada run dari keempat aktor Pukat di 100 run terakhir.</p>'; return; }
+    const sudah = new Set(projects.flatMap(p => p.queue.map(q => q.runId)));
+    box.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th></th><th>Platform</th><th>Mulai</th><th>Run ID</th><th>Status</th><th class="r">Biaya</th></tr></thead><tbody>${rows.map(({r, pid}) => `<tr><td><input type="checkbox" value="${r.id}" aria-label="Pilih run ${r.id}" ${sudah.has(r.id) ? 'disabled' : ''}></td><td><span class="pdot" style="--c:${PF[pid].c}"></span>${PF[pid].name}</td><td class="num">${new Date(r.startedAt).toLocaleString('id-ID')}</td><td class="mono">${r.id}${sudah.has(r.id) ? ' <span class="tag">sudah ada</span>' : ''}</td><td>${pill(r.status)}</td><td class="r">${usd(r.usageTotalUsd)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="btnrow" style="margin-top:10px"><button type="button" class="small" id="btnHistAdd">Tambahkan yang dipilih</button><span class="hint">Dataset paket gratis hanya disimpan Apify selama 7 hari.</span></div>`;
+    $('#btnHistAdd').onclick = () => imporRun([...box.querySelectorAll('input:checked')].map(i => i.value));
+  }catch(err){ box.innerHTML = `<p class="hint">Gagal membaca riwayat: ${esc(err.message)}</p>`; }
 };
 async function pollAllDone(){
   for (const q of queue.filter(q => q.datasetId && !q.items)){ try{ q.items = (await api(`/datasets/${q.datasetId}`)).data.itemCount || 0; }catch(_){} }
@@ -1100,18 +1189,21 @@ const reMelayu = new RegExp('(^|[^\\p{L}])(' + MELAYU.map(reEsc).join('|') + ')(
 // ================= OLAH =================
 async function ambilDataset(q){
   if (rawCache[q.runId]) return rawCache[q.runId];
+  const simpan = await IDB.get('mentah', q.runId);
+  if (Array.isArray(simpan)){ rawCache[q.runId] = simpan; log(`Data mentah ${q.runId} dibaca dari salinan di peramban.`); return simpan; }
+  if (!token) throw new Error('data belum tersalin di peramban dan token belum diuji');
   const out = []; let off = 0;
   while (true){
     const r = await fetch(`${API}/datasets/${q.datasetId}/items?clean=true&format=json&limit=1000&offset=${off}`, {headers:{Authorization:'Bearer ' + token}});
     if (!r.ok) throw new Error(`dataset ${q.datasetId}: HTTP ${r.status}`);
     const arr = await r.json(); out.push(...arr); if (arr.length < 1000) break; off += 1000;
   }
-  rawCache[q.runId] = out; return out;
+  rawCache[q.runId] = out; await IDB.put('mentah', q.runId, out); return out;
 }
 
 async function olah(){
-  if (!token){ toast('Uji token Apify dulu.'); location.hash = 'proyek'; return; }
-  const cfg = (projSnap && projSnap.cfg) || config();
+  if (!projSnap){ toast('Belum ada proyek aktif.'); return; }
+  const cfg = projSnap.cfg || config();
   $('#btnOlah').disabled = true; banner('Mengunduh dataset dan mengolah korpus…', 'warn');
   try{
     hmacKey = null;
@@ -1207,8 +1299,12 @@ async function olah(){
       });
     }
     const alasan = {}; kand.forEach(c => { alasan[c.alasan] = (alasan[c.alasan] || 0) + 1; });
-    hasil = {cfg, rows, kand, alasan, logT, sidikKunci, dibuat: new Date().toISOString(), runs: runsOk.map(q => ({...q, input: q.input}))};
-    log(`Pengolahan selesai: ${fmt.format(kand.length)} kandidat → ${fmt.format(rows.length)} dokumen bersih.`);
+    const kandLite = kand.map(c => ({pid: c.pid, alasan: c.alasan, r: {post_id: c.r.post_id || null, teks: c.alasan === 'LOLOS' && c.pid === 'x' ? String(c.r.teks || '') : undefined}}));
+    hasil = {cfg, rows, kand: kandLite, alasan, logT, sidikKunci, dibuat: new Date().toISOString(), runs: runsOk.map(q => ({...q}))};
+    projSnap.ringkas = {kandidat: kand.length, bersih: rows.length, biaya: runsOk.reduce((a,q) => a + (q.usd||0), 0), diolah: hasil.dibuat};
+    saveProjects(); renderRiwayat();
+    const ok = await IDB.put('hasil', projSnap.id, hasil);
+    log(`Pengolahan selesai: ${fmt.format(kand.length)} kandidat → ${fmt.format(rows.length)} dokumen bersih.${ok ? ' Hasil tersimpan di peramban ini.' : ''}`);
     banner(`Korpus siap: ${fmt.format(rows.length)} dokumen bersih dari ${fmt.format(kand.length)} kandidat. Unduh hasilnya di bawah.`, 'ok');
     renderHasil();
     if (cfg.verifikasi.oembed && rows.some(r => r.status_verifikasi_daring === 'BELUM_DICEK')) cekOembed();
@@ -1226,13 +1322,15 @@ function pilihSeimbang(list, n, bulanFn, r){
 }
 
 // ================= oEMBED =================
-let oeRunning = false;
+let oeRunning = false, oeStop = false;
 async function cekOembed(){
-  if (!hasil || oeRunning) return; oeRunning = true; $('#btnOembed').disabled = true;
+  if (!hasil || oeRunning) return; oeRunning = true; oeStop = false; $('#btnOembed').disabled = true;
   const target = hasil.rows.filter(r => r.status_verifikasi_daring === 'BELUM_DICEK');
   const byId = new Map(hasil.kand.filter(c => c.alasan === 'LOLOS').map(c => [c.pid + ':' + c.r.post_id, c]));
+  const proyekOe = projSnap, hOe = hasil;
   let n = 0; log(`Cek oEmbed dimulai untuk ${target.length} dokumen (jeda 1,5 detik).`);
   for (const row of target){
+    if (oeStop || projSnap !== proyekOe){ if (proyekOe) await IDB.put('hasil', proyekOe.id, hOe); log('Cek oEmbed dihentikan karena proyek ditutup atau diganti; status yang sudah dicek tetap tersimpan.'); break; }
     n++; $('#oeProg').textContent = `${n}/${target.length}`;
     const pid = row.platform === 'TikTok' ? 'tiktok' : 'x'; const c = byId.get(pid + ':' + row.id_unggahan);
     try{
@@ -1254,7 +1352,7 @@ async function cekOembed(){
         row.status_verifikasi_daring = r.ok ? 'ADA_TEKS_TIDAK_DAPAT_DICEK' : (r.status === 404 || r.status === 400 ? 'TIDAK_DITEMUKAN' : 'GAGAL_DICEK');
       }
     }catch(_){ row.status_verifikasi_daring = 'GAGAL_DICEK'; }
-    if (n % 10 === 0 || n === target.length) renderHasil();
+    if (n % 10 === 0 || n === target.length){ renderHasil(); if (proyekOe && projSnap === proyekOe) await IDB.put('hasil', proyekOe.id, hasil); }
     await sleep(1500);
   }
   log('Cek oEmbed selesai.'); oeRunning = false; $('#btnOembed').disabled = false; $('#oeProg').textContent = ''; renderHasil();
@@ -1380,13 +1478,55 @@ document.querySelector('.dl').addEventListener('click', async e => {
     if (b.dataset.dl === 'csv') download('korpus_final_semua.csv', toCSV(hasil.rows), 'text/csv;charset=utf-8');
     if (b.dataset.dl === 'manifest') download('MANIFEST.json', JSON.stringify(await buatManifest({}), null, 2), 'application/json');
     if (b.dataset.dl === 'raw'){
-      const raw = {peringatan: 'DATA TERBATAS: memuat nama akun dan teks asli. Jangan dibagikan atau diunggah ke repositori publik.', runs: hasil.runs.map(q => ({run_id: q.runId, platform: q.platform, items: rawCache[q.runId] || []}))};
+      const runs = [];
+      for (const q of hasil.runs) runs.push({run_id: q.runId, platform: q.platform, items: rawCache[q.runId] || await IDB.get('mentah', q.runId) || []});
+      const raw = {peringatan: 'DATA TERBATAS: memuat nama akun dan teks asli. Jangan dibagikan atau diunggah ke repositori publik.', runs};
       download(`${nama}_MENTAH_AUDIT_TERBATAS.json`, JSON.stringify(raw), 'application/json');
     }
   }catch(err){ toast(err.message); log('Unduhan gagal: ' + err.message); }
   finally { b.disabled = false; }
 });
 $('#btnLogDl').onclick = () => download('log_pukat.txt', logLines.join('\n'), 'text/plain');
+
+
+// ================= RIWAYAT PROYEK =================
+let hapusArm = null;
+function renderRiwayat(){
+  const el = $('#riwayatBody'); if (!el) return;
+  $('#riwayatEmpty').hidden = projects.length > 0; $('#riwayatWrap').hidden = projects.length === 0;
+  el.innerHTML = projects.map(p => {
+    const aktif = projSnap && projSnap.id === p.id;
+    const jalan = p.queue.some(q => isActive(q.status) || q.status === 'ANTRE');
+    const st = jalan ? '<span class="pill run">Run berjalan</span>' : p.ringkas ? '<span class="pill ok">Sudah diolah</span>' : p.queue.length ? '<span class="pill idle">Belum diolah</span>' : '<span class="pill idle">Kosong</span>';
+    return `<tr${aktif ? ' style="background:var(--accent-soft)"' : ''}>
+      <td><b>${esc(p.nama)}</b>${aktif ? ' <span class="tag">aktif</span>' : ''}${p.impor ? ' <span class="tag">impor</span>' : ''}</td>
+      <td class="num">${new Date(p.dibuat).toLocaleString('id-ID', {dateStyle:'medium', timeStyle:'short'})}</td>
+      <td class="r">${p.queue.length}</td><td class="r">${p.ringkas ? fmt.format(p.ringkas.bersih) : '–'}</td>
+      <td class="r">${usd(p.queue.reduce((a,q) => a + (q.usd||0), 0))}</td><td>${st}</td>
+      <td style="text-align:right">${aktif ? '' : `<button type="button" class="small" data-buka="${p.id}">Buka</button> `}<button type="button" class="small ghost" data-hapus="${p.id}">${hapusArm === p.id ? 'Yakin hapus?' : 'Hapus'}</button></td></tr>`;
+  }).join('');
+}
+$('#riwayatBody').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.buka){
+    if (pumping){ toast('Tunggu antrean run yang sedang berjalan selesai dulu.'); return; }
+    const p = projects.find(x => x.id === b.dataset.buka); aktifkan(p); log(`Proyek ${p.nama} dibuka dari riwayat.`);
+    if (token && p.queue.some(q => isActive(q.status) || q.status === 'ANTRE')) startQueue();
+  }
+  if (b.dataset.hapus){
+    const id = b.dataset.hapus;
+    if (hapusArm !== id){ hapusArm = id; renderRiwayat(); setTimeout(() => { if (hapusArm === id){ hapusArm = null; renderRiwayat(); } }, 4000); return; }
+    hapusArm = null;
+    const p = projects.find(x => x.id === id);
+    if (p.queue.some(q => isActive(q.status))){ toast('Proyek masih punya run berjalan. Hentikan dulu.'); return; }
+    if (projSnap && projSnap.id === id){ if (pumping){ toast('Tunggu antrean run selesai dulu.'); return; } aktifkan(null); }
+    projects = projects.filter(x => x.id !== id); saveProjects();
+    const dipakai = new Set(projects.flatMap(x => x.queue.map(q => q.runId)));
+    for (const q of p.queue) if (q.runId && !dipakai.has(q.runId)) await IDB.del('mentah', q.runId);
+    await IDB.del('hasil', id); store.del('pukat-log-' + id);
+    renderRiwayat(); toast(`Proyek ${p.nama} dihapus dari peramban ini. Run di akun Apify tidak ikut terhapus.`);
+  }
+});
 
 // ================= ROUTING =================
 function route(){
@@ -1398,9 +1538,9 @@ function route(){
 addEventListener('hashchange', route);
 addEventListener('beforeunload', e => { if (pumping || oeRunning){ e.preventDefault(); e.returnValue = ''; } });
 window.__pukat = {adapter, buatPencocok, bahasa, jenisMedia, get hasil(){ return hasil; }, _setTest(t, q){ token = t; queue = q; }};
-renderChips(); update(); route(); renderQueue(); renderHasil();
-if (queue.length){ log(`Antrean tersimpan: ${queue.length} run. Uji token untuk melanjutkan.`); if (queue.some(q => isActive(q.status) || q.status==='ANTRE')) banner('Ada run dari sesi sebelumnya. Uji token di halaman Proyek untuk melanjutkan pemantauan.', 'warn'); }
-else log('Siap. Uji token Apify untuk mulai.');
+renderChips(); update(); route(); renderLog(); renderQueue(); renderHasil(); renderRiwayat();
+if (projSnap){ log(`Halaman dibuka kembali. Proyek aktif: ${projSnap.nama} (${queue.length} run).`); muatHasil(projSnap); }
+else if (!logLines.length) log('Siap. Uji token Apify untuk mulai.');
 })();
 </script>
 </body>
