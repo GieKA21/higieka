@@ -76,7 +76,12 @@ dan `MANIFEST.json` berisi hash SHA-256, dikemas dengan JSZip; kedua pustaka dim
 cdnjs. Token tidak pernah disimpan. Riwayat bekerja tanpa akun: daftar proyek (config
 dan antrean run), log, draf, dan kunci pseudonim disimpan di `localStorage`, sedangkan
 hasil olahan dan salinan data mentah per run disimpan di IndexedDB (basis data `pukat`,
-store `hasil` dan `mentah`) pada peramban pengguna. Bila data peramban hilang, run dapat
+store `hasil` dan `mentah`) pada peramban pengguna. Bila sinkron aktif dan token sudah
+diuji, riwayat juga disalin ke key-value store bernama `pukat-riwayat` di akun Apify
+pengguna (rekaman `INDEKS`, `LOG-<id>`, `HASIL-<id>` dan `MENTAH-<runId>` berformat gzip),
+sehingga dapat dibuka dari perangkat lain tanpa akun Pukat. Penggabungan memakai stempel
+`diubah` per proyek dan daftar proyek terhapus; hanya proyek milik akun yang sedang dipakai
+yang disinkronkan. Token dan kunci pseudonim tidak pernah ikut disinkronkan. Run juga dapat
 dipulihkan dari riwayat run di akun Apify. Pemetaan kolom aktor mengikuti `korpus_agama.py`.
 Jangan menambahkan token, kunci, atau data mentah ke repositori.
 

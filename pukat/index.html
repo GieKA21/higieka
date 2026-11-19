@@ -436,8 +436,12 @@ td a{color:var(--accent)}
   <div class="banner" id="banner" hidden><span aria-hidden="true">●</span><span id="bannerTxt"></span></div>
 
   <section class="panel" style="margin-bottom:18px" aria-labelledby="h-riwayat">
-    <div class="panel-head"><h2 id="h-riwayat">Riwayat proyek</h2><span class="hint">tersimpan di peramban ini</span></div>
-    <div id="riwayatEmpty" class="empty">Belum ada proyek. Setiap kali Jalankan ditekan, proyek baru tercatat di sini beserta run, log, dan hasilnya.</div>
+    <div class="panel-head"><h2 id="h-riwayat">Riwayat proyek</h2><button type="button" class="small" id="btnSinkron">Sinkronkan sekarang</button></div>
+    <div class="btnrow" style="margin-bottom:12px;justify-content:space-between">
+      <div id="sinkronInfo" class="btnrow"></div>
+      <label class="sw" style="border:0;padding:0"><input type="checkbox" id="sinkronOn" checked><span>Simpan riwayat ke akun Apify<small>Store “pukat-riwayat”, bisa dibuka dari perangkat lain</small></span></label>
+    </div>
+    <div id="riwayatEmpty" class="empty">Belum ada proyek. Setiap kali Jalankan ditekan, proyek baru tercatat di sini beserta run, log, dan hasilnya. Di perangkat lain, uji token yang sama untuk memuat riwayat dari akun Apify.</div>
     <div class="tbl-wrap" id="riwayatWrap" hidden>
       <table>
         <thead><tr><th>Proyek</th><th>Dibuat</th><th class="r">Run</th><th class="r">Dokumen</th><th class="r">Biaya</th><th>Status</th><th></th></tr></thead>
@@ -662,7 +666,7 @@ let projSnap = projects.find(p => p.id === store.get('pukat-aktif', null)) || nu
 let queue = projSnap ? projSnap.queue : [];  // [{runId, platform, periode, datasetId, status, items, usd, actor, input, started, finished, build}]
 let hasil = null;   // hasil olahan proyek aktif
 let rawCache = {};  // runId -> items (cache memori; salinan tetap di IndexedDB)
-const saveProjects = () => { try{ localStorage.setItem('pukat-proyek', JSON.stringify(projects)); }catch(e){ console.warn(e); } };
+const saveProjects = () => { try{ localStorage.setItem('pukat-proyek', JSON.stringify(projects)); }catch(e){ console.warn(e); } jadwalSinkron('indeks'); };
 let logLines = projSnap ? store.get('pukat-log-' + projSnap.id, []) : [];
 let logTimer = null;
 
@@ -673,7 +677,7 @@ function log(msg){
   logLines.push(`[${stamp}] ${msg}`);
   if (logLines.length > 3000) logLines = logLines.slice(-3000);
   renderLog();
-  if (projSnap){ const id = projSnap.id; clearTimeout(logTimer); logTimer = setTimeout(() => store.set('pukat-log-' + id, logLines), 400); }
+  if (projSnap){ const id = projSnap.id; clearTimeout(logTimer); logTimer = setTimeout(() => store.set('pukat-log-' + id, logLines), 400); jadwalSinkron('log'); }
 }
 function renderLog(){ const el = $('#log'); el.textContent = logLines.slice(-400).join('\n'); el.scrollTop = el.scrollHeight; }
 function toast(msg){
@@ -749,7 +753,7 @@ async function testToken(){
     $('#aRet').textContent = account.ret ? account.ret + ' hari' : '–'; $('#acct').hidden = false;
     if (left != null && +$('#cap').value > left) $('#cap').value = Math.floor(left*100)/100;
     log(`Token diuji: akun ${me.username}, paket ${planId}${left!=null?', sisa '+usd(left):''}.`);
-    update(); resumePolling();
+    update(); await sinkronMasuk(); resumePolling();
   }catch(err){
     token = ''; account = null;
     if (err.status === 401) setStatus('bad','Token ditolak Apify. Periksa lagi atau buat token baru.');
@@ -944,11 +948,16 @@ function aktifkan(p, baru){
   projSnap = p; queue = p ? p.queue : []; hasil = null; rawCache = {};
   store.set('pukat-aktif', p ? p.id : null);
   logLines = p && !baru ? store.get('pukat-log-' + p.id, []) : [];
+  if (p && !baru && !logLines.length && sinkronAktif()) kvGet('LOG-' + p.id).then(l => { if (Array.isArray(l) && l.length && projSnap === p){ logLines = l.concat(logLines); store.set('pukat-log-' + p.id, logLines); renderLog(); } }).catch(() => {});
   renderLog(); saveProjects(); renderQueue(); renderHasil(); renderRiwayat();
   if (p && !baru) muatHasil(p);
 }
 async function muatHasil(p){
-  const h = await IDB.get('hasil', p.id);
+  let h = await IDB.get('hasil', p.id);
+  if (!h && p.ringkas && sinkronAktif()){
+    banner('Mengambil hasil proyek ini dari akun Apify…', 'warn');
+    try{ h = await kvGet('HASIL-' + p.id, true); if (h) await IDB.put('hasil', p.id, h); }catch(err){ log('Gagal mengambil hasil dari Apify: ' + err.message); }
+  }
   if (h && projSnap === p){ hasil = h; renderHasil(); banner(`Hasil tersimpan dimuat: ${fmt.format(h.rows.length)} dokumen bersih (diolah ${new Date(h.dibuat).toLocaleString('id-ID')}).`, 'ok'); }
   else if (p.queue.some(q => isActive(q.status) || q.status === 'ANTRE')) banner('Proyek ini masih punya run berjalan. Uji token di halaman Proyek untuk melanjutkan pemantauan.', 'warn');
   else if (p.queue.some(q => q.datasetId)) banner('Hasil olahan belum tersimpan. Tekan “Olah hasil” untuk mengolah ulang dari data run.', 'warn');
@@ -1189,7 +1198,8 @@ const reMelayu = new RegExp('(^|[^\\p{L}])(' + MELAYU.map(reEsc).join('|') + ')(
 // ================= OLAH =================
 async function ambilDataset(q){
   if (rawCache[q.runId]) return rawCache[q.runId];
-  const simpan = await IDB.get('mentah', q.runId);
+  let simpan = await IDB.get('mentah', q.runId);
+  if (!Array.isArray(simpan) && sinkronAktif()){ try{ simpan = await kvGet('MENTAH-' + q.runId, true); if (Array.isArray(simpan)) await IDB.put('mentah', q.runId, simpan); }catch(_){ simpan = null; } }
   if (Array.isArray(simpan)){ rawCache[q.runId] = simpan; log(`Data mentah ${q.runId} dibaca dari salinan di peramban.`); return simpan; }
   if (!token) throw new Error('data belum tersalin di peramban dan token belum diuji');
   const out = []; let off = 0;
@@ -1198,7 +1208,9 @@ async function ambilDataset(q){
     if (!r.ok) throw new Error(`dataset ${q.datasetId}: HTTP ${r.status}`);
     const arr = await r.json(); out.push(...arr); if (arr.length < 1000) break; off += 1000;
   }
-  rawCache[q.runId] = out; await IDB.put('mentah', q.runId, out); return out;
+  rawCache[q.runId] = out; await IDB.put('mentah', q.runId, out);
+  if (sinkronAktif()) kvPut('MENTAH-' + q.runId, out, true).catch(err => log('Salinan data mentah gagal dikirim ke Apify: ' + err.message));
+  return out;
 }
 
 async function olah(){
@@ -1301,9 +1313,11 @@ async function olah(){
     const alasan = {}; kand.forEach(c => { alasan[c.alasan] = (alasan[c.alasan] || 0) + 1; });
     const kandLite = kand.map(c => ({pid: c.pid, alasan: c.alasan, r: {post_id: c.r.post_id || null, teks: c.alasan === 'LOLOS' && c.pid === 'x' ? String(c.r.teks || '') : undefined}}));
     hasil = {cfg, rows, kand: kandLite, alasan, logT, sidikKunci, dibuat: new Date().toISOString(), runs: runsOk.map(q => ({...q}))};
+    projSnap.diubah = new Date().toISOString();
     projSnap.ringkas = {kandidat: kand.length, bersih: rows.length, biaya: runsOk.reduce((a,q) => a + (q.usd||0), 0), diolah: hasil.dibuat};
     saveProjects(); renderRiwayat();
     const ok = await IDB.put('hasil', projSnap.id, hasil);
+    kirimHasil(projSnap.id, hasil);
     log(`Pengolahan selesai: ${fmt.format(kand.length)} kandidat → ${fmt.format(rows.length)} dokumen bersih.${ok ? ' Hasil tersimpan di peramban ini.' : ''}`);
     banner(`Korpus siap: ${fmt.format(rows.length)} dokumen bersih dari ${fmt.format(kand.length)} kandidat. Unduh hasilnya di bawah.`, 'ok');
     renderHasil();
@@ -1330,7 +1344,7 @@ async function cekOembed(){
   const proyekOe = projSnap, hOe = hasil;
   let n = 0; log(`Cek oEmbed dimulai untuk ${target.length} dokumen (jeda 1,5 detik).`);
   for (const row of target){
-    if (oeStop || projSnap !== proyekOe){ if (proyekOe) await IDB.put('hasil', proyekOe.id, hOe); log('Cek oEmbed dihentikan karena proyek ditutup atau diganti; status yang sudah dicek tetap tersimpan.'); break; }
+    if (oeStop || projSnap !== proyekOe){ if (proyekOe && projects.some(x => x.id === proyekOe.id)) await IDB.put('hasil', proyekOe.id, hOe); log('Cek oEmbed dihentikan karena proyek ditutup atau diganti; status yang sudah dicek tetap tersimpan.'); break; }
     n++; $('#oeProg').textContent = `${n}/${target.length}`;
     const pid = row.platform === 'TikTok' ? 'tiktok' : 'x'; const c = byId.get(pid + ':' + row.id_unggahan);
     try{
@@ -1355,6 +1369,7 @@ async function cekOembed(){
     if (n % 10 === 0 || n === target.length){ renderHasil(); if (proyekOe && projSnap === proyekOe) await IDB.put('hasil', proyekOe.id, hasil); }
     await sleep(1500);
   }
+  if (proyekOe && projects.some(x => x.id === proyekOe.id)) kirimHasil(proyekOe.id, hOe);
   log('Cek oEmbed selesai.'); oeRunning = false; $('#btnOembed').disabled = false; $('#oeProg').textContent = ''; renderHasil();
 }
 $('#btnOembed').onclick = () => { if (hasil){ hasil.rows.forEach(r => { if (['GAGAL_DICEK'].includes(r.status_verifikasi_daring)) r.status_verifikasi_daring = 'BELUM_DICEK'; }); cekOembed(); } };
@@ -1520,13 +1535,109 @@ $('#riwayatBody').addEventListener('click', async e => {
     const p = projects.find(x => x.id === id);
     if (p.queue.some(q => isActive(q.status))){ toast('Proyek masih punya run berjalan. Hentikan dulu.'); return; }
     if (projSnap && projSnap.id === id){ if (pumping){ toast('Tunggu antrean run selesai dulu.'); return; } aktifkan(null); }
+    const tomb = store.get('pukat-dihapus', []); tomb.push(id); store.set('pukat-dihapus', tomb.slice(-500));
     projects = projects.filter(x => x.id !== id); saveProjects();
+    if (sinkronAktif() && (!p.akun || !account || p.akun === account.user)){ for (const k of ['HASIL-' + id, 'LOG-' + id, ...p.queue.filter(q => q.runId).map(q => 'MENTAH-' + q.runId)]) kvDel(k); }
     const dipakai = new Set(projects.flatMap(x => x.queue.map(q => q.runId)));
     for (const q of p.queue) if (q.runId && !dipakai.has(q.runId)) await IDB.del('mentah', q.runId);
     await IDB.del('hasil', id); store.del('pukat-log-' + id);
     renderRiwayat(); toast(`Proyek ${p.nama} dihapus dari peramban ini. Run di akun Apify tidak ikut terhapus.`);
   }
 });
+
+
+// ================= SINKRON KE AKUN APIFY =================
+// Riwayat lintas perangkat tanpa akun Pukat: disimpan di key-value store bernama "pukat-riwayat" milik akun Apify pengguna.
+// INDEKS = daftar proyek (config, antrean run, ringkasan) + daftar proyek terhapus; LOG-<id>; HASIL-<id> (gzip); MENTAH-<runId> (gzip).
+const SYNC = {storeId: null, akun: null, last: null, err: null, busy: false};
+let sinkronPref = store.get('pukat-sinkron', true);
+const sinkronAktif = () => !!(sinkronPref && token && account && !IN_ARTIFACT);
+async function kvStore(){
+  if (SYNC.storeId && SYNC.akun === (account && account.user)) return SYNC.storeId;
+  const r = await api('/key-value-stores?name=pukat-riwayat', {method:'POST'});
+  SYNC.storeId = r.data.id; SYNC.akun = account && account.user; return SYNC.storeId;
+}
+async function gz(txt){ return new Response(new Blob([txt]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer(); }
+async function ungz(buf){ return new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).text(); }
+async function kvPut(key, obj, zip){
+  const id = await kvStore(); const txt = JSON.stringify(obj);
+  const body = zip ? await gz(txt) : txt;
+  const r = await fetch(`${API}/key-value-stores/${id}/records/${encodeURIComponent(key)}`, {method:'PUT', headers:{Authorization:'Bearer ' + token, 'Content-Type': zip ? 'application/octet-stream' : 'application/json; charset=utf-8'}, body});
+  if (!r.ok) throw new Error(`${key}: HTTP ${r.status}`);
+}
+async function kvGet(key, zip){
+  const id = await kvStore();
+  const r = await fetch(`${API}/key-value-stores/${id}/records/${encodeURIComponent(key)}`, {headers:{Authorization:'Bearer ' + token}});
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`${key}: HTTP ${r.status}`);
+  return JSON.parse(zip ? await ungz(await r.arrayBuffer()) : await r.text());
+}
+async function kvDel(key){ try{ const id = await kvStore(); await fetch(`${API}/key-value-stores/${id}/records/${encodeURIComponent(key)}`, {method:'DELETE', headers:{Authorization:'Bearer ' + token}}); }catch(_){} }
+const milikAkun = p => !p.akun || (account && p.akun === account.user);
+const waktu = p => Date.parse(p.diubah || p.dibuat || 0) || 0;
+const sinkronTimer = {};
+function jadwalSinkron(jenis){
+  if (!sinkronAktif()) return;
+  clearTimeout(sinkronTimer[jenis]);
+  sinkronTimer[jenis] = setTimeout(() => {
+    if (jenis === 'indeks') kirimIndeks();
+    if (jenis === 'log' && projSnap && milikAkun(projSnap)) kvPut('LOG-' + projSnap.id, logLines.slice(-3000)).then(() => tandaiSinkron()).catch(err => tandaiSinkron(err));
+  }, jenis === 'log' ? 8000 : 1500);
+}
+async function kirimIndeks(){
+  if (!sinkronAktif()) return;
+  try{
+    const mine = projects.filter(milikAkun).map(p => ({...p, akun: p.akun || account.user}));
+    await kvPut('INDEKS', {versi: 1, diperbarui: new Date().toISOString(), proyek: mine, dihapus: store.get('pukat-dihapus', [])});
+    tandaiSinkron();
+  }catch(err){ tandaiSinkron(err); }
+}
+function kirimHasil(id, h){
+  if (!sinkronAktif()) return;
+  kvPut('HASIL-' + id, h, true).then(() => { tandaiSinkron(); log('Hasil olahan tersalin ke akun Apify (pukat-riwayat).'); }).catch(err => { tandaiSinkron(err); log('Hasil olahan gagal dikirim ke Apify: ' + err.message); });
+}
+function tandaiSinkron(err){ SYNC.err = err ? err.message : null; if (!err) SYNC.last = new Date(); renderSinkron(); }
+async function sinkronMasuk(){
+  if (!sinkronAktif()){ renderSinkron(); return; }
+  SYNC.busy = true; renderSinkron();
+  try{
+    const remote = await kvGet('INDEKS') || {proyek: [], dihapus: []};
+    const tomb = new Set([...(store.get('pukat-dihapus', [])), ...(remote.dihapus || [])]);
+    store.set('pukat-dihapus', [...tomb].slice(-500));
+    const map = new Map();
+    projects.forEach(p => { if (!tomb.has(p.id)) map.set(p.id, p); });
+    let baru = 0, diperbarui = 0;
+    (remote.proyek || []).forEach(rp => {
+      if (tomb.has(rp.id)) return;
+      const lp = map.get(rp.id);
+      if (!lp){ map.set(rp.id, rp); baru++; }
+      else if (waktu(rp) > waktu(lp) && !(pumping && projSnap && projSnap.id === lp.id)){ map.set(rp.id, rp); diperbarui++; }
+    });
+    projects = [...map.values()].sort((a,b) => Date.parse(b.dibuat) - Date.parse(a.dibuat));
+    if (projSnap){
+      const now = projects.find(p => p.id === projSnap.id);
+      if (!now){ aktifkan(null); banner('Proyek yang terbuka sudah dihapus dari perangkat lain.', 'warn'); }
+      else if (now !== projSnap){ projSnap = now; queue = now.queue; renderQueue(); }
+    }
+    try{ localStorage.setItem('pukat-proyek', JSON.stringify(projects)); }catch(_){}
+    if (baru || diperbarui) log(`Riwayat dari akun Apify: ${baru} proyek baru, ${diperbarui} diperbarui.`);
+    await kirimIndeks();
+    if (!projSnap && projects.length && baru && !store.get('pukat-aktif', null)) toast('Riwayat proyek dari akun Apify dimuat. Buka dari panel Riwayat proyek.');
+  }catch(err){ tandaiSinkron(err); log('Sinkron riwayat gagal: ' + err.message); }
+  SYNC.busy = false; renderRiwayat(); renderSinkron();
+}
+function renderSinkron(){
+  const el = $('#sinkronInfo'); if (!el) return;
+  $('#sinkronOn').checked = !!sinkronPref;
+  if (!sinkronPref){ el.innerHTML = '<span class="pill idle">Hanya di peramban ini</span>'; return; }
+  if (IN_ARTIFACT){ el.innerHTML = '<span class="pill idle">Tidak tersedia di pratinjau</span>'; return; }
+  if (!token || !account){ el.innerHTML = '<span class="pill idle">Menunggu token</span> <span class="hint">Uji token di halaman Proyek agar riwayat tersinkron.</span>'; return; }
+  if (SYNC.busy){ el.innerHTML = '<span class="pill run">Menyinkronkan…</span>'; return; }
+  if (SYNC.err){ el.innerHTML = `<span class="pill warn">Sinkron gagal</span> <span class="hint">${esc(SYNC.err)}</span>`; return; }
+  el.innerHTML = `<span class="pill ok">Tersinkron ke akun Apify ${esc(account.user)}</span> <span class="hint">${SYNC.last ? 'terakhir ' + SYNC.last.toLocaleTimeString('id-ID', {hour12:false}) : ''}</span>`;
+}
+$('#sinkronOn').addEventListener('change', e => { sinkronPref = e.target.checked; store.set('pukat-sinkron', sinkronPref); if (sinkronPref) sinkronMasuk(); renderSinkron(); });
+$('#btnSinkron').onclick = async () => { if (!token){ toast('Uji token Apify dulu di halaman Proyek.'); return; } await sinkronMasuk(); if (projSnap && hasil) kirimHasil(projSnap.id, hasil); };
 
 // ================= ROUTING =================
 function route(){
@@ -1538,7 +1649,7 @@ function route(){
 addEventListener('hashchange', route);
 addEventListener('beforeunload', e => { if (pumping || oeRunning){ e.preventDefault(); e.returnValue = ''; } });
 window.__pukat = {adapter, buatPencocok, bahasa, jenisMedia, get hasil(){ return hasil; }, _setTest(t, q){ token = t; queue = q; }};
-renderChips(); update(); route(); renderLog(); renderQueue(); renderHasil(); renderRiwayat();
+renderChips(); update(); route(); renderLog(); renderQueue(); renderHasil(); renderRiwayat(); renderSinkron();
 if (projSnap){ log(`Halaman dibuka kembali. Proyek aktif: ${projSnap.nama} (${queue.length} run).`); muatHasil(projSnap); }
 else if (!logLines.length) log('Siap. Uji token Apify untuk mulai.');
 })();
