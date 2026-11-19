@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pukat · Pengumpul Korpus Media Sosial</title>
+<meta name="description" content="Pukat: prototipe antarmuka sistem pengumpulan korpus media sosial berbasis Apify dengan rekaman asal-usul data, estimasi biaya, dan pemantauan run.">
+<meta name="theme-color" content="#1F4FC9">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: konsol dua kolom — formulir bertahap di kiri, ringkasan run menempel di kanan; satu kolom di ponsel */
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --sunk:#EBEFF5; --line:#D9DFE8; --ink:#14203A; --muted:#5A6781;
+  --accent:#1F4FC9; --accent-ink:#FFFFFF; --accent-soft:#E3EAFB;
+  --ok:#17804A; --ok-soft:#DFF3E7; --warn:#A65F00; --warn-soft:#FBEFD9; --bad:#B42318; --bad-soft:#FBE4E1;
+  --tt:#111111; --ig:#C13584; --x:#1D2B36; --fb:#1877F2;
+  --f-display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1420; --surface:#162032; --sunk:#111A29; --line:#283650; --ink:#E6ECF7; --muted:#97A5BF;
+  --accent:#6F95FF; --accent-ink:#0B1222; --accent-soft:#1D2C4D;
+  --ok:#4CCB86; --ok-soft:#14301F; --warn:#F0B35A; --warn-soft:#352812; --bad:#FF7B6E; --bad-soft:#3A1915;
+  --tt:#E6ECF7; --ig:#E266AC; --x:#9FB3C4; --fb:#5C9DFF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1420; --surface:#162032; --sunk:#111A29; --line:#283650; --ink:#E6ECF7; --muted:#97A5BF;
+  --accent:#6F95FF; --accent-ink:#0B1222; --accent-soft:#1D2C4D;
+  --ok:#4CCB86; --ok-soft:#14301F; --warn:#F0B35A; --warn-soft:#352812; --bad:#FF7B6E; --bad-soft:#3A1915;
+  --tt:#E6ECF7; --ig:#E266AC; --x:#9FB3C4; --fb:#5C9DFF; color-scheme:dark}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:1.75rem;font-weight:700}
+h2{font-size:1.12rem;font-weight:600}
+h3{font-size:.95rem;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-size:.85em}
+.num{font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:20px;min-height:58px;flex-wrap:wrap;padding-block:8px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:1.05rem;text-decoration:none;color:var(--ink)}
+.brand .mark{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center}
+.brand .mark svg{display:block}
+nav.tabs{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav.tabs a{padding:7px 14px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.92rem}
+nav.tabs a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+.preview-flag{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);background:var(--warn-soft);padding:3px 8px;border-radius:999px;font-weight:600}
+
+main{padding-block:28px 64px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.page-head p{max-width:62ch;margin-top:6px}
+
+/* stepper */
+.stepper{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:0;list-style:none;counter-reset:s}
+.stepper li{counter-increment:s;display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted);padding:6px 12px 6px 6px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.stepper li::before{content:counter(s);width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);font-weight:600;font-size:.78rem;color:var(--ink)}
+.stepper li.done::before{content:"✓";background:var(--ok-soft);color:var(--ok)}
+.stepper li.done{color:var(--ink)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+@media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
+.stack{display:flex;flex-direction:column;gap:18px;min-width:0}
+
+section.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0}
+.panel-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:14px}
+.panel-head .step{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);letter-spacing:.04em}
+.hint{font-size:.83rem;color:var(--muted)}
+
+.lbl{display:block;font-size:.8rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+input[type=text],input[type=password],input[type=number],input[type=date],select,textarea{
+  width:100%;font:inherit;font-size:.93rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.inline{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.inline>input{flex:1 1 220px;min-width:0}
+
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;font-weight:500;font-size:.9rem}
+button:hover{background:var(--sunk)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.primary:hover{filter:brightness(1.07)}
+button.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+button.small{padding:5px 10px;font-size:.82rem}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);min-height:48px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 11px;font-size:.87rem}
+.chip button{border:0;background:transparent;padding:0 6px;color:var(--muted);font-size:1rem;line-height:1}
+.chip button:hover{color:var(--bad);background:transparent}
+.chips input{border:0;background:transparent;flex:1 1 160px;padding:5px;min-width:120px}
+.chips input:focus{box-shadow:none}
+
+/* platform cards */
+.platforms{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.pcard{position:relative;border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:4px;cursor:pointer;background:var(--surface)}
+.pcard input{position:absolute;opacity:0}
+.pcard .pn{display:flex;align-items:center;gap:8px;font-weight:600}
+.pcard .dot{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.pcard .actor{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);word-break:break-all}
+.pcard .price{font-size:.8rem;color:var(--muted)}
+.pcard .tick{position:absolute;top:10px;right:12px;width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:.72rem;color:transparent}
+.pcard:has(input:checked){border-color:var(--c);box-shadow:inset 3px 0 0 var(--c)}
+.pcard:has(input:checked) .tick{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.pcard:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+
+/* toggles */
+details.adv{border-top:1px solid var(--line);padding-top:4px}
+details.adv>summary{cursor:pointer;list-style:none;padding:12px 0 8px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+details.adv>summary::-webkit-details-marker{display:none}
+details.adv>summary::after{content:"+";font-family:var(--f-mono);color:var(--muted)}
+details.adv[open]>summary::after{content:"−"}
+.adv-body{display:flex;flex-direction:column;gap:14px;padding-bottom:10px}
+.switches{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:4px 18px}
+.sw{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+.sw input{appearance:none;flex:none;width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;margin:2px 0 0;cursor:pointer;transition:background .15s}
+.sw input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.sw input:checked{background:var(--accent)}
+.sw input:checked::after{transform:translateX(14px)}
+.sw span{display:flex;flex-direction:column;font-size:.9rem}
+.sw small{color:var(--muted);font-size:.8rem}
+
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg label{padding:7px 12px;font-size:.86rem;cursor:pointer;border-right:1px solid var(--line)}
+.seg label:last-child{border-right:0}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label:has(input:checked){background:var(--accent-soft);color:var(--accent);font-weight:600}
+.seg label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:-2px}
+
+/* status line */
+.status{display:flex;align-items:center;gap:8px;font-size:.86rem;padding:9px 12px;border-radius:8px;background:var(--sunk);color:var(--muted)}
+.status.ok{background:var(--ok-soft);color:var(--ok)}
+.status.warn{background:var(--warn-soft);color:var(--warn)}
+.status.bad{background:var(--bad-soft);color:var(--bad)}
+.acct{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:520px){.acct{grid-template-columns:1fr}}
+.acct div{background:var(--sunk);border-radius:8px;padding:10px 12px}
+.acct b{display:block;font-family:var(--f-display);font-size:1.05rem}
+.acct span{font-size:.78rem;color:var(--muted)}
+
+/* summary sidebar */
+aside.summary{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media (max-width:920px){aside.summary{position:static}}
+.sum-head{padding:16px 18px;border-bottom:1px solid var(--line)}
+.sum-body{padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:.88rem}
+.kv span:first-child{color:var(--muted)}
+.kv b{font-variant-numeric:tabular-nums;text-align:right}
+.big{font-family:var(--f-display);font-size:1.9rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:999px;background:var(--sunk);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
+.bar.over i{background:var(--bad)}
+.sum-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;background:var(--sunk)}
+.sum-foot .inline button{flex:1}
+.issues{margin:0;padding-left:18px;font-size:.83rem;color:var(--bad)}
+.json{max-height:180px;overflow:auto;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:10px;font-family:var(--f-mono);font-size:.74rem;white-space:pre;margin:0}
+
+/* hasil */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+@media (max-width:800px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;min-width:0}
+.kpi .k{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.kpi .v{font-family:var(--f-display);font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi .s{font-size:.8rem;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:620px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--sunk);font-weight:600}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.76rem;font-weight:600}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.run{background:var(--accent-soft);color:var(--accent)}
+.pill.idle{background:var(--sunk);color:var(--muted)}
+.pdot{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--c);margin-right:8px;vertical-align:middle}
+.mini{width:110px;height:6px;border-radius:999px;background:var(--sunk);overflow:hidden;display:inline-block;vertical-align:middle}
+.mini i{display:block;height:100%;background:var(--accent)}
+
+.stacked{display:flex;height:22px;border-radius:6px;overflow:hidden;background:var(--sunk)}
+.stacked i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--c);margin-right:6px;vertical-align:middle}
+.mediarow{display:grid;grid-template-columns:110px minmax(0,1fr) 60px;gap:12px;align-items:center;padding:7px 0}
+.mediarow .n{text-align:right;font-variant-numeric:tabular-nums;font-size:.86rem}
+
+.pipeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;list-style:none;padding:0;margin:0}
+.pipeline li{background:var(--sunk);border-radius:8px;padding:10px 12px;font-size:.84rem;display:flex;flex-direction:column;gap:3px}
+.pipeline code{font-family:var(--f-mono);font-size:.78rem;color:var(--accent);font-weight:500}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.file{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:.86rem;min-width:0}
+.file .mono{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log{background:var(--sunk);border-radius:8px;padding:12px;font-family:var(--f-mono);font-size:.76rem;max-height:220px;overflow:auto;white-space:pre-wrap;line-height:1.6;margin:0}
+.banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r);background:var(--warn-soft);color:var(--warn);font-size:.88rem;margin-bottom:18px}
+.two{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px}
+@media (max-width:860px){.two{grid-template-columns:minmax(0,1fr)}}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:.88rem;z-index:20;max-width:calc(100% - 32px)}
+footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#proyek" aria-label="Pukat, beranda">
+      <span class="mark"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1" fill="#fff"/><rect x="9" y="2" width="5" height="5" rx="1" fill="#fff" opacity=".6"/><rect x="2" y="9" width="5" height="5" rx="1" fill="#fff" opacity=".6"/><rect x="9" y="9" width="5" height="5" rx="1" fill="#fff"/></svg></span>
+      <span>Pukat <span style="font-family:var(--f-body);font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">pengumpul korpus media sosial</span></span>
+    </a>
+    <span class="preview-flag" id="modeFlag">Pratinjau</span>
+    <nav class="tabs" aria-label="Halaman">
+      <a href="#proyek" data-view="proyek">Proyek baru</a>
+      <a href="#hasil" data-view="hasil">Pemantauan &amp; hasil</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ VIEW 1: PROYEK ============ -->
+<div id="view-proyek">
+  <div class="page-head">
+    <div>
+      <h1>Proyek scraping baru</h1>
+      <p class="muted">Isi kata kunci, akun Apify, sumber, dan periode. Setiap run tercatat lengkap (aktor, input, waktu, hash) agar korpus dapat ditelusuri ulang.</p>
+    </div>
+    <div class="field" style="min-width:220px;flex:0 1 280px">
+      <label class="lbl" for="namaProyek">Nama proyek</label>
+      <input type="text" id="namaProyek" value="korpus_agama_v2">
+    </div>
+  </div>
+
+  <ol class="stepper" id="stepper">
+    <li data-s="akun">Akun Apify</li>
+    <li data-s="kunci">Kata kunci</li>
+    <li data-s="sumber">Sumber &amp; periode</li>
+    <li data-s="opsi">Opsi pengolahan</li>
+  </ol>
+
+  <form id="form" class="grid" novalidate>
+    <div class="stack">
+
+      <!-- Akun -->
+      <section class="panel" aria-labelledby="h-akun">
+        <div class="panel-head"><h2 id="h-akun">Akun Apify</h2><span class="step">LANGKAH 1</span></div>
+        <div class="field">
+          <label class="lbl" for="token">API token</label>
+          <div class="inline">
+            <input type="password" id="token" autocomplete="off" spellcheck="false" placeholder="apify_api_xxxxxxxxxxxxxxxxxxxx">
+            <button type="button" id="showTok" class="small" aria-pressed="false">Tampilkan</button>
+            <button type="button" id="testTok">Uji koneksi</button>
+          </div>
+          <p class="hint">Ambil di Apify Console → Settings → API &amp; Integrations. Token hanya dipakai di peramban ini, tidak disimpan dan tidak ikut diekspor.</p>
+        </div>
+        <div class="status" id="tokStatus" style="margin-top:12px">Belum diuji.</div>
+        <div class="acct" id="acct" hidden>
+          <div><b id="aPlan">–</b><span>Paket</span></div>
+          <div><b id="aCredit">–</b><span>Sisa kredit bulan ini</span></div>
+          <div><b id="aRet">–</b><span>Retensi dataset</span></div>
+        </div>
+      </section>
+
+      <!-- Kata kunci -->
+      <section class="panel" aria-labelledby="h-kunci">
+        <div class="panel-head"><h2 id="h-kunci">Kata kunci</h2><span class="step">LANGKAH 2</span></div>
+        <div class="field">
+          <label class="lbl" for="kwInput">Daftar kata kunci <span class="num" id="kwCount"></span></label>
+          <div class="chips" id="chips">
+            <input type="text" id="kwInput" placeholder="Ketik lalu tekan Enter atau koma…" aria-describedby="kwHint">
+          </div>
+          <p class="hint" id="kwHint">Tempel daftar berkoma sekaligus juga bisa. Frasa dicari utuh.</p>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <div class="field">
+            <span class="lbl">Mode pencocokan</span>
+            <div class="seg" role="radiogroup" aria-label="Mode pencocokan">
+              <label><input type="radio" name="match" value="frasa" checked>Frasa utuh</label>
+              <label><input type="radio" name="match" value="semua">Semua kata</label>
+              <label><input type="radio" name="match" value="salah">Salah satu</label>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="exclude">Kata pengecualian</label>
+            <input type="text" id="exclude" placeholder="mis. giveaway, promo, jual">
+          </div>
+        </div>
+        <label class="sw" style="border:0;margin-top:6px"><input type="checkbox" id="hashtag" checked><span>Sertakan varian tagar<small>“toleransi beragama” juga dicari sebagai #toleransiberagama</small></span></label>
+      </section>
+
+      <!-- Sumber & periode -->
+      <section class="panel" aria-labelledby="h-sumber">
+        <div class="panel-head"><h2 id="h-sumber">Sumber &amp; periode</h2><span class="step">LANGKAH 3</span></div>
+        <div class="platforms" id="platforms"></div>
+        <div class="row" style="margin-top:16px">
+          <div class="field"><label class="lbl" for="dFrom">Mulai</label><input type="date" id="dFrom" value="2026-04-01"></div>
+          <div class="field"><label class="lbl" for="dTo">Sampai</label><input type="date" id="dTo" value="2026-09-30"></div>
+          <div class="field"><label class="lbl" for="tz">Zona waktu</label>
+            <select id="tz"><option value="Asia/Jakarta">WIB (UTC+7)</option><option value="Asia/Makassar">WITA (UTC+8)</option><option value="Asia/Jayapura">WIT (UTC+9)</option></select></div>
+        </div>
+        <label class="sw" style="border:0;margin-top:6px"><input type="checkbox" id="split" checked><span>Pecah run per bulan<small>Hasil tersebar merata sepanjang periode, tidak menumpuk di bulan terbaru</small></span></label>
+      </section>
+
+      <!-- Opsi -->
+      <section class="panel" aria-labelledby="h-opsi">
+        <div class="panel-head"><h2 id="h-opsi">Opsi pengolahan</h2><span class="step">LANGKAH 4</span></div>
+        <div class="row">
+          <div class="field"><label class="lbl" for="target">Target dokumen bersih / platform</label><input type="number" id="target" min="10" step="10" value="150"></div>
+          <div class="field"><label class="lbl" for="maxq">Maks. hasil per kueri</label><input type="number" id="maxq" min="10" step="10" value="100"></div>
+          <div class="field"><label class="lbl" for="cap">Batas biaya (US$)</label><input type="number" id="cap" min="0" step="0.5" value="5"></div>
+        </div>
+
+        <details class="adv" open>
+          <summary>Penyaringan &amp; seleksi</summary>
+          <div class="adv-body">
+            <div class="row">
+              <div class="field"><label class="lbl" for="sel">Seleksi dokumen</label>
+                <select id="sel"><option value="semua_lolos">Pakai semua yang lolos</option><option value="target">Potong tepat di target</option></select></div>
+              <div class="field"><label class="lbl" for="subset">Subset seimbang / platform</label><input type="number" id="subset" min="0" step="10" value="200"></div>
+              <div class="field"><label class="lbl" for="minw">Minimal kata per dokumen</label><input type="number" id="minw" min="0" value="5"></div>
+            </div>
+            <div class="switches">
+              <label class="sw"><input type="checkbox" id="oLang" checked><span>Hanya bahasa Indonesia<small>Deteksi bahasa per dokumen</small></span></label>
+              <label class="sw"><input type="checkbox" id="oMelayu" checked><span>Saring konten Melayu<small>Kosakata khas MY/BN ditandai lalu dibuang</small></span></label>
+              <label class="sw"><input type="checkbox" id="oRt"><span>Sertakan retweet / repost</span></label>
+              <label class="sw"><input type="checkbox" id="oDedup" checked><span>Deduplikasi teks<small>Termasuk terhadap korpus lama</small></span></label>
+            </div>
+            <div class="field">
+              <label class="lbl" for="oldIds">ID korpus lama untuk dikecualikan</label>
+              <input type="file" id="oldIds" accept=".json,.csv,.txt">
+              <p class="hint" id="oldIdsInfo">Opsional. Format JSON/CSV berisi ID postingan.</p>
+            </div>
+          </div>
+        </details>
+
+        <details class="adv">
+          <summary>Verifikasi &amp; privasi</summary>
+          <div class="adv-body switches">
+            <label class="sw"><input type="checkbox" id="oOembed" checked><span>Cek ulang teks via oEmbed<small>X dan TikTok, endpoint publik resmi</small></span></label>
+            <label class="sw"><input type="checkbox" id="oTrans" checked><span>Ambil transkrip TikTok<small>Dari subtitle bawaan video</small></span></label>
+            <label class="sw"><input type="checkbox" id="oPseudo" checked><span>Pseudonimkan akun<small>HMAC dengan kunci lokal</small></span></label>
+            <label class="sw"><input type="checkbox" id="oMask" checked><span>Samarkan email, nomor HP, @mention</span></label>
+            <label class="sw"><input type="checkbox" id="oSample" checked><span>Sampel verifikasi manual 10%</span></label>
+            <label class="sw"><input type="checkbox" id="oComment"><span>Kumpulkan komentar<small>Menambah biaya dan beban anonimisasi</small></span></label>
+          </div>
+        </details>
+
+        <details class="adv">
+          <summary>Keluaran</summary>
+          <div class="adv-body switches">
+            <label class="sw"><input type="checkbox" id="xCsv" checked><span>CSV per platform</span></label>
+            <label class="sw"><input type="checkbox" id="xXlsx" checked><span>DATA_SIAP_PAKAI.xlsx</span></label>
+            <label class="sw"><input type="checkbox" id="xLog" checked><span>Log transformasi (JSONL)</span></label>
+            <label class="sw"><input type="checkbox" id="xMan" checked><span>MANIFEST + hash SHA-256</span></label>
+          </div>
+        </details>
+      </section>
+    </div>
+
+    <!-- Ringkasan -->
+    <aside class="summary" aria-labelledby="h-sum">
+      <div class="sum-head">
+        <h2 id="h-sum">Ringkasan run</h2>
+        <p class="hint" style="margin-top:2px">Diperbarui setiap kali formulir diubah.</p>
+      </div>
+      <div class="sum-body">
+        <div>
+          <span class="hint">Perkiraan biaya</span>
+          <div class="big" id="sCost">US$0,00</div>
+          <div class="bar" id="sCapBar" style="margin-top:8px"><i style="width:0"></i></div>
+          <p class="hint" id="sCapTxt" style="margin-top:4px"></p>
+        </div>
+        <div class="kv"><span>Kata kunci</span><b id="sKw">0</b></div>
+        <div class="kv"><span>Platform</span><b id="sPf">0</b></div>
+        <div class="kv"><span>Periode</span><b id="sPer">–</b></div>
+        <div class="kv"><span>Jumlah run</span><b id="sRuns">0</b></div>
+        <div class="kv"><span>Perkiraan kandidat</span><b id="sItems">0</b></div>
+        <div class="kv"><span>Target dokumen bersih</span><b id="sTarget">0</b></div>
+        <p class="hint">Perkiraan kandidat memakai rasio korpus v2: 3.008 kandidat untuk 1.330 dokumen bersih (±2,3×).</p>
+        <ul class="issues" id="issues"></ul>
+      </div>
+      <div class="sum-foot">
+        <button type="submit" class="primary" id="runBtn">Jalankan scraping</button>
+        <div class="inline">
+          <button type="button" id="saveDraft" class="small">Simpan draf</button>
+          <button type="button" id="copyCfg" class="small">Salin config.json</button>
+        </div>
+        <details>
+          <summary class="hint" style="cursor:pointer">Lihat config.json</summary>
+          <pre class="json" id="cfgOut"></pre>
+        </details>
+      </div>
+    </aside>
+  </form>
+</div>
+
+<!-- ============ VIEW 2: HASIL ============ -->
+<div id="view-hasil" hidden>
+  <div class="page-head">
+    <div>
+      <h1>Pemantauan &amp; hasil</h1>
+      <p class="muted" id="hasilSub">Antrean run aktif di atas, hasil korpus terakhir di bawah.</p>
+    </div>
+    <a href="#proyek"><button type="button">← Kembali ke proyek</button></a>
+  </div>
+
+  <div class="banner" id="queueBanner" hidden>
+    <span aria-hidden="true">●</span>
+    <span id="queueBannerTxt"></span>
+  </div>
+
+  <section class="panel" id="queuePanel" hidden style="margin-bottom:18px">
+    <div class="panel-head"><h2>Antrean run</h2><span class="hint" id="queueMeta"></span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Platform</th><th>Bulan</th><th>Aktor</th><th>Status</th><th>Progres</th><th class="r">Item</th></tr></thead>
+        <tbody id="queueBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="panel-head" style="margin:6px 0 12px">
+    <h2>Korpus terakhir: korpus_agama_v2</h2>
+    <span class="pill idle">Contoh data · Apr–Sep 2026</span>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="k">Kandidat terkumpul</div><div class="v">3.008</div><div class="s">dari 33 run Apify</div></div>
+    <div class="kpi"><div class="k">Dokumen bersih</div><div class="v">1.330</div><div class="s">44,2% kandidat lolos</div></div>
+    <div class="kpi"><div class="k">Cek oEmbed X</div><div class="v">523/524</div><div class="s">teks cocok dengan sumber</div></div>
+    <div class="kpi"><div class="k">Transkrip TikTok</div><div class="v">150/283</div><div class="s">dari subtitle bawaan</div></div>
+  </div>
+
+  <div class="two" style="margin-bottom:18px">
+    <section class="panel">
+      <div class="panel-head"><h2>Dokumen bersih per platform</h2><span class="hint num">total 1.330</span></div>
+      <div class="tbl-wrap">
+        <table style="min-width:440px">
+          <thead><tr><th>Platform</th><th class="r">Dokumen</th><th class="r">Porsi</th><th>Verifikasi teks</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pdot" style="--c:var(--tt)"></span>TikTok</td><td class="r">283</td><td class="r">21,3%</td><td><span class="pill warn">Tidak dapat dicek</span></td></tr>
+            <tr><td><span class="pdot" style="--c:var(--ig)"></span>Instagram</td><td class="r">209</td><td class="r">15,7%</td><td><span class="pill idle">Tidak diakses otomatis</span></td></tr>
+            <tr><td><span class="pdot" style="--c:var(--x)"></span>X (Twitter)</td><td class="r">524</td><td class="r">39,4%</td><td><span class="pill ok">523 cocok</span></td></tr>
+            <tr><td><span class="pdot" style="--c:var(--fb)"></span>Facebook</td><td class="r">314</td><td class="r">23,6%</td><td><span class="pill idle">Tidak diakses otomatis</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="hint" style="margin-top:10px">oEmbed TikTok tidak mengembalikan teks keterangan, sehingga statusnya tercatat “tidak dapat dicek”, bukan gagal.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Jenis media</h2></div>
+      <div id="media"></div>
+      <div class="legend">
+        <span style="--c:#8A97AE">Teks</span><span style="--c:#2BA37A">Gambar</span><span style="--c:var(--accent)">Video</span><span style="--c:#D08A1E">Tautan</span>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-bottom:18px">
+    <div class="panel-head"><h2>Tahap pipeline</h2><span class="hint">urutan perintah di korpus_agama.py</span></div>
+    <ol class="pipeline">
+      <li><code>ambil</code>Menjalankan aktor Apify per platform dan bulan</li>
+      <li><code>verifikasi</code>Mencocokkan teks dengan oEmbed X dan TikTok</li>
+      <li><code>transkrip</code>Mengunduh subtitle VTT TikTok</li>
+      <li><code>bangun</code>Ekstraksi, dedup, relevansi, pseudonim, log</li>
+      <li><code>rapikan</code>Menyusun DATA_SIAP_PAKAI.xlsx</li>
+      <li><code>kemas</code>ZIP publik dan ZIP audit terbatas</li>
+    </ol>
+  </section>
+
+  <div class="two">
+    <section class="panel">
+      <div class="panel-head"><h2>Berkas keluaran</h2></div>
+      <div class="files">
+        <div class="file"><span class="mono">DATA_SIAP_PAKAI.xlsx</span><span class="pill ok">publik</span></div>
+        <div class="file"><span class="mono">korpus_final_*.csv</span><span class="pill ok">publik</span></div>
+        <div class="file"><span class="mono">MANIFEST.json</span><span class="pill ok">publik</span></div>
+        <div class="file"><span class="mono">log_transformasi.jsonl</span><span class="pill ok">publik</span></div>
+        <div class="file"><span class="mono">*_AUDIT_TERBATAS.*</span><span class="pill warn">terbatas</span></div>
+        <div class="file"><span class="mono">.kunci_pseudonim</span><span class="pill warn">tidak diekspor</span></div>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Log</h2></div>
+      <pre class="log" id="log">[bangun] 3.008 kandidat dibaca dari 33 run
+[bangun] duplikat & korpus lama disaring
+[verifikasi] X: 523/524 cocok · TikTok: tidak dapat dicek
+[transkrip] TikTok: 150 transkrip bahasa Indonesia
+[rapikan] DATA_SIAP_PAKAI.xlsx · 6 sheet
+[kemas] korpus_agama_v2_PUBLIK.zip
+[kemas] korpus_agama_v2_LENGKAP_AUDIT.zip</pre>
+    </section>
+  </div>
+</div>
+</main>
+
+<footer><div class="wrap">Pukat · prototipe antarmuka untuk penelitian pengembangan sistem scraping korpus media sosial · hanya data publik.</div></footer>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const fmt = new Intl.NumberFormat('id-ID');
+  const usd = v => 'US$' + v.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const IN_ARTIFACT = /claude|claudeusercontent/.test(location.hostname) || location.protocol === 'file:';
+  if (!IN_ARTIFACT) $('#modeFlag').textContent = 'Demo';
+
+  // ---------- data ----------
+  const PLATFORMS = [
+    {id:'tiktok', name:'TikTok', c:'var(--tt)', actor:'xmolodtsov/tiktok-search-scraper', unit:0.0003, unitTxt:'±US$0,0003 / video'},
+    {id:'instagram', name:'Instagram', c:'var(--ig)', actor:'scraping_solutions/instagram-boolean-search-scraper-posts-reels', unit:0.0016, perRun:0.01, unitTxt:'±US$0,0016 / post + US$0,01 / halaman'},
+    {id:'x', name:'X (Twitter)', c:'var(--x)', actor:'memo23/x-twitter-search-scraper', unit:0.0004, unitTxt:'±US$0,0004 / tweet'},
+    {id:'facebook', name:'Facebook', c:'var(--fb)', actor:'topapi/facebook-search-posts-scraper', unit:0.0024, unitTxt:'±US$0,0024 / post'}
+  ];
+  const DEFAULT_KW = ['moderasi beragama','kerukunan umat beragama','toleransi beragama','beda agama','lintas agama','konflik agama','tradisi keagamaan','agama','penistaan agama','kebebasan beragama','rumah ibadah','tempat ibadah'];
+  const RATIO = 3008/1330;
+  let keywords = [...DEFAULT_KW];
+  let oldIdCount = 0;
+
+  // ---------- platforms ----------
+  $('#platforms').innerHTML = PLATFORMS.map(p => `
+    <label class="pcard" style="--c:${p.c}">
+      <input type="checkbox" name="pf" value="${p.id}" checked>
+      <span class="tick" aria-hidden="true">✓</span>
+      <span class="pn"><span class="dot"></span>${p.name}</span>
+      <span class="actor">${p.actor}</span>
+      <span class="price">${p.unitTxt}</span>
+    </label>`).join('');
+
+  // ---------- chips ----------
+  const chipsEl = $('#chips'), kwInput = $('#kwInput');
+  function renderChips(){
+    chipsEl.querySelectorAll('.chip').forEach(c => c.remove());
+    keywords.forEach((k,i) => {
+      const s = document.createElement('span'); s.className='chip';
+      s.textContent = k;
+      const b = document.createElement('button'); b.type='button'; b.textContent='×';
+      b.setAttribute('aria-label','Hapus '+k);
+      b.onclick = () => { keywords.splice(i,1); renderChips(); update(); };
+      s.appendChild(b); chipsEl.insertBefore(s, kwInput);
+    });
+    $('#kwCount').textContent = '('+keywords.length+')';
+  }
+  function addKw(raw){
+    raw.split(/[,\n;]/).map(x=>x.trim().toLowerCase()).filter(Boolean).forEach(k => { if(!keywords.includes(k)) keywords.push(k); });
+    renderChips(); update();
+  }
+  kwInput.addEventListener('keydown', e => {
+    if (e.key==='Enter' || e.key===','){ e.preventDefault(); if(kwInput.value.trim()){ addKw(kwInput.value); kwInput.value=''; } }
+    else if (e.key==='Backspace' && !kwInput.value && keywords.length){ keywords.pop(); renderChips(); update(); }
+  });
+  kwInput.addEventListener('paste', e => {
+    const t = (e.clipboardData||window.clipboardData).getData('text');
+    if (/[,\n;]/.test(t)){ e.preventDefault(); addKw(t); }
+  });
+  kwInput.addEventListener('blur', () => { if(kwInput.value.trim()){ addKw(kwInput.value); kwInput.value=''; } });
+  chipsEl.addEventListener('click', e => { if(e.target===chipsEl) kwInput.focus(); });
+
+  // ---------- token ----------
+  const tok = $('#token'), tokStatus = $('#tokStatus');
+  let tokenOk = false;
+  $('#showTok').onclick = e => {
+    const show = tok.type==='password'; tok.type = show?'text':'password';
+    e.target.textContent = show?'Sembunyikan':'Tampilkan'; e.target.setAttribute('aria-pressed', show);
+  };
+  function setStatus(cls, txt){ tokStatus.className = 'status '+cls; tokStatus.textContent = txt; }
+  tok.addEventListener('input', () => { tokenOk=false; $('#acct').hidden=true; setStatus('','Belum diuji.'); update(); });
+  $('#testTok').onclick = async () => {
+    const t = tok.value.trim();
+    if (!t){ setStatus('bad','Token kosong. Tempel API token dari Apify Console dulu.'); return; }
+    if (!/^apify_api_[A-Za-z0-9]{20,}$/.test(t)){ setStatus('bad','Format token tidak dikenali. Token Apify diawali “apify_api_”.'); return; }
+    setStatus('', 'Menghubungi api.apify.com…');
+    try{
+      const ctl = new AbortController(); setTimeout(()=>ctl.abort(), 8000);
+      const r = await fetch('https://api.apify.com/v2/users/me', {headers:{Authorization:'Bearer '+t}, signal:ctl.signal});
+      if (r.status===401){ setStatus('bad','Token ditolak Apify. Periksa lagi atau buat token baru.'); return; }
+      const j = (await r.json()).data || {};
+      let lim = null;
+      try{ const r2 = await fetch('https://api.apify.com/v2/users/me/limits',{headers:{Authorization:'Bearer '+t}}); lim = (await r2.json()).data; }catch(_){}
+      tokenOk = true;
+      setStatus('ok','Terhubung sebagai '+(j.username||'akun Apify')+'.');
+      $('#aPlan').textContent = (j.plan && (j.plan.id||j.plan.description)) || '–';
+      if (lim && lim.limits && lim.current){
+        const left = lim.limits.maxMonthlyUsageUsd - lim.current.monthlyUsageUsd;
+        $('#aCredit').textContent = usd(Math.max(0,left));
+        $('#cap').value = Math.max(0, Math.floor(left*100)/100);
+      }
+      $('#aRet').textContent = (lim && lim.limits && lim.limits.dataRetentionDays ? lim.limits.dataRetentionDays+' hari' : '–');
+      $('#acct').hidden = false; update();
+    }catch(err){
+      if (!IN_ARTIFACT){ tokenOk = false; setStatus('bad','Tidak dapat menghubungi api.apify.com. Periksa koneksi internet, lalu coba lagi.'); update(); return; }
+      tokenOk = true;
+      setStatus('warn','Pratinjau ini tidak boleh menghubungi api.apify.com. Format token valid; uji koneksi berjalan penuh setelah halaman dipasang di situs sendiri.');
+      $('#aPlan').textContent='FREE'; $('#aCredit').textContent='US$5,00'; $('#aRet').textContent='7 hari';
+      $('#acct').hidden = false; update();
+    }
+  };
+
+  // ---------- old ids ----------
+  $('#oldIds').addEventListener('change', e => {
+    const f = e.target.files[0]; if(!f){ oldIdCount=0; return; }
+    const rd = new FileReader();
+    rd.onload = () => {
+      const txt = String(rd.result); let n = 0;
+      try{ const j = JSON.parse(txt); n = Array.isArray(j) ? j.length : Object.values(j).reduce((a,v)=>a+(Array.isArray(v)?v.length:0),0); }
+      catch(_){ n = txt.split(/\r?\n/).filter(l=>l.trim()).length; }
+      oldIdCount = n;
+      $('#oldIdsInfo').textContent = f.name+' · '+fmt.format(n)+' ID akan dikecualikan.';
+      update();
+    };
+    rd.readAsText(f);
+  });
+
+  // ---------- compute ----------
+  function months(a,b){
+    const d1=new Date(a), d2=new Date(b); if(isNaN(d1)||isNaN(d2)||d2<d1) return [];
+    const out=[]; const c=new Date(d1.getFullYear(), d1.getMonth(), 1);
+    while(c<=d2){ out.push(c.toLocaleDateString('id-ID',{month:'short',year:'numeric'})); c.setMonth(c.getMonth()+1); }
+    return out;
+  }
+  function state(){
+    const pf = [...document.querySelectorAll('input[name=pf]:checked')].map(i=>PLATFORMS.find(p=>p.id===i.value));
+    const ms = months($('#dFrom').value, $('#dTo').value);
+    const target = +$('#target').value||0, maxq = +$('#maxq').value||0, cap = +$('#cap').value||0;
+    const nM = $('#split').checked ? Math.max(ms.length,1) : 1;
+    const runs = pf.length * nM;
+    const perPf = Math.min(Math.ceil(target*RATIO), maxq * keywords.length * nM);
+    let cost = 0;
+    pf.forEach(p => { cost += perPf * p.unit + (p.perRun ? p.perRun * nM * Math.ceil(keywords.length/4) : 0); });
+    return {pf, ms, nM, runs, perPf, items: perPf*pf.length, cost, cap, target, maxq};
+  }
+  function config(s){
+    const bool = id => $('#'+id).checked;
+    return {
+      proyek: $('#namaProyek').value.trim(),
+      kata_kunci: keywords, mode_cocok: document.querySelector('input[name=match]:checked').value,
+      pengecualian: $('#exclude').value.split(',').map(x=>x.trim()).filter(Boolean), varian_tagar: bool('hashtag'),
+      platform: Object.fromEntries(s.pf.map(p=>[p.id,{aktor:p.actor,maks_per_kueri:s.maxq}])),
+      periode: {mulai:$('#dFrom').value, sampai:$('#dTo').value, zona:$('#tz').value, pecah_per_bulan:bool('split')},
+      target_per_platform: s.target, batas_biaya_usd: s.cap,
+      seleksi: $('#sel').value, subset_seimbang_per_platform: +$('#subset').value||0, min_kata: +$('#minw').value||0,
+      filter: {bahasa_indonesia:bool('oLang'), melayu:bool('oMelayu'), retweet:bool('oRt'), dedup:bool('oDedup'), id_korpus_lama:oldIdCount},
+      verifikasi: {oembed:bool('oOembed'), transkrip_tiktok:bool('oTrans'), sampel_manual:bool('oSample')?0.1:0},
+      privasi: {pseudonim:bool('oPseudo'), samarkan_kontak:bool('oMask'), komentar:bool('oComment')},
+      keluaran: {csv:bool('xCsv'), xlsx:bool('xXlsx'), log_jsonl:bool('xLog'), manifest:bool('xMan')}
+    };
+  }
+  let last;
+  function update(){
+    const s = last = state();
+    $('#sKw').textContent = keywords.length;
+    $('#sPf').textContent = s.pf.map(p=>p.name.split(' ')[0]).join(', ') || '–';
+    $('#sPer').textContent = s.ms.length ? (s.ms[0]+' – '+s.ms[s.ms.length-1]) : '–';
+    $('#sRuns').textContent = fmt.format(s.runs);
+    $('#sItems').textContent = '±'+fmt.format(s.items);
+    $('#sTarget').textContent = fmt.format(s.target*s.pf.length);
+    $('#sCost').textContent = usd(s.cost);
+    const pct = s.cap>0 ? Math.min(100, s.cost/s.cap*100) : 100;
+    const bar = $('#sCapBar'); bar.firstElementChild.style.width = pct+'%'; bar.classList.toggle('over', s.cost>s.cap);
+    $('#sCapTxt').textContent = s.cap>0 ? (pct.toFixed(0)+'% dari batas '+usd(s.cap)) : 'Batas biaya belum diisi.';
+
+    const issues = [];
+    if (!tokenOk) issues.push('Uji koneksi token Apify dulu.');
+    if (!keywords.length) issues.push('Tambahkan minimal satu kata kunci.');
+    if (!s.pf.length) issues.push('Pilih minimal satu platform.');
+    if (!s.ms.length) issues.push('Tanggal “sampai” harus setelah tanggal “mulai”.');
+    if (s.cost > s.cap) issues.push('Perkiraan biaya melebihi batas. Kurangi platform, bulan, atau target.');
+    $('#issues').innerHTML = issues.map(i=>'<li>'+i+'</li>').join('');
+    $('#runBtn').disabled = issues.length>0;
+
+    const done = {akun:tokenOk, kunci:keywords.length>0, sumber:s.pf.length>0 && s.ms.length>0, opsi:s.target>0 && s.cost<=s.cap};
+    document.querySelectorAll('#stepper li').forEach(li => li.classList.toggle('done', !!done[li.dataset.s]));
+    $('#cfgOut').textContent = JSON.stringify(config(s), null, 2);
+  }
+  document.getElementById('form').addEventListener('input', update);
+  document.getElementById('form').addEventListener('change', update);
+
+  // ---------- actions ----------
+  function toast(msg){
+    const t = document.createElement('div'); t.className='toast'; t.setAttribute('role','status'); t.textContent = msg;
+    document.body.appendChild(t); setTimeout(()=>t.remove(), 2600);
+  }
+  $('#copyCfg').onclick = async () => {
+    const txt = $('#cfgOut').textContent;
+    try{ await navigator.clipboard.writeText(txt); toast('config.json disalin.'); }
+    catch(_){ const d=$('#cfgOut').closest('details'); d.open=true; const r=document.createRange(); r.selectNodeContents($('#cfgOut')); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Teks sudah diblok, tekan Ctrl+C untuk menyalin.'); }
+  };
+  $('#saveDraft').onclick = () => {
+    try{ localStorage.setItem('korpus_draft', JSON.stringify(config(last))); toast('Draf tersimpan di peramban ini (tanpa token).'); }
+    catch(_){ toast('Peramban ini tidak mengizinkan penyimpanan draf.'); }
+  };
+  try{
+    const d = JSON.parse(localStorage.getItem('korpus_draft')||'null');
+    if (d && Array.isArray(d.kata_kunci)){ keywords = d.kata_kunci; if(d.proyek) $('#namaProyek').value = d.proyek; }
+  }catch(_){}
+
+  // ---------- run (simulated) ----------
+  let timer = null;
+  $('#form').addEventListener('submit', e => {
+    e.preventDefault(); update(); if ($('#runBtn').disabled) return;
+    const s = last; const rows = [];
+    s.pf.forEach(p => (s.nM>1 ? s.ms : [s.ms[0]+(s.ms.length>1?' – '+s.ms[s.ms.length-1]:'')]).forEach(m => rows.push({p, m, prog:0, items:0, max:Math.round(s.perPf/s.nM)})));
+    $('#queueBody').innerHTML = rows.map((r,i)=>`<tr>
+      <td><span class="pdot" style="--c:${r.p.c}"></span>${r.p.name}</td><td>${r.m}</td>
+      <td class="mono">${r.p.actor.split('/')[0]}/…</td>
+      <td id="st${i}"><span class="pill idle">Antre</span></td>
+      <td><span class="mini"><i id="pb${i}" style="width:0"></i></span></td>
+      <td class="r num" id="it${i}">0</td></tr>`).join('');
+    $('#queueMeta').textContent = fmt.format(rows.length)+' run · '+$('#namaProyek').value;
+    $('#queuePanel').hidden = false;
+    $('#queueBanner').hidden = false;
+    $('#queueBannerTxt').textContent = 'Mode demo: run di bawah disimulasikan di peramban dan tidak dikirim ke Apify, jadi kredit tidak terpakai. Eksekusi sebenarnya memakai korpus_agama.py dengan config.json dari halaman proyek.';
+    location.hash = 'hasil';
+    clearInterval(timer);
+    let active = 0;
+    timer = setInterval(() => {
+      const live = rows.slice(active, active+3);
+      if (!live.length){ clearInterval(timer); toast('Semua run selesai.'); return; }
+      live.forEach((r,j) => {
+        const i = active + j;
+        r.prog = Math.min(100, r.prog + 8 + Math.random()*14);
+        r.items = Math.round(r.max * r.prog/100);
+        document.getElementById('pb'+i).style.width = r.prog+'%';
+        document.getElementById('it'+i).textContent = fmt.format(r.items);
+        document.getElementById('st'+i).innerHTML = r.prog>=100 ? '<span class="pill ok">Selesai</span>' : '<span class="pill run">Berjalan</span>';
+      });
+      while (rows[active] && rows[active].prog>=100) active++;
+    }, 450);
+  });
+
+  // ---------- media chart ----------
+  const MEDIA = [
+    ['TikTok','var(--tt)',{video:283}],
+    ['Instagram','var(--ig)',{gambar:83,video:126}],
+    ['X (Twitter)','var(--x)',{teks:50,gambar:144,video:240,tautan:90}],
+    ['Facebook','var(--fb)',{teks:3,gambar:306,video:4,tautan:1}]
+  ];
+  const MC = {teks:'#8A97AE',gambar:'#2BA37A',video:'var(--accent)',tautan:'#D08A1E'};
+  $('#media').innerHTML = MEDIA.map(([n,c,m]) => {
+    const tot = Object.values(m).reduce((a,b)=>a+b,0);
+    const segs = Object.entries(m).map(([k,v]) => `<i style="width:${v/tot*100}%;background:${MC[k]}" title="${k}: ${v}"></i>`).join('');
+    const label = Object.entries(m).map(([k,v])=>k+' '+v).join(', ');
+    return `<div class="mediarow"><span><span class="pdot" style="--c:${c}"></span>${n.split(' ')[0]}</span><div class="stacked" role="img" aria-label="${n}: ${label}">${segs}</div><span class="n">${tot}</span></div>`;
+  }).join('');
+
+  // ---------- routing ----------
+  function route(){
+    const v = location.hash.replace('#','') === 'hasil' ? 'hasil' : 'proyek';
+    $('#view-proyek').hidden = v!=='proyek'; $('#view-hasil').hidden = v!=='hasil';
+    document.querySelectorAll('nav.tabs a').forEach(a => a.toggleAttribute('aria-current', a.dataset.view===v) || a.dataset.view===v && a.setAttribute('aria-current','page'));
+    document.querySelectorAll('nav.tabs a').forEach(a => { if(a.dataset.view===v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+    window.scrollTo(0,0);
+  }
+  addEventListener('hashchange', route);
+  renderChips(); update(); route();
+})();
+</script>
+</body>
+</html>

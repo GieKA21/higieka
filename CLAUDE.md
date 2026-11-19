@@ -22,6 +22,7 @@ dari branch `main`, akar repositori. Berkas `CNAME` dan `.nojekyll` wajib tetap 
 | `robots.txt`   | Izin perayapan mesin pencari                |
 | `sitemap.xml`  | Peta situs                                  |
 | `kkn/index.html` | Rancangan dashboard admin LKH KKN          |
+| `pukat/index.html` | Pukat, prototipe antarmuka pengumpul korpus |
 
 Seluruh CSS dan JavaScript berada inline di dalam `index.html`. Jangan memecahnya
 menjadi berkas terpisah tanpa diminta; sifat satu-berkas adalah keputusan desain
@@ -62,6 +63,13 @@ Menu Pendaftar pada `/kkn/` membaca Sheet yang sama lewat aplikasi web yang sama
 dashboard dan disimpan di `localStorage` peramban itu saja; kunci tidak pernah ditulis
 ke repositori. Isi Sheet tidak disimpan di peramban; hanya pendaftar yang dipakai untuk
 penempatan yang masuk ke data peserta.
+
+Halaman `/pukat/` adalah prototipe antarmuka Pukat, sistem pengumpulan korpus media
+sosial berbasis Apify yang menjadi bahan skripsi pemilik situs. Satu berkas dengan
+gayanya sendiri (Inter, Space Grotesk, aksen `#1F4FC9`), bukan gaya portofolio.
+Uji koneksi memanggil `api.apify.com` langsung dari peramban; token tidak disimpan.
+Tombol Jalankan hanya menyimulasikan antrean run; angka hasil berasal dari korpus v2
+dan ditandai sebagai contoh. Jangan menambahkan token atau data mentah ke repositori.
 
 ## Arah desain
 
