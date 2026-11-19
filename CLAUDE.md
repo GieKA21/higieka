@@ -22,7 +22,7 @@ dari branch `main`, akar repositori. Berkas `CNAME` dan `.nojekyll` wajib tetap 
 | `robots.txt`   | Izin perayapan mesin pencari                |
 | `sitemap.xml`  | Peta situs                                  |
 | `kkn/index.html` | Rancangan dashboard admin LKH KKN          |
-| `pukat/index.html` | Pukat, prototipe antarmuka pengumpul korpus |
+| `pukat/index.html` | Pukat, pengumpul korpus media sosial berbasis Apify |
 
 Seluruh CSS dan JavaScript berada inline di dalam `index.html`. Jangan memecahnya
 menjadi berkas terpisah tanpa diminta; sifat satu-berkas adalah keputusan desain
@@ -64,12 +64,18 @@ dashboard dan disimpan di `localStorage` peramban itu saja; kunci tidak pernah d
 ke repositori. Isi Sheet tidak disimpan di peramban; hanya pendaftar yang dipakai untuk
 penempatan yang masuk ke data peserta.
 
-Halaman `/pukat/` adalah prototipe antarmuka Pukat, sistem pengumpulan korpus media
-sosial berbasis Apify yang menjadi bahan skripsi pemilik situs. Satu berkas dengan
-gayanya sendiri (Inter, Space Grotesk, aksen `#1F4FC9`), bukan gaya portofolio.
-Uji koneksi memanggil `api.apify.com` langsung dari peramban; token tidak disimpan.
-Tombol Jalankan hanya menyimulasikan antrean run; angka hasil berasal dari korpus v2
-dan ditandai sebagai contoh. Jangan menambahkan token atau data mentah ke repositori.
+Halaman `/pukat/` adalah Pukat, sistem pengumpulan korpus media sosial berbasis Apify
+yang menjadi bahan skripsi pemilik situs. Satu berkas dengan gayanya sendiri (Inter,
+Space Grotesk, aksen `#1F4FC9`), bukan gaya portofolio. Seluruh proses berjalan di
+peramban: token Apify pengguna dipakai untuk memulai run aktor (TikTok, Instagram, X,
+Facebook) lewat `api.apify.com`, memantau statusnya, mengunduh dataset, lalu mengolah
+korpus (filter periode, relevansi kata kunci, bahasa, Melayu, deduplikasi, pseudonim
+HMAC, penyamaran kontak, subset seimbang, sampel verifikasi) dan memeriksa ulang lewat
+oEmbed X dan TikTok. Keluaran berupa CSV, `DATA_SIAP_PAKAI.xlsx` (SheetJS), log JSONL,
+dan `MANIFEST.json` berisi hash SHA-256, dikemas dengan JSZip; kedua pustaka dimuat dari
+cdnjs. Token tidak pernah disimpan; antrean run, draf, dan kunci pseudonim disimpan di
+`localStorage` peramban pengguna. Pemetaan kolom aktor mengikuti `korpus_agama.py`.
+Jangan menambahkan token, kunci, atau data mentah ke repositori.
 
 ## Arah desain
 

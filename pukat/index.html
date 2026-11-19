@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pukat · Pengumpul Korpus Media Sosial</title>
-<meta name="description" content="Pukat: prototipe antarmuka sistem pengumpulan korpus media sosial berbasis Apify dengan rekaman asal-usul data, estimasi biaya, dan pemantauan run.">
+<meta name="description" content="Pukat: sistem pengumpulan korpus media sosial berbasis Apify dengan rekaman asal-usul data, estimasi biaya, pemantauan run, dan pengolahan korpus di peramban.">
 <meta name="theme-color" content="#1F4FC9">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -211,6 +211,27 @@ td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:.88rem;z-index:20;max-width:calc(100% - 32px)}
 footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* tambahan versi berjalan */
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.funnel{display:flex;flex-direction:column;gap:6px}
+.frow{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:.85rem}
+.frow .fb{height:10px;border-radius:999px;background:var(--sunk);overflow:hidden}
+.frow .fb i{display:block;height:100%;background:var(--muted);border-radius:999px}
+.frow.lolos .fb i{background:var(--ok)}
+.frow .n{text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:520px){.frow{grid-template-columns:minmax(0,1fr) 54px}.frow .fb{grid-column:1/-1;order:3}}
+.prev td.teks{white-space:normal;min-width:280px;max-width:520px;font-size:.84rem}
+.dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.dl button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:10px 12px}
+.dl button small{color:var(--muted);font-weight:400;font-size:.78rem}
+.dl button.terbatas{border-style:dashed}
+textarea{resize:vertical;min-height:72px;font-family:var(--f-mono);font-size:.82rem}
+.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r);font-size:.9rem}
+.tag{font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+.contoh-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;margin:26px 0 12px;padding-top:18px;border-top:1px solid var(--line)}
+td a{color:var(--accent)}
+.warnlist{margin:0;padding-left:18px;font-size:.83rem;color:var(--warn)}
 </style>
 </head>
 <body>
@@ -220,9 +241,9 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
       <span class="mark"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1" fill="#fff"/><rect x="9" y="2" width="5" height="5" rx="1" fill="#fff" opacity=".6"/><rect x="2" y="9" width="5" height="5" rx="1" fill="#fff" opacity=".6"/><rect x="9" y="9" width="5" height="5" rx="1" fill="#fff"/></svg></span>
       <span>Pukat <span style="font-family:var(--f-body);font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">pengumpul korpus media sosial</span></span>
     </a>
-    <span class="preview-flag" id="modeFlag">Pratinjau</span>
+    <span class="preview-flag" id="modeFlag" hidden>Pratinjau</span>
     <nav class="tabs" aria-label="Halaman">
-      <a href="#proyek" data-view="proyek">Proyek baru</a>
+      <a href="#proyek" data-view="proyek">Proyek</a>
       <a href="#hasil" data-view="hasil">Pemantauan &amp; hasil</a>
     </nav>
   </div>
@@ -230,16 +251,16 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
 
 <main class="wrap">
 
-<!-- ============ VIEW 1: PROYEK ============ -->
+<!-- ============ PROYEK ============ -->
 <div id="view-proyek">
   <div class="page-head">
     <div>
-      <h1>Proyek scraping baru</h1>
-      <p class="muted">Isi kata kunci, akun Apify, sumber, dan periode. Setiap run tercatat lengkap (aktor, input, waktu, hash) agar korpus dapat ditelusuri ulang.</p>
+      <h1>Proyek scraping</h1>
+      <p class="muted">Isi kata kunci, akun Apify, sumber, dan periode. Run dijalankan di akun Apify Anda sendiri, lalu hasilnya diolah di peramban ini. Setiap run tercatat lengkap (aktor, input, waktu, hash) agar korpus dapat ditelusuri ulang.</p>
     </div>
     <div class="field" style="min-width:220px;flex:0 1 280px">
       <label class="lbl" for="namaProyek">Nama proyek</label>
-      <input type="text" id="namaProyek" value="korpus_agama_v2">
+      <input type="text" id="namaProyek" value="korpus_agama_v3" spellcheck="false">
     </div>
   </div>
 
@@ -253,7 +274,6 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
   <form id="form" class="grid" novalidate>
     <div class="stack">
 
-      <!-- Akun -->
       <section class="panel" aria-labelledby="h-akun">
         <div class="panel-head"><h2 id="h-akun">Akun Apify</h2><span class="step">LANGKAH 1</span></div>
         <div class="field">
@@ -263,7 +283,7 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
             <button type="button" id="showTok" class="small" aria-pressed="false">Tampilkan</button>
             <button type="button" id="testTok">Uji koneksi</button>
           </div>
-          <p class="hint">Ambil di Apify Console → Settings → API &amp; Integrations. Token hanya dipakai di peramban ini, tidak disimpan dan tidak ikut diekspor.</p>
+          <p class="hint">Ambil di Apify Console → Settings → API &amp; Integrations. Token hanya dikirim ke api.apify.com dan hilang saat halaman ditutup; tidak disimpan dan tidak ikut diekspor.</p>
         </div>
         <div class="status" id="tokStatus" style="margin-top:12px">Belum diuji.</div>
         <div class="acct" id="acct" hidden>
@@ -273,7 +293,6 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
         </div>
       </section>
 
-      <!-- Kata kunci -->
       <section class="panel" aria-labelledby="h-kunci">
         <div class="panel-head"><h2 id="h-kunci">Kata kunci</h2><span class="step">LANGKAH 2</span></div>
         <div class="field">
@@ -281,7 +300,7 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
           <div class="chips" id="chips">
             <input type="text" id="kwInput" placeholder="Ketik lalu tekan Enter atau koma…" aria-describedby="kwHint">
           </div>
-          <p class="hint" id="kwHint">Tempel daftar berkoma sekaligus juga bisa. Frasa dicari utuh.</p>
+          <p class="hint" id="kwHint">Tempel daftar berkoma sekaligus juga bisa.</p>
         </div>
         <div class="row" style="margin-top:14px">
           <div class="field">
@@ -289,7 +308,7 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
             <div class="seg" role="radiogroup" aria-label="Mode pencocokan">
               <label><input type="radio" name="match" value="frasa" checked>Frasa utuh</label>
               <label><input type="radio" name="match" value="semua">Semua kata</label>
-              <label><input type="radio" name="match" value="salah">Salah satu</label>
+              <label><input type="radio" name="match" value="salah">Salah satu kata</label>
             </div>
           </div>
           <div class="field">
@@ -297,10 +316,9 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
             <input type="text" id="exclude" placeholder="mis. giveaway, promo, jual">
           </div>
         </div>
-        <label class="sw" style="border:0;margin-top:6px"><input type="checkbox" id="hashtag" checked><span>Sertakan varian tagar<small>“toleransi beragama” juga dicari sebagai #toleransiberagama</small></span></label>
+        <label class="sw" style="border:0;margin-top:6px"><input type="checkbox" id="hashtag" checked><span>Sertakan varian tagar<small>“toleransi beragama” juga cocok dengan #toleransiberagama</small></span></label>
       </section>
 
-      <!-- Sumber & periode -->
       <section class="panel" aria-labelledby="h-sumber">
         <div class="panel-head"><h2 id="h-sumber">Sumber &amp; periode</h2><span class="step">LANGKAH 3</span></div>
         <div class="platforms" id="platforms"></div>
@@ -308,17 +326,16 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
           <div class="field"><label class="lbl" for="dFrom">Mulai</label><input type="date" id="dFrom" value="2026-04-01"></div>
           <div class="field"><label class="lbl" for="dTo">Sampai</label><input type="date" id="dTo" value="2026-09-30"></div>
           <div class="field"><label class="lbl" for="tz">Zona waktu</label>
-            <select id="tz"><option value="Asia/Jakarta">WIB (UTC+7)</option><option value="Asia/Makassar">WITA (UTC+8)</option><option value="Asia/Jayapura">WIT (UTC+9)</option></select></div>
+            <select id="tz"><option value="7">WIB (UTC+7)</option><option value="8">WITA (UTC+8)</option><option value="9">WIT (UTC+9)</option></select></div>
         </div>
-        <label class="sw" style="border:0;margin-top:6px"><input type="checkbox" id="split" checked><span>Pecah run per bulan<small>Hasil tersebar merata sepanjang periode, tidak menumpuk di bulan terbaru</small></span></label>
+        <label class="sw" style="border:0;margin-top:6px"><input type="checkbox" id="split" checked><span>Pecah run per bulan (X dan Facebook)<small>Hasil tersebar merata sepanjang periode. TikTok dan Instagram memakai satu run dengan filter tanggal.</small></span></label>
       </section>
 
-      <!-- Opsi -->
       <section class="panel" aria-labelledby="h-opsi">
         <div class="panel-head"><h2 id="h-opsi">Opsi pengolahan</h2><span class="step">LANGKAH 4</span></div>
         <div class="row">
           <div class="field"><label class="lbl" for="target">Target dokumen bersih / platform</label><input type="number" id="target" min="10" step="10" value="150"></div>
-          <div class="field"><label class="lbl" for="maxq">Maks. hasil per kueri</label><input type="number" id="maxq" min="10" step="10" value="100"></div>
+          <div class="field"><label class="lbl" for="maxq">Maks. hasil per kueri</label><input type="number" id="maxq" min="10" step="5" value="20"></div>
           <div class="field"><label class="lbl" for="cap">Batas biaya (US$)</label><input type="number" id="cap" min="0" step="0.5" value="5"></div>
         </div>
 
@@ -332,44 +349,43 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
               <div class="field"><label class="lbl" for="minw">Minimal kata per dokumen</label><input type="number" id="minw" min="0" value="5"></div>
             </div>
             <div class="switches">
-              <label class="sw"><input type="checkbox" id="oLang" checked><span>Hanya bahasa Indonesia<small>Deteksi bahasa per dokumen</small></span></label>
+              <label class="sw"><input type="checkbox" id="oLang" checked><span>Hanya bahasa Indonesia<small>Label bahasa X, selain itu heuristik kata fungsi</small></span></label>
               <label class="sw"><input type="checkbox" id="oMelayu" checked><span>Saring konten Melayu<small>Kosakata khas MY/BN ditandai lalu dibuang</small></span></label>
-              <label class="sw"><input type="checkbox" id="oRt"><span>Sertakan retweet / repost</span></label>
-              <label class="sw"><input type="checkbox" id="oDedup" checked><span>Deduplikasi teks<small>Termasuk terhadap korpus lama</small></span></label>
+              <label class="sw"><input type="checkbox" id="oRt"><span>Sertakan retweet</span></label>
+              <label class="sw"><input type="checkbox" id="oDedup" checked><span>Deduplikasi teks<small>ID ganda dan teks identik</small></span></label>
             </div>
             <div class="field">
               <label class="lbl" for="oldIds">ID korpus lama untuk dikecualikan</label>
               <input type="file" id="oldIds" accept=".json,.csv,.txt">
-              <p class="hint" id="oldIdsInfo">Opsional. Format JSON/CSV berisi ID postingan.</p>
+              <p class="hint" id="oldIdsInfo">Opsional. JSON (daftar atau berkas id_korpus_lama.json) atau CSV satu ID per baris, mis. twitter:1234.</p>
             </div>
           </div>
         </details>
 
         <details class="adv">
           <summary>Verifikasi &amp; privasi</summary>
-          <div class="adv-body switches">
-            <label class="sw"><input type="checkbox" id="oOembed" checked><span>Cek ulang teks via oEmbed<small>X dan TikTok, endpoint publik resmi</small></span></label>
-            <label class="sw"><input type="checkbox" id="oTrans" checked><span>Ambil transkrip TikTok<small>Dari subtitle bawaan video</small></span></label>
-            <label class="sw"><input type="checkbox" id="oPseudo" checked><span>Pseudonimkan akun<small>HMAC dengan kunci lokal</small></span></label>
-            <label class="sw"><input type="checkbox" id="oMask" checked><span>Samarkan email, nomor HP, @mention</span></label>
-            <label class="sw"><input type="checkbox" id="oSample" checked><span>Sampel verifikasi manual 10%</span></label>
-            <label class="sw"><input type="checkbox" id="oComment"><span>Kumpulkan komentar<small>Menambah biaya dan beban anonimisasi</small></span></label>
-          </div>
-        </details>
-
-        <details class="adv">
-          <summary>Keluaran</summary>
-          <div class="adv-body switches">
-            <label class="sw"><input type="checkbox" id="xCsv" checked><span>CSV per platform</span></label>
-            <label class="sw"><input type="checkbox" id="xXlsx" checked><span>DATA_SIAP_PAKAI.xlsx</span></label>
-            <label class="sw"><input type="checkbox" id="xLog" checked><span>Log transformasi (JSONL)</span></label>
-            <label class="sw"><input type="checkbox" id="xMan" checked><span>MANIFEST + hash SHA-256</span></label>
+          <div class="adv-body">
+            <div class="switches">
+              <label class="sw"><input type="checkbox" id="oOembed" checked><span>Cek ulang lewat oEmbed<small>X: teks dicocokkan; TikTok: keberadaan video</small></span></label>
+              <label class="sw"><input type="checkbox" id="oTrans"><span>Transkrip bawaan TikTok<small>Add-on berbayar aktor, hanya paket Apify berbayar</small></span></label>
+              <label class="sw"><input type="checkbox" id="oPseudo" checked><span>Pseudonimkan akun<small>HMAC-SHA256 dengan kunci proyek</small></span></label>
+              <label class="sw"><input type="checkbox" id="oMask" checked><span>Samarkan email, telepon, NIK, @mention</span></label>
+              <label class="sw"><input type="checkbox" id="oSample" checked><span>Tandai sampel verifikasi manual 10%</span></label>
+            </div>
+            <div class="field">
+              <label class="lbl" for="kunci">Kunci pseudonim (heksadesimal)</label>
+              <div class="inline">
+                <input type="password" id="kunci" autocomplete="off" spellcheck="false" placeholder="64 karakter hex">
+                <button type="button" id="kunciBaru" class="small">Buat baru</button>
+                <button type="button" id="kunciUnduh" class="small">Unduh</button>
+              </div>
+              <p class="hint">Kunci yang sama menghasilkan pseudonim yang sama antar-run. Simpan berkasnya secara terpisah dan jangan dibagikan. Kunci disimpan di peramban ini saja.</p>
+            </div>
           </div>
         </details>
       </section>
     </div>
 
-    <!-- Ringkasan -->
     <aside class="summary" aria-labelledby="h-sum">
       <div class="sum-head">
         <h2 id="h-sum">Ringkasan run</h2>
@@ -386,9 +402,10 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
         <div class="kv"><span>Platform</span><b id="sPf">0</b></div>
         <div class="kv"><span>Periode</span><b id="sPer">–</b></div>
         <div class="kv"><span>Jumlah run</span><b id="sRuns">0</b></div>
-        <div class="kv"><span>Perkiraan kandidat</span><b id="sItems">0</b></div>
+        <div class="kv"><span>Batas item diminta</span><b id="sItems">0</b></div>
         <div class="kv"><span>Target dokumen bersih</span><b id="sTarget">0</b></div>
-        <p class="hint">Perkiraan kandidat memakai rasio korpus v2: 3.008 kandidat untuk 1.330 dokumen bersih (±2,3×).</p>
+        <p class="hint">Jumlah item diminta = target × 2,3, mengikuti rasio korpus v2 (3.008 kandidat untuk 1.330 dokumen bersih). Biaya sebenarnya dibatasi per run lewat maxTotalChargeUsd.</p>
+        <ul class="warnlist" id="warns"></ul>
         <ul class="issues" id="issues"></ul>
       </div>
       <div class="sum-foot">
@@ -406,365 +423,984 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:.8rem;color
   </form>
 </div>
 
-<!-- ============ VIEW 2: HASIL ============ -->
+<!-- ============ HASIL ============ -->
 <div id="view-hasil" hidden>
   <div class="page-head">
     <div>
       <h1>Pemantauan &amp; hasil</h1>
-      <p class="muted" id="hasilSub">Antrean run aktif di atas, hasil korpus terakhir di bawah.</p>
+      <p class="muted" id="hasilSub">Antrean run di atas, hasil pengolahan di bawahnya.</p>
     </div>
     <a href="#proyek"><button type="button">← Kembali ke proyek</button></a>
   </div>
 
-  <div class="banner" id="queueBanner" hidden>
-    <span aria-hidden="true">●</span>
-    <span id="queueBannerTxt"></span>
-  </div>
+  <div class="banner" id="banner" hidden><span aria-hidden="true">●</span><span id="bannerTxt"></span></div>
 
-  <section class="panel" id="queuePanel" hidden style="margin-bottom:18px">
+  <section class="panel" style="margin-bottom:18px">
     <div class="panel-head"><h2>Antrean run</h2><span class="hint" id="queueMeta"></span></div>
-    <div class="tbl-wrap">
+    <div id="queueEmpty" class="empty">Belum ada run. Jalankan dari halaman Proyek, atau olah run lama di bawah.</div>
+    <div class="tbl-wrap" id="queueWrap" hidden>
       <table>
-        <thead><tr><th>Platform</th><th>Bulan</th><th>Aktor</th><th>Status</th><th>Progres</th><th class="r">Item</th></tr></thead>
+        <thead><tr><th>Platform</th><th>Periode</th><th>Run ID</th><th>Status</th><th class="r">Item</th><th class="r">Biaya</th><th></th></tr></thead>
         <tbody id="queueBody"></tbody>
       </table>
     </div>
+    <div class="btnrow" style="margin-top:12px">
+      <button type="button" id="btnOlah" class="primary" disabled>Olah hasil</button>
+      <button type="button" id="btnAbortAll" disabled>Hentikan semua run</button>
+      <button type="button" id="btnReset" class="ghost">Kosongkan antrean</button>
+    </div>
+    <details class="adv" style="margin-top:14px">
+      <summary>Olah run yang sudah ada</summary>
+      <div class="adv-body">
+        <div class="field">
+          <label class="lbl" for="oldRuns">Run ID Apify, satu per baris</label>
+          <textarea id="oldRuns" spellcheck="false" placeholder="D6nTg3ugDyl3xrum7&#10;5xC8wpxbyG9oaIf4V"></textarea>
+          <p class="hint">Tanpa biaya: hanya membaca dataset yang masih tersimpan di akun (retensi paket gratis 7 hari). Platform dikenali dari nama aktornya. Perlu token yang sudah diuji.</p>
+        </div>
+        <div class="btnrow"><button type="button" id="btnImport">Tambahkan ke antrean</button></div>
+      </div>
+    </details>
   </section>
 
-  <div class="panel-head" style="margin:6px 0 12px">
-    <h2>Korpus terakhir: korpus_agama_v2</h2>
-    <span class="pill idle">Contoh data · Apr–Sep 2026</span>
-  </div>
+  <div id="hasilReal" hidden>
+    <div class="kpis">
+      <div class="kpi"><div class="k">Kandidat terkumpul</div><div class="v" id="kKand">0</div><div class="s" id="kKandS"></div></div>
+      <div class="kpi"><div class="k">Dokumen bersih</div><div class="v" id="kLolos">0</div><div class="s" id="kLolosS"></div></div>
+      <div class="kpi"><div class="k">Cek oEmbed</div><div class="v" id="kOe">–</div><div class="s" id="kOeS">belum dijalankan</div></div>
+      <div class="kpi"><div class="k">Biaya aktual</div><div class="v" id="kCost">US$0,00</div><div class="s" id="kCostS"></div></div>
+    </div>
 
-  <div class="kpis">
-    <div class="kpi"><div class="k">Kandidat terkumpul</div><div class="v">3.008</div><div class="s">dari 33 run Apify</div></div>
-    <div class="kpi"><div class="k">Dokumen bersih</div><div class="v">1.330</div><div class="s">44,2% kandidat lolos</div></div>
-    <div class="kpi"><div class="k">Cek oEmbed X</div><div class="v">523/524</div><div class="s">teks cocok dengan sumber</div></div>
-    <div class="kpi"><div class="k">Transkrip TikTok</div><div class="v">150/283</div><div class="s">dari subtitle bawaan</div></div>
-  </div>
+    <div class="two" style="margin-bottom:18px">
+      <section class="panel">
+        <div class="panel-head"><h2>Per platform</h2><span class="hint num" id="pfTotal"></span></div>
+        <div class="tbl-wrap">
+          <table style="min-width:440px">
+            <thead><tr><th>Platform</th><th class="r">Kandidat</th><th class="r">Lolos</th><th class="r">Subset</th><th>oEmbed</th></tr></thead>
+            <tbody id="pfBody"></tbody>
+          </table>
+        </div>
+        <div class="btnrow" style="margin-top:12px">
+          <button type="button" id="btnOembed" class="small">Jalankan cek oEmbed</button>
+          <span class="hint" id="oeProg"></span>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>Alasan tersaring</h2><span class="hint">semua kandidat</span></div>
+        <div class="funnel" id="funnel"></div>
+      </section>
+    </div>
 
-  <div class="two" style="margin-bottom:18px">
-    <section class="panel">
-      <div class="panel-head"><h2>Dokumen bersih per platform</h2><span class="hint num">total 1.330</span></div>
-      <div class="tbl-wrap">
-        <table style="min-width:440px">
-          <thead><tr><th>Platform</th><th class="r">Dokumen</th><th class="r">Porsi</th><th>Verifikasi teks</th></tr></thead>
-          <tbody>
-            <tr><td><span class="pdot" style="--c:var(--tt)"></span>TikTok</td><td class="r">283</td><td class="r">21,3%</td><td><span class="pill warn">Tidak dapat dicek</span></td></tr>
-            <tr><td><span class="pdot" style="--c:var(--ig)"></span>Instagram</td><td class="r">209</td><td class="r">15,7%</td><td><span class="pill idle">Tidak diakses otomatis</span></td></tr>
-            <tr><td><span class="pdot" style="--c:var(--x)"></span>X (Twitter)</td><td class="r">524</td><td class="r">39,4%</td><td><span class="pill ok">523 cocok</span></td></tr>
-            <tr><td><span class="pdot" style="--c:var(--fb)"></span>Facebook</td><td class="r">314</td><td class="r">23,6%</td><td><span class="pill idle">Tidak diakses otomatis</span></td></tr>
-          </tbody>
-        </table>
+    <div class="two" style="margin-bottom:18px">
+      <section class="panel">
+        <div class="panel-head"><h2>Jenis media</h2></div>
+        <div id="mediaReal"></div>
+        <div class="legend"><span style="--c:#8A97AE">Teks</span><span style="--c:#2BA37A">Gambar</span><span style="--c:var(--accent)">Video</span><span style="--c:#D08A1E">Tautan</span><span style="--c:var(--line)">Tidak diketahui</span></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>Unduhan</h2></div>
+        <div class="dl">
+          <button type="button" data-dl="zip"><b>Paket publik (.zip)</b><small>CSV, XLSX, log, MANIFEST</small></button>
+          <button type="button" data-dl="xlsx"><b>DATA_SIAP_PAKAI.xlsx</b><small>Satu sheet per platform</small></button>
+          <button type="button" data-dl="csv"><b>korpus_final_semua.csv</b><small>Semua platform</small></button>
+          <button type="button" data-dl="manifest"><b>MANIFEST.json</b><small>Run, input, hash berkas</small></button>
+          <button type="button" data-dl="raw" class="terbatas"><b>Data mentah (terbatas)</b><small>Memuat nama akun asli, jangan dibagikan</small></button>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel" style="margin-bottom:18px">
+      <div class="panel-head"><h2>Pratinjau korpus</h2><span class="hint" id="prevMeta"></span></div>
+      <div class="inline" style="margin-bottom:10px">
+        <select id="prevPf" aria-label="Saring platform" style="max-width:200px"><option value="">Semua platform</option></select>
       </div>
-      <p class="hint" style="margin-top:10px">oEmbed TikTok tidak mengembalikan teks keterangan, sehingga statusnya tercatat “tidak dapat dicek”, bukan gagal.</p>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head"><h2>Jenis media</h2></div>
-      <div id="media"></div>
-      <div class="legend">
-        <span style="--c:#8A97AE">Teks</span><span style="--c:#2BA37A">Gambar</span><span style="--c:var(--accent)">Video</span><span style="--c:#D08A1E">Tautan</span>
+      <div class="tbl-wrap">
+        <table class="prev">
+          <thead><tr><th>Doc ID</th><th>Platform</th><th>Tanggal</th><th>Teks (anonim)</th><th>Kata kunci</th><th>Media</th></tr></thead>
+          <tbody id="prevBody"></tbody>
+        </table>
       </div>
     </section>
   </div>
 
   <section class="panel" style="margin-bottom:18px">
-    <div class="panel-head"><h2>Tahap pipeline</h2><span class="hint">urutan perintah di korpus_agama.py</span></div>
-    <ol class="pipeline">
-      <li><code>ambil</code>Menjalankan aktor Apify per platform dan bulan</li>
-      <li><code>verifikasi</code>Mencocokkan teks dengan oEmbed X dan TikTok</li>
-      <li><code>transkrip</code>Mengunduh subtitle VTT TikTok</li>
-      <li><code>bangun</code>Ekstraksi, dedup, relevansi, pseudonim, log</li>
-      <li><code>rapikan</code>Menyusun DATA_SIAP_PAKAI.xlsx</li>
-      <li><code>kemas</code>ZIP publik dan ZIP audit terbatas</li>
-    </ol>
+    <div class="panel-head"><h2>Log</h2><button type="button" class="small ghost" id="btnLogDl">Unduh log</button></div>
+    <pre class="log" id="log" aria-live="polite"></pre>
   </section>
 
-  <div class="two">
-    <section class="panel">
-      <div class="panel-head"><h2>Berkas keluaran</h2></div>
-      <div class="files">
-        <div class="file"><span class="mono">DATA_SIAP_PAKAI.xlsx</span><span class="pill ok">publik</span></div>
-        <div class="file"><span class="mono">korpus_final_*.csv</span><span class="pill ok">publik</span></div>
-        <div class="file"><span class="mono">MANIFEST.json</span><span class="pill ok">publik</span></div>
-        <div class="file"><span class="mono">log_transformasi.jsonl</span><span class="pill ok">publik</span></div>
-        <div class="file"><span class="mono">*_AUDIT_TERBATAS.*</span><span class="pill warn">terbatas</span></div>
-        <div class="file"><span class="mono">.kunci_pseudonim</span><span class="pill warn">tidak diekspor</span></div>
-      </div>
-    </section>
-    <section class="panel">
-      <div class="panel-head"><h2>Log</h2></div>
-      <pre class="log" id="log">[bangun] 3.008 kandidat dibaca dari 33 run
-[bangun] duplikat & korpus lama disaring
-[verifikasi] X: 523/524 cocok · TikTok: tidak dapat dicek
-[transkrip] TikTok: 150 transkrip bahasa Indonesia
-[rapikan] DATA_SIAP_PAKAI.xlsx · 6 sheet
-[kemas] korpus_agama_v2_PUBLIK.zip
-[kemas] korpus_agama_v2_LENGKAP_AUDIT.zip</pre>
-    </section>
+  <div id="contoh">
+    <div class="contoh-head">
+      <h2>Contoh: korpus_agama_v2</h2>
+      <span class="pill idle">Data contoh · Apr–Sep 2026</span>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="k">Kandidat terkumpul</div><div class="v">3.008</div><div class="s">dari 33 run Apify</div></div>
+      <div class="kpi"><div class="k">Dokumen bersih</div><div class="v">1.330</div><div class="s">44,2% kandidat lolos</div></div>
+      <div class="kpi"><div class="k">Cek oEmbed X</div><div class="v">523/524</div><div class="s">teks cocok dengan sumber</div></div>
+      <div class="kpi"><div class="k">Transkrip TikTok</div><div class="v">150/283</div><div class="s">dari subtitle bawaan</div></div>
+    </div>
+    <div class="two">
+      <section class="panel">
+        <div class="panel-head"><h2>Dokumen bersih per platform</h2><span class="hint num">total 1.330</span></div>
+        <div class="tbl-wrap">
+          <table style="min-width:440px">
+            <thead><tr><th>Platform</th><th class="r">Dokumen</th><th class="r">Porsi</th><th>Verifikasi teks</th></tr></thead>
+            <tbody>
+              <tr><td><span class="pdot" style="--c:var(--tt)"></span>TikTok</td><td class="r">283</td><td class="r">21,3%</td><td><span class="pill warn">Tidak dapat dicek</span></td></tr>
+              <tr><td><span class="pdot" style="--c:var(--ig)"></span>Instagram</td><td class="r">209</td><td class="r">15,7%</td><td><span class="pill idle">Tidak diakses otomatis</span></td></tr>
+              <tr><td><span class="pdot" style="--c:var(--x)"></span>X (Twitter)</td><td class="r">524</td><td class="r">39,4%</td><td><span class="pill ok">523 cocok</span></td></tr>
+              <tr><td><span class="pdot" style="--c:var(--fb)"></span>Facebook</td><td class="r">314</td><td class="r">23,6%</td><td><span class="pill idle">Tidak diakses otomatis</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>Jenis media</h2></div>
+        <div id="mediaContoh"></div>
+      </section>
+    </div>
   </div>
 </div>
 </main>
 
-<footer><div class="wrap">Pukat · prototipe antarmuka untuk penelitian pengembangan sistem scraping korpus media sosial · hanya data publik.</div></footer>
+<footer><div class="wrap">Pukat · sistem pengumpulan korpus media sosial untuk penelitian · hanya data publik · token Apify tidak pernah disimpan.</div></footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 (() => {
-  const $ = s => document.querySelector(s);
-  const fmt = new Intl.NumberFormat('id-ID');
-  const usd = v => 'US$' + v.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const IN_ARTIFACT = /claude|claudeusercontent/.test(location.hostname) || location.protocol === 'file:';
-  if (!IN_ARTIFACT) $('#modeFlag').textContent = 'Demo';
+'use strict';
+const VERSI = 'pukat-web 1.0.0';
+const $ = s => document.querySelector(s);
+const fmt = new Intl.NumberFormat('id-ID');
+const usd = v => 'US$' + (+v || 0).toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2});
+const pct = (a,b) => b ? (a/b*100).toLocaleString('id-ID',{maximumFractionDigits:1}) + '%' : '–';
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const IN_ARTIFACT = /claude|claudeusercontent/.test(location.hostname);
+const API = 'https://api.apify.com/v2';
+const bool = id => $('#' + id).checked;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(_){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(_){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(_){} }
+};
+if (IN_ARTIFACT) $('#modeFlag').hidden = false;
 
-  // ---------- data ----------
-  const PLATFORMS = [
-    {id:'tiktok', name:'TikTok', c:'var(--tt)', actor:'xmolodtsov/tiktok-search-scraper', unit:0.0003, unitTxt:'±US$0,0003 / video'},
-    {id:'instagram', name:'Instagram', c:'var(--ig)', actor:'scraping_solutions/instagram-boolean-search-scraper-posts-reels', unit:0.0016, perRun:0.01, unitTxt:'±US$0,0016 / post + US$0,01 / halaman'},
-    {id:'x', name:'X (Twitter)', c:'var(--x)', actor:'memo23/x-twitter-search-scraper', unit:0.0004, unitTxt:'±US$0,0004 / tweet'},
-    {id:'facebook', name:'Facebook', c:'var(--fb)', actor:'topapi/facebook-search-posts-scraper', unit:0.0024, unitTxt:'±US$0,0024 / post'}
-  ];
-  const DEFAULT_KW = ['moderasi beragama','kerukunan umat beragama','toleransi beragama','beda agama','lintas agama','konflik agama','tradisi keagamaan','agama','penistaan agama','kebebasan beragama','rumah ibadah','tempat ibadah'];
-  const RATIO = 3008/1330;
-  let keywords = [...DEFAULT_KW];
-  let oldIdCount = 0;
+// ================= DATA =================
+const PLATFORMS = [
+  {id:'tiktok', kode:'TT', name:'TikTok', c:'var(--tt)', actor:'xmolodtsov/tiktok-search-scraper', unit:0.0003, unitTxt:'±US$0,0003 / video'},
+  {id:'instagram', kode:'IG', name:'Instagram', c:'var(--ig)', actor:'scraping_solutions/instagram-boolean-search-scraper-posts-reels', unit:0.0016, page:0.01, unitTxt:'±US$0,0016 / post + US$0,01 / halaman'},
+  {id:'x', kode:'X', name:'X (Twitter)', c:'var(--x)', actor:'memo23/x-twitter-search-scraper', unit:0.0004, unitTxt:'±US$0,0004 / tweet'},
+  {id:'facebook', kode:'FB', name:'Facebook', c:'var(--fb)', actor:'topapi/facebook-search-posts-scraper', unit:0.0024, unitTxt:'±US$0,0024 / post'}
+];
+const PF = Object.fromEntries(PLATFORMS.map(p => [p.id, p]));
+const ACTOR_PF = Object.fromEntries(PLATFORMS.map(p => [p.actor.toLowerCase(), p.id]));
+const DEFAULT_KW = ['moderasi beragama','kerukunan umat beragama','toleransi beragama','beda agama','lintas agama','konflik agama','tradisi keagamaan','agama','penistaan agama','kebebasan beragama','rumah ibadah','tempat ibadah'];
+const MELAYU = ['kerana','iaitu','sahaja','beliau berkata','kerajaan negeri','malaysia','selangor','johor','kelantan','terengganu','kedah','pahang','melaka','sarawak','sabah','putrajaya','kuala lumpur','ringgit','rm','dun','adun','jabatan agama islam','mahkamah syariah'];
+const STOP_ID = new Set('yang dan di ke dari ini itu dengan untuk tidak ada akan juga saya kita kami mereka karena pada dalam bisa sudah belum atau jadi kalau agar oleh seperti lebih harus adalah nya aja gak nggak ga yg dgn utk tdk sama banget kok dong sih kan lagi masih bukan apa siapa bagaimana kenapa mengapa semua hanya bagi para tersebut antara setiap serta namun tetapi tapi'.split(' '));
+const STOP_EN = new Set('the and of to is are was were for with that this you it on be have has not they we what which from by at an or but their his her will would can could should there been'.split(' '));
+const RATIO = 3008/1330;
+const ALASAN = {
+  LOLOS:'Lolos semua tahap', PLACEHOLDER:'Item kosong / placeholder aktor', TANPA_ID:'Tanpa ID unggahan', TANPA_TEKS:'Tanpa teks',
+  BUKAN_TWEET:'Bukan tweet (profil, dll.)', RETWEET:'Retweet', LUAR_PERIODE:'Di luar periode', DUPLIKAT_ID:'ID ganda antar-run',
+  DUPLIKAT_KORPUS_LAMA:'Sudah ada di korpus lama', TERLALU_PENDEK:'Kurang dari minimal kata', TIDAK_RELEVAN:'Tidak memuat kata kunci',
+  PENGECUALIAN:'Memuat kata pengecualian', BUKAN_INDONESIA:'Bukan bahasa Indonesia', MELAYU:'Penanda bahasa Melayu',
+  DUPLIKAT_TEKS:'Teks identik dengan dokumen lain', LEWAT_TARGET:'Melewati target (mode potong)'
+};
 
-  // ---------- platforms ----------
-  $('#platforms').innerHTML = PLATFORMS.map(p => `
-    <label class="pcard" style="--c:${p.c}">
-      <input type="checkbox" name="pf" value="${p.id}" checked>
-      <span class="tick" aria-hidden="true">✓</span>
-      <span class="pn"><span class="dot"></span>${p.name}</span>
-      <span class="actor">${p.actor}</span>
-      <span class="price">${p.unitTxt}</span>
-    </label>`).join('');
+let keywords = [...DEFAULT_KW];
+let oldIds = new Set(); let oldIdCount = 0;
+let token = '';
+let account = null; // {plan, free, left, ret}
+let queue = store.get('pukat-antrean', []);  // [{runId, platform, periode, datasetId, status, items, usd, actor, input, started, finished, build}]
+let projSnap = store.get('pukat-proyek-run', null); // config snapshot of the running project
+let hasil = null;   // processed result
+let rawCache = {};  // runId -> items
+const logLines = [];
 
-  // ---------- chips ----------
-  const chipsEl = $('#chips'), kwInput = $('#kwInput');
-  function renderChips(){
-    chipsEl.querySelectorAll('.chip').forEach(c => c.remove());
-    keywords.forEach((k,i) => {
-      const s = document.createElement('span'); s.className='chip';
-      s.textContent = k;
-      const b = document.createElement('button'); b.type='button'; b.textContent='×';
-      b.setAttribute('aria-label','Hapus '+k);
-      b.onclick = () => { keywords.splice(i,1); renderChips(); update(); };
-      s.appendChild(b); chipsEl.insertBefore(s, kwInput);
-    });
-    $('#kwCount').textContent = '('+keywords.length+')';
-  }
-  function addKw(raw){
-    raw.split(/[,\n;]/).map(x=>x.trim().toLowerCase()).filter(Boolean).forEach(k => { if(!keywords.includes(k)) keywords.push(k); });
-    renderChips(); update();
-  }
-  kwInput.addEventListener('keydown', e => {
-    if (e.key==='Enter' || e.key===','){ e.preventDefault(); if(kwInput.value.trim()){ addKw(kwInput.value); kwInput.value=''; } }
-    else if (e.key==='Backspace' && !kwInput.value && keywords.length){ keywords.pop(); renderChips(); update(); }
+// ================= LOG =================
+function log(msg){
+  const t = new Date().toLocaleTimeString('id-ID', {hour12:false});
+  logLines.push(`[${t}] ${msg}`);
+  const el = $('#log'); el.textContent = logLines.slice(-400).join('\n'); el.scrollTop = el.scrollHeight;
+}
+function toast(msg){
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role','status'); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+}
+function banner(txt, cls){
+  const b = $('#banner'); b.hidden = !txt; $('#bannerTxt').textContent = txt || '';
+  b.style.background = cls==='bad' ? 'var(--bad-soft)' : cls==='ok' ? 'var(--ok-soft)' : 'var(--warn-soft)';
+  b.style.color = cls==='bad' ? 'var(--bad)' : cls==='ok' ? 'var(--ok)' : 'var(--warn)';
+}
+
+// ================= PLATFORM CARDS & CHIPS =================
+$('#platforms').innerHTML = PLATFORMS.map(p => `
+  <label class="pcard" style="--c:${p.c}">
+    <input type="checkbox" name="pf" value="${p.id}" checked>
+    <span class="tick" aria-hidden="true">✓</span>
+    <span class="pn"><span class="dot"></span>${p.name}</span>
+    <span class="actor">${p.actor}</span>
+    <span class="price">${p.unitTxt}</span>
+  </label>`).join('');
+
+const chipsEl = $('#chips'), kwInput = $('#kwInput');
+function renderChips(){
+  chipsEl.querySelectorAll('.chip').forEach(c => c.remove());
+  keywords.forEach((k,i) => {
+    const s = document.createElement('span'); s.className = 'chip'; s.textContent = k;
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = '×'; b.setAttribute('aria-label','Hapus ' + k);
+    b.onclick = () => { keywords.splice(i,1); renderChips(); update(); };
+    s.appendChild(b); chipsEl.insertBefore(s, kwInput);
   });
-  kwInput.addEventListener('paste', e => {
-    const t = (e.clipboardData||window.clipboardData).getData('text');
-    if (/[,\n;]/.test(t)){ e.preventDefault(); addKw(t); }
-  });
-  kwInput.addEventListener('blur', () => { if(kwInput.value.trim()){ addKw(kwInput.value); kwInput.value=''; } });
-  chipsEl.addEventListener('click', e => { if(e.target===chipsEl) kwInput.focus(); });
+  $('#kwCount').textContent = '(' + keywords.length + ')';
+}
+function addKw(raw){
+  raw.split(/[,\n;]/).map(x => x.trim().toLowerCase()).filter(Boolean).forEach(k => { if (!keywords.includes(k)) keywords.push(k); });
+  renderChips(); update();
+}
+kwInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ','){ e.preventDefault(); if (kwInput.value.trim()){ addKw(kwInput.value); kwInput.value=''; } }
+  else if (e.key === 'Backspace' && !kwInput.value && keywords.length){ keywords.pop(); renderChips(); update(); }
+});
+kwInput.addEventListener('paste', e => { const t = e.clipboardData.getData('text'); if (/[,\n;]/.test(t)){ e.preventDefault(); addKw(t); } });
+kwInput.addEventListener('blur', () => { if (kwInput.value.trim()){ addKw(kwInput.value); kwInput.value=''; } });
+chipsEl.addEventListener('click', e => { if (e.target === chipsEl) kwInput.focus(); });
 
-  // ---------- token ----------
-  const tok = $('#token'), tokStatus = $('#tokStatus');
-  let tokenOk = false;
-  $('#showTok').onclick = e => {
-    const show = tok.type==='password'; tok.type = show?'text':'password';
-    e.target.textContent = show?'Sembunyikan':'Tampilkan'; e.target.setAttribute('aria-pressed', show);
-  };
-  function setStatus(cls, txt){ tokStatus.className = 'status '+cls; tokStatus.textContent = txt; }
-  tok.addEventListener('input', () => { tokenOk=false; $('#acct').hidden=true; setStatus('','Belum diuji.'); update(); });
-  $('#testTok').onclick = async () => {
-    const t = tok.value.trim();
-    if (!t){ setStatus('bad','Token kosong. Tempel API token dari Apify Console dulu.'); return; }
-    if (!/^apify_api_[A-Za-z0-9]{20,}$/.test(t)){ setStatus('bad','Format token tidak dikenali. Token Apify diawali “apify_api_”.'); return; }
-    setStatus('', 'Menghubungi api.apify.com…');
-    try{
-      const ctl = new AbortController(); setTimeout(()=>ctl.abort(), 8000);
-      const r = await fetch('https://api.apify.com/v2/users/me', {headers:{Authorization:'Bearer '+t}, signal:ctl.signal});
-      if (r.status===401){ setStatus('bad','Token ditolak Apify. Periksa lagi atau buat token baru.'); return; }
-      const j = (await r.json()).data || {};
-      let lim = null;
-      try{ const r2 = await fetch('https://api.apify.com/v2/users/me/limits',{headers:{Authorization:'Bearer '+t}}); lim = (await r2.json()).data; }catch(_){}
-      tokenOk = true;
-      setStatus('ok','Terhubung sebagai '+(j.username||'akun Apify')+'.');
-      $('#aPlan').textContent = (j.plan && (j.plan.id||j.plan.description)) || '–';
-      if (lim && lim.limits && lim.current){
-        const left = lim.limits.maxMonthlyUsageUsd - lim.current.monthlyUsageUsd;
-        $('#aCredit').textContent = usd(Math.max(0,left));
-        $('#cap').value = Math.max(0, Math.floor(left*100)/100);
-      }
-      $('#aRet').textContent = (lim && lim.limits && lim.limits.dataRetentionDays ? lim.limits.dataRetentionDays+' hari' : '–');
-      $('#acct').hidden = false; update();
-    }catch(err){
-      if (!IN_ARTIFACT){ tokenOk = false; setStatus('bad','Tidak dapat menghubungi api.apify.com. Periksa koneksi internet, lalu coba lagi.'); update(); return; }
-      tokenOk = true;
-      setStatus('warn','Pratinjau ini tidak boleh menghubungi api.apify.com. Format token valid; uji koneksi berjalan penuh setelah halaman dipasang di situs sendiri.');
-      $('#aPlan').textContent='FREE'; $('#aCredit').textContent='US$5,00'; $('#aRet').textContent='7 hari';
-      $('#acct').hidden = false; update();
-    }
-  };
+// ================= APIFY =================
+async function api(path, opt = {}){
+  if (!token) throw new Error('Token Apify belum diisi.');
+  const r = await fetch(API + path, {...opt, headers:{'Authorization':'Bearer ' + token, ...(opt.body ? {'Content-Type':'application/json'} : {}), ...(opt.headers||{})}});
+  const txt = await r.text(); let j = null; try{ j = JSON.parse(txt); }catch(_){}
+  if (!r.ok){ const m = j && j.error ? (j.error.message || j.error.type) : txt.slice(0,200); const e = new Error(`Apify ${r.status}: ${m}`); e.status = r.status; throw e; }
+  return j;
+}
 
-  // ---------- old ids ----------
-  $('#oldIds').addEventListener('change', e => {
-    const f = e.target.files[0]; if(!f){ oldIdCount=0; return; }
-    const rd = new FileReader();
-    rd.onload = () => {
-      const txt = String(rd.result); let n = 0;
-      try{ const j = JSON.parse(txt); n = Array.isArray(j) ? j.length : Object.values(j).reduce((a,v)=>a+(Array.isArray(v)?v.length:0),0); }
-      catch(_){ n = txt.split(/\r?\n/).filter(l=>l.trim()).length; }
-      oldIdCount = n;
-      $('#oldIdsInfo').textContent = f.name+' · '+fmt.format(n)+' ID akan dikecualikan.';
-      update();
-    };
-    rd.readAsText(f);
-  });
-
-  // ---------- compute ----------
-  function months(a,b){
-    const d1=new Date(a), d2=new Date(b); if(isNaN(d1)||isNaN(d2)||d2<d1) return [];
-    const out=[]; const c=new Date(d1.getFullYear(), d1.getMonth(), 1);
-    while(c<=d2){ out.push(c.toLocaleDateString('id-ID',{month:'short',year:'numeric'})); c.setMonth(c.getMonth()+1); }
-    return out;
-  }
-  function state(){
-    const pf = [...document.querySelectorAll('input[name=pf]:checked')].map(i=>PLATFORMS.find(p=>p.id===i.value));
-    const ms = months($('#dFrom').value, $('#dTo').value);
-    const target = +$('#target').value||0, maxq = +$('#maxq').value||0, cap = +$('#cap').value||0;
-    const nM = $('#split').checked ? Math.max(ms.length,1) : 1;
-    const runs = pf.length * nM;
-    const perPf = Math.min(Math.ceil(target*RATIO), maxq * keywords.length * nM);
-    let cost = 0;
-    pf.forEach(p => { cost += perPf * p.unit + (p.perRun ? p.perRun * nM * Math.ceil(keywords.length/4) : 0); });
-    return {pf, ms, nM, runs, perPf, items: perPf*pf.length, cost, cap, target, maxq};
-  }
-  function config(s){
-    const bool = id => $('#'+id).checked;
-    return {
-      proyek: $('#namaProyek').value.trim(),
-      kata_kunci: keywords, mode_cocok: document.querySelector('input[name=match]:checked').value,
-      pengecualian: $('#exclude').value.split(',').map(x=>x.trim()).filter(Boolean), varian_tagar: bool('hashtag'),
-      platform: Object.fromEntries(s.pf.map(p=>[p.id,{aktor:p.actor,maks_per_kueri:s.maxq}])),
-      periode: {mulai:$('#dFrom').value, sampai:$('#dTo').value, zona:$('#tz').value, pecah_per_bulan:bool('split')},
-      target_per_platform: s.target, batas_biaya_usd: s.cap,
-      seleksi: $('#sel').value, subset_seimbang_per_platform: +$('#subset').value||0, min_kata: +$('#minw').value||0,
-      filter: {bahasa_indonesia:bool('oLang'), melayu:bool('oMelayu'), retweet:bool('oRt'), dedup:bool('oDedup'), id_korpus_lama:oldIdCount},
-      verifikasi: {oembed:bool('oOembed'), transkrip_tiktok:bool('oTrans'), sampel_manual:bool('oSample')?0.1:0},
-      privasi: {pseudonim:bool('oPseudo'), samarkan_kontak:bool('oMask'), komentar:bool('oComment')},
-      keluaran: {csv:bool('xCsv'), xlsx:bool('xXlsx'), log_jsonl:bool('xLog'), manifest:bool('xMan')}
-    };
-  }
-  let last;
-  function update(){
-    const s = last = state();
-    $('#sKw').textContent = keywords.length;
-    $('#sPf').textContent = s.pf.map(p=>p.name.split(' ')[0]).join(', ') || '–';
-    $('#sPer').textContent = s.ms.length ? (s.ms[0]+' – '+s.ms[s.ms.length-1]) : '–';
-    $('#sRuns').textContent = fmt.format(s.runs);
-    $('#sItems').textContent = '±'+fmt.format(s.items);
-    $('#sTarget').textContent = fmt.format(s.target*s.pf.length);
-    $('#sCost').textContent = usd(s.cost);
-    const pct = s.cap>0 ? Math.min(100, s.cost/s.cap*100) : 100;
-    const bar = $('#sCapBar'); bar.firstElementChild.style.width = pct+'%'; bar.classList.toggle('over', s.cost>s.cap);
-    $('#sCapTxt').textContent = s.cap>0 ? (pct.toFixed(0)+'% dari batas '+usd(s.cap)) : 'Batas biaya belum diisi.';
-
-    const issues = [];
-    if (!tokenOk) issues.push('Uji koneksi token Apify dulu.');
-    if (!keywords.length) issues.push('Tambahkan minimal satu kata kunci.');
-    if (!s.pf.length) issues.push('Pilih minimal satu platform.');
-    if (!s.ms.length) issues.push('Tanggal “sampai” harus setelah tanggal “mulai”.');
-    if (s.cost > s.cap) issues.push('Perkiraan biaya melebihi batas. Kurangi platform, bulan, atau target.');
-    $('#issues').innerHTML = issues.map(i=>'<li>'+i+'</li>').join('');
-    $('#runBtn').disabled = issues.length>0;
-
-    const done = {akun:tokenOk, kunci:keywords.length>0, sumber:s.pf.length>0 && s.ms.length>0, opsi:s.target>0 && s.cost<=s.cap};
-    document.querySelectorAll('#stepper li').forEach(li => li.classList.toggle('done', !!done[li.dataset.s]));
-    $('#cfgOut').textContent = JSON.stringify(config(s), null, 2);
-  }
-  document.getElementById('form').addEventListener('input', update);
-  document.getElementById('form').addEventListener('change', update);
-
-  // ---------- actions ----------
-  function toast(msg){
-    const t = document.createElement('div'); t.className='toast'; t.setAttribute('role','status'); t.textContent = msg;
-    document.body.appendChild(t); setTimeout(()=>t.remove(), 2600);
-  }
-  $('#copyCfg').onclick = async () => {
-    const txt = $('#cfgOut').textContent;
-    try{ await navigator.clipboard.writeText(txt); toast('config.json disalin.'); }
-    catch(_){ const d=$('#cfgOut').closest('details'); d.open=true; const r=document.createRange(); r.selectNodeContents($('#cfgOut')); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Teks sudah diblok, tekan Ctrl+C untuk menyalin.'); }
-  };
-  $('#saveDraft').onclick = () => {
-    try{ localStorage.setItem('korpus_draft', JSON.stringify(config(last))); toast('Draf tersimpan di peramban ini (tanpa token).'); }
-    catch(_){ toast('Peramban ini tidak mengizinkan penyimpanan draf.'); }
-  };
+const tok = $('#token'), tokStatus = $('#tokStatus');
+function setStatus(cls, txt){ tokStatus.className = 'status ' + cls; tokStatus.textContent = txt; }
+$('#showTok').onclick = e => { const show = tok.type === 'password'; tok.type = show ? 'text' : 'password'; e.target.textContent = show ? 'Sembunyikan' : 'Tampilkan'; e.target.setAttribute('aria-pressed', show); };
+tok.addEventListener('input', () => { token = ''; account = null; $('#acct').hidden = true; setStatus('','Belum diuji.'); update(); });
+$('#testTok').onclick = testToken;
+async function testToken(){
+  const t = tok.value.trim();
+  if (!t){ setStatus('bad','Token kosong. Tempel API token dari Apify Console dulu.'); return; }
+  if (!/^apify_api_[A-Za-z0-9]{20,}$/.test(t)){ setStatus('bad','Format token tidak dikenali. Token Apify diawali “apify_api_”.'); return; }
+  token = t; setStatus('', 'Menghubungi api.apify.com…');
   try{
-    const d = JSON.parse(localStorage.getItem('korpus_draft')||'null');
-    if (d && Array.isArray(d.kata_kunci)){ keywords = d.kata_kunci; if(d.proyek) $('#namaProyek').value = d.proyek; }
-  }catch(_){}
-
-  // ---------- run (simulated) ----------
-  let timer = null;
-  $('#form').addEventListener('submit', e => {
-    e.preventDefault(); update(); if ($('#runBtn').disabled) return;
-    const s = last; const rows = [];
-    s.pf.forEach(p => (s.nM>1 ? s.ms : [s.ms[0]+(s.ms.length>1?' – '+s.ms[s.ms.length-1]:'')]).forEach(m => rows.push({p, m, prog:0, items:0, max:Math.round(s.perPf/s.nM)})));
-    $('#queueBody').innerHTML = rows.map((r,i)=>`<tr>
-      <td><span class="pdot" style="--c:${r.p.c}"></span>${r.p.name}</td><td>${r.m}</td>
-      <td class="mono">${r.p.actor.split('/')[0]}/…</td>
-      <td id="st${i}"><span class="pill idle">Antre</span></td>
-      <td><span class="mini"><i id="pb${i}" style="width:0"></i></span></td>
-      <td class="r num" id="it${i}">0</td></tr>`).join('');
-    $('#queueMeta').textContent = fmt.format(rows.length)+' run · '+$('#namaProyek').value;
-    $('#queuePanel').hidden = false;
-    $('#queueBanner').hidden = false;
-    $('#queueBannerTxt').textContent = 'Mode demo: run di bawah disimulasikan di peramban dan tidak dikirim ke Apify, jadi kredit tidak terpakai. Eksekusi sebenarnya memakai korpus_agama.py dengan config.json dari halaman proyek.';
-    location.hash = 'hasil';
-    clearInterval(timer);
-    let active = 0;
-    timer = setInterval(() => {
-      const live = rows.slice(active, active+3);
-      if (!live.length){ clearInterval(timer); toast('Semua run selesai.'); return; }
-      live.forEach((r,j) => {
-        const i = active + j;
-        r.prog = Math.min(100, r.prog + 8 + Math.random()*14);
-        r.items = Math.round(r.max * r.prog/100);
-        document.getElementById('pb'+i).style.width = r.prog+'%';
-        document.getElementById('it'+i).textContent = fmt.format(r.items);
-        document.getElementById('st'+i).innerHTML = r.prog>=100 ? '<span class="pill ok">Selesai</span>' : '<span class="pill run">Berjalan</span>';
-      });
-      while (rows[active] && rows[active].prog>=100) active++;
-    }, 450);
-  });
-
-  // ---------- media chart ----------
-  const MEDIA = [
-    ['TikTok','var(--tt)',{video:283}],
-    ['Instagram','var(--ig)',{gambar:83,video:126}],
-    ['X (Twitter)','var(--x)',{teks:50,gambar:144,video:240,tautan:90}],
-    ['Facebook','var(--fb)',{teks:3,gambar:306,video:4,tautan:1}]
-  ];
-  const MC = {teks:'#8A97AE',gambar:'#2BA37A',video:'var(--accent)',tautan:'#D08A1E'};
-  $('#media').innerHTML = MEDIA.map(([n,c,m]) => {
-    const tot = Object.values(m).reduce((a,b)=>a+b,0);
-    const segs = Object.entries(m).map(([k,v]) => `<i style="width:${v/tot*100}%;background:${MC[k]}" title="${k}: ${v}"></i>`).join('');
-    const label = Object.entries(m).map(([k,v])=>k+' '+v).join(', ');
-    return `<div class="mediarow"><span><span class="pdot" style="--c:${c}"></span>${n.split(' ')[0]}</span><div class="stacked" role="img" aria-label="${n}: ${label}">${segs}</div><span class="n">${tot}</span></div>`;
-  }).join('');
-
-  // ---------- routing ----------
-  function route(){
-    const v = location.hash.replace('#','') === 'hasil' ? 'hasil' : 'proyek';
-    $('#view-proyek').hidden = v!=='proyek'; $('#view-hasil').hidden = v!=='hasil';
-    document.querySelectorAll('nav.tabs a').forEach(a => a.toggleAttribute('aria-current', a.dataset.view===v) || a.dataset.view===v && a.setAttribute('aria-current','page'));
-    document.querySelectorAll('nav.tabs a').forEach(a => { if(a.dataset.view===v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
-    window.scrollTo(0,0);
+    const me = (await api('/users/me')).data || {};
+    let lim = null; try{ lim = (await api('/users/me/limits')).data; }catch(_){}
+    const planId = (me.plan && (me.plan.id || me.plan.description)) || '–';
+    const left = lim && lim.limits && lim.current ? Math.max(0, lim.limits.maxMonthlyUsageUsd - lim.current.monthlyUsageUsd) : null;
+    account = {user: me.username, plan: planId, free: /free/i.test(planId), left, ret: lim && lim.limits ? lim.limits.dataRetentionDays : null};
+    setStatus('ok', 'Terhubung sebagai ' + (me.username || 'akun Apify') + '.');
+    $('#aPlan').textContent = planId; $('#aCredit').textContent = left == null ? '–' : usd(left);
+    $('#aRet').textContent = account.ret ? account.ret + ' hari' : '–'; $('#acct').hidden = false;
+    if (left != null && +$('#cap').value > left) $('#cap').value = Math.floor(left*100)/100;
+    log(`Token diuji: akun ${me.username}, paket ${planId}${left!=null?', sisa '+usd(left):''}.`);
+    update(); resumePolling();
+  }catch(err){
+    token = ''; account = null;
+    if (err.status === 401) setStatus('bad','Token ditolak Apify. Periksa lagi atau buat token baru.');
+    else if (IN_ARTIFACT) setStatus('warn','Pratinjau ini tidak boleh menghubungi api.apify.com. Buka halaman di higieka.web.id/pukat/ untuk menjalankan run sungguhan.');
+    else setStatus('bad','Tidak dapat menghubungi api.apify.com: ' + err.message);
+    update();
   }
-  addEventListener('hashchange', route);
-  renderChips(); update(); route();
+}
+
+// ================= OLD IDS & KEY =================
+$('#oldIds').addEventListener('change', e => {
+  const f = e.target.files[0]; oldIds = new Set(); oldIdCount = 0;
+  if (!f){ $('#oldIdsInfo').textContent = 'Tidak ada berkas.'; update(); return; }
+  const rd = new FileReader();
+  rd.onload = () => {
+    const txt = String(rd.result); let arr = [];
+    try{ const j = JSON.parse(txt); arr = Array.isArray(j) ? j : (Array.isArray(j.id) ? j.id : Object.values(j).flat().filter(v => typeof v === 'string' || typeof v === 'number')); }
+    catch(_){ arr = txt.split(/\r?\n/).map(l => l.split(/[,;\t]/)[0]); }
+    arr.map(v => String(v).trim().replace(/^"|"$/g,'')).filter(Boolean).forEach(v => {
+      const m = v.match(/^(twitter|x|tiktok|instagram|facebook)\s*:\s*(.+)$/i);
+      if (m){ const p = m[1].toLowerCase() === 'twitter' ? 'x' : m[1].toLowerCase(); oldIds.add(p + ':' + m[2]); }
+      else oldIds.add('*:' + v);
+    });
+    oldIdCount = oldIds.size;
+    $('#oldIdsInfo').textContent = `${f.name} · ${fmt.format(oldIdCount)} ID akan dikecualikan.`;
+    log(`ID korpus lama dimuat: ${fmt.format(oldIdCount)} ID dari ${f.name}.`); update();
+  };
+  rd.readAsText(f);
+});
+const kunciEl = $('#kunci');
+kunciEl.value = store.get('pukat-kunci', '');
+function kunciBaru(){ const b = crypto.getRandomValues(new Uint8Array(32)); kunciEl.value = [...b].map(x => x.toString(16).padStart(2,'0')).join(''); store.set('pukat-kunci', kunciEl.value); }
+if (!kunciEl.value) kunciBaru();
+kunciEl.addEventListener('change', () => store.set('pukat-kunci', kunciEl.value.trim()));
+$('#kunciBaru').onclick = () => { kunciBaru(); update(); toast('Kunci pseudonim baru dibuat. Unduh dan simpan terpisah.'); };
+$('#kunciUnduh').onclick = () => download('.kunci_pseudonim', kunciEl.value.trim(), 'text/plain');
+
+// ================= KONFIGURASI =================
+function monthsBetween(a, b){
+  const out = []; if (!a || !b || b < a) return out;
+  let [y,m] = a.split('-').map(Number); const [y2,m2] = b.split('-').map(Number);
+  while (y < y2 || (y === y2 && m <= m2)){
+    const first = `${y}-${String(m).padStart(2,'0')}-01`;
+    const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const last = `${y}-${String(m).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+    out.push({kode:`${y}-${String(m).padStart(2,'0')}`, mulai: first < a ? a : first, sampai: last > b ? b : last,
+      label: new Date(Date.UTC(y, m-1, 1)).toLocaleDateString('id-ID',{month:'short', year:'numeric', timeZone:'UTC'})});
+    m++; if (m > 12){ m = 1; y++; }
+  }
+  return out;
+}
+const addDay = (d, n) => { const t = new Date(d + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0,10); };
+function config(){
+  return {
+    proyek: $('#namaProyek').value.trim() || 'korpus',
+    versi_pipeline: VERSI,
+    kata_kunci: [...keywords], mode_cocok: document.querySelector('input[name=match]:checked').value,
+    pengecualian: $('#exclude').value.split(',').map(x => x.trim().toLowerCase()).filter(Boolean), varian_tagar: bool('hashtag'),
+    platform: [...document.querySelectorAll('input[name=pf]:checked')].map(i => i.value),
+    periode: {mulai: $('#dFrom').value, sampai: $('#dTo').value, utc_offset_jam: +$('#tz').value, pecah_per_bulan: bool('split')},
+    target_per_platform: +$('#target').value || 0, maks_per_kueri: Math.max(10, +$('#maxq').value || 10), batas_biaya_usd: +$('#cap').value || 0,
+    seleksi: $('#sel').value, subset_seimbang_per_platform: +$('#subset').value || 0, min_kata: +$('#minw').value || 0,
+    filter: {bahasa_indonesia: bool('oLang'), melayu: bool('oMelayu'), retweet: bool('oRt'), dedup: bool('oDedup'), id_korpus_lama: oldIdCount},
+    verifikasi: {oembed: bool('oOembed'), transkrip_tiktok: bool('oTrans'), sampel_manual: bool('oSample') ? 0.1 : 0},
+    privasi: {pseudonim: bool('oPseudo'), samarkan: bool('oMask')},
+    seed: ($('#namaProyek').value.trim() || 'korpus') + '-pukat'
+  };
+}
+
+// Rencana run: daftar {platform, periode, input, maxItems, maxUsd, estUsd}
+function plan(cfg){
+  const months = monthsBetween(cfg.periode.mulai, cfg.periode.sampai);
+  const runs = [];
+  if (!months.length || !cfg.kata_kunci.length) return {runs, months};
+  const free = account ? account.free : false;
+  const ex = cfg.pengecualian;
+  cfg.platform.forEach(pid => {
+    const p = PF[pid];
+    const budget = Math.ceil(cfg.target_per_platform * RATIO);
+    if (pid === 'tiktok'){
+      const daysAgo = (Date.now() - Date.parse(cfg.periode.mulai)) / 864e5;
+      const dr = daysAgo <= 1 ? 'YESTERDAY' : daysAgo <= 7 ? 'THIS_WEEK' : daysAgo <= 30 ? 'THIS_MONTH' : daysAgo <= 90 ? 'LAST_3_MONTHS' : daysAgo <= 180 ? 'LAST_6_MONTHS' : 'ALL';
+      let maxItems = free ? Math.min(100, budget) : budget;
+      const input = {keywords: cfg.kata_kunci, sortType:'DATE_POSTED', dateRange: dr, maxItems, maxItemsPerKeyword: Math.max(1, Math.min(cfg.maks_per_kueri, Math.ceil(maxItems / cfg.kata_kunci.length))), includeSearchKeywords: true, location:'ID'};
+      if (cfg.verifikasi.transkrip_tiktok && !free) input.includeTranscript = true;
+      runs.push({platform: pid, periode: `${cfg.periode.mulai} – ${cfg.periode.sampai}`, input, maxItems, estUsd: maxItems * p.unit});
+    } else if (pid === 'instagram'){
+      const terms = [];
+      cfg.kata_kunci.forEach(k => { terms.push(k.includes(' ') ? `"${k}"` : k); if (cfg.varian_tagar) terms.push('#' + k.replace(/\s+/g,'')); });
+      let uniq = [...new Set(terms)]; if (uniq.length > 32) uniq = uniq.slice(0, 32);
+      let q = '(' + uniq.join(' OR ') + ')';
+      if (ex.length) q += ' AND NOT (' + ex.map(e => e.includes(' ') ? `"${e}"` : e).join(' OR ') + ')';
+      const maxItems = free ? Math.min(250, budget) : budget;
+      const input = {searchQuery: q, resultsLimit: maxItems, contentType:'posts_and_reels', hashtagFeedType:'top', searchCoverage:'comprehensive', oldestPostDate: cfg.periode.mulai, newestPostDate: cfg.periode.sampai};
+      runs.push({platform: pid, periode: `${cfg.periode.mulai} – ${cfg.periode.sampai}`, input, maxItems, estUsd: maxItems * p.unit + Math.ceil(uniq.length * 1.5) * p.page, catatan: terms.length > 32 ? 'kueri dipotong ke 32 cabang' : ''});
+    } else {
+      const slices = cfg.periode.pecah_per_bulan ? months : [{kode:'semua', mulai: cfg.periode.mulai, sampai: cfg.periode.sampai, label:`${cfg.periode.mulai} – ${cfg.periode.sampai}`}];
+      const perRun = Math.max(10, Math.ceil(budget / slices.length));
+      slices.forEach(s => {
+        let maxItems = free && pid === 'x' ? Math.min(100, perRun) : perRun;
+        const perQ = Math.max(10, Math.min(cfg.maks_per_kueri, Math.ceil(maxItems / cfg.kata_kunci.length)));
+        let input;
+        if (pid === 'x'){
+          const exq = ex.map(e => ' -' + (e.includes(' ') ? `"${e}"` : e)).join('');
+          input = {searchQueries: cfg.kata_kunci.map(k => `"${k}" lang:in${cfg.filter.retweet ? '' : ' -filter:retweets'}${exq} since:${s.mulai} until:${addDay(s.sampai,1)}`), searchType:'Top', maxTweetsPerQuery: perQ, maxItems};
+        } else {
+          input = {searchQueries: cfg.kata_kunci, sortBy:'top', startDate: s.mulai, endDate: s.sampai, maxPostsPerQuery: perQ, maxItems};
+        }
+        runs.push({platform: pid, periode: s.label, input, maxItems, estUsd: maxItems * p.unit});
+      });
+    }
+  });
+  const tot = runs.reduce((a,r) => a + r.estUsd, 0);
+  runs.forEach(r => { r.maxUsd = cfg.batas_biaya_usd > 0 ? Math.max(0.05, +(cfg.batas_biaya_usd * (tot ? r.estUsd / tot : 1/runs.length)).toFixed(2)) : null; });
+  return {runs, months, tot};
+}
+
+let last;
+function update(){
+  const cfg = config(); const pl = plan(cfg); last = {cfg, pl};
+  $('#sKw').textContent = cfg.kata_kunci.length;
+  $('#sPf').textContent = cfg.platform.map(p => PF[p].name.split(' ')[0]).join(', ') || '–';
+  $('#sPer').textContent = pl.months.length ? (pl.months[0].label + ' – ' + pl.months[pl.months.length-1].label) : '–';
+  $('#sRuns').textContent = fmt.format(pl.runs.length);
+  $('#sItems').textContent = fmt.format(pl.runs.reduce((a,r) => a + r.maxItems, 0));
+  $('#sTarget').textContent = fmt.format(cfg.target_per_platform * cfg.platform.length);
+  const cost = pl.tot || 0; $('#sCost').textContent = usd(cost);
+  const cap = cfg.batas_biaya_usd; const pc = cap > 0 ? Math.min(100, cost/cap*100) : 100;
+  const bar = $('#sCapBar'); bar.firstElementChild.style.width = pc + '%'; bar.classList.toggle('over', cost > cap);
+  $('#sCapTxt').textContent = cap > 0 ? `${pc.toFixed(0)}% dari batas ${usd(cap)}` : 'Batas biaya belum diisi.';
+
+  const warns = [];
+  if (account && account.free){
+    if (cfg.platform.includes('tiktok')) warns.push('Paket gratis: TikTok dibatasi 100 hasil per run dan 20 run per bulan oleh pengembang aktor.');
+    if (cfg.platform.includes('x')) warns.push('Paket gratis: X dibatasi 100 tweet per run.');
+    if (cfg.verifikasi.transkrip_tiktok) warns.push('Transkrip TikTok dilewati karena butuh paket berbayar.');
+  }
+  if (cfg.platform.includes('tiktok') && (Date.now() - Date.parse(cfg.periode.mulai)) / 864e5 > 180) warns.push('TikTok tidak punya filter tanggal di atas 180 hari; hasil di luar periode akan tersaring saat diolah.');
+  pl.runs.filter(r => r.catatan).forEach(r => warns.push('Instagram: ' + r.catatan + '.'));
+  $('#warns').innerHTML = warns.map(w => '<li>' + esc(w) + '</li>').join('');
+
+  const issues = [];
+  if (!token) issues.push('Uji koneksi token Apify dulu.');
+  if (!cfg.kata_kunci.length) issues.push('Tambahkan minimal satu kata kunci.');
+  if (!cfg.platform.length) issues.push('Pilih minimal satu platform.');
+  if (!pl.months.length) issues.push('Tanggal “sampai” harus sama atau setelah tanggal “mulai”.');
+  if (cost > cap) issues.push('Perkiraan biaya melebihi batas. Kurangi platform, bulan, atau target.');
+  if (account && account.left != null && cap > account.left + 0.001) issues.push(`Batas biaya melebihi sisa kredit akun (${usd(account.left)}).`);
+  if (cfg.privasi.pseudonim && !/^[0-9a-f]{32,}$/i.test(kunciEl.value.trim())) issues.push('Kunci pseudonim harus heksadesimal minimal 32 karakter.');
+  if (queue.some(q => isActive(q.status))) issues.push('Masih ada run berjalan. Tunggu selesai atau hentikan dulu.');
+  $('#issues').innerHTML = issues.map(i => '<li>' + esc(i) + '</li>').join('');
+  $('#runBtn').disabled = issues.length > 0;
+
+  const done = {akun: !!token, kunci: cfg.kata_kunci.length > 0, sumber: cfg.platform.length > 0 && pl.months.length > 0, opsi: cfg.target_per_platform > 0 && cost <= cap};
+  document.querySelectorAll('#stepper li').forEach(li => li.classList.toggle('done', !!done[li.dataset.s]));
+  $('#cfgOut').textContent = JSON.stringify(cfg, null, 2);
+}
+$('#form').addEventListener('input', update);
+$('#form').addEventListener('change', update);
+
+$('#copyCfg').onclick = async () => {
+  const txt = $('#cfgOut').textContent;
+  try{ await navigator.clipboard.writeText(txt); toast('config.json disalin.'); }
+  catch(_){ const d = $('#cfgOut').closest('details'); d.open = true; const r = document.createRange(); r.selectNodeContents($('#cfgOut')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Teks sudah diblok, tekan Ctrl+C.'); }
+};
+$('#saveDraft').onclick = () => { store.set('pukat-draf', config()); toast('Draf tersimpan di peramban ini (tanpa token).'); };
+(function loadDraft(){
+  const d = store.get('pukat-draf', null); if (!d) return;
+  try{
+    if (Array.isArray(d.kata_kunci)) keywords = d.kata_kunci;
+    if (d.proyek) $('#namaProyek').value = d.proyek;
+    const radio = document.querySelector(`input[name=match][value="${d.mode_cocok}"]`); if (radio) radio.checked = true;
+    if (d.pengecualian) $('#exclude').value = d.pengecualian.join(', ');
+    $('#hashtag').checked = d.varian_tagar !== false;
+    if (Array.isArray(d.platform)) document.querySelectorAll('input[name=pf]').forEach(i => i.checked = d.platform.includes(i.value));
+    if (d.periode){ $('#dFrom').value = d.periode.mulai; $('#dTo').value = d.periode.sampai; $('#tz').value = String(d.periode.utc_offset_jam || 7); $('#split').checked = !!d.periode.pecah_per_bulan; }
+    ['target','maxq','subset','minw'].forEach((id,i) => { const v = [d.target_per_platform, d.maks_per_kueri, d.subset_seimbang_per_platform, d.min_kata][i]; if (v != null) $('#'+id).value = v; });
+    if (d.batas_biaya_usd != null) $('#cap').value = d.batas_biaya_usd;
+    if (d.seleksi) $('#sel').value = d.seleksi;
+  }catch(_){}
+})();
+
+// ================= JALANKAN =================
+const isActive = s => ['READY','RUNNING','MEMULAI','TIMING-OUT','ABORTING'].includes(s);
+const saveQueue = () => store.set('pukat-antrean', queue.map(q => ({...q})));
+$('#form').addEventListener('submit', async e => {
+  e.preventDefault(); update(); if ($('#runBtn').disabled) return;
+  const {cfg, pl} = last;
+  queue = pl.runs.map(r => ({platform: r.platform, periode: r.periode, actor: PF[r.platform].actor, input: r.input, maxItems: r.maxItems, maxUsd: r.maxUsd, status:'ANTRE', items:0, usd:0}));
+  projSnap = {cfg, dibuat: new Date().toISOString(), akun: account ? account.user : null};
+  store.set('pukat-proyek-run', projSnap); hasil = null; rawCache = {};
+  saveQueue(); log(`Proyek ${cfg.proyek}: ${queue.length} run disiapkan.`);
+  location.hash = 'hasil'; renderQueue(); renderHasil();
+  startQueue();
+});
+
+let pumping = false;
+async function startQueue(){
+  if (pumping) return; pumping = true;
+  banner('Run sedang berjalan di akun Apify Anda. Halaman ini boleh ditutup; buka lagi dan uji token untuk melanjutkan pemantauan.', 'warn');
+  try{
+    while (true){
+      const active = queue.filter(q => isActive(q.status)).length;
+      const next = queue.find(q => q.status === 'ANTRE');
+      if (next && active < 2){ await launch(next); continue; }
+      if (!queue.some(q => isActive(q.status) || q.status === 'ANTRE')) break;
+      await pollAll(); await sleep(5000);
+    }
+  } finally { pumping = false; }
+  const ok = queue.filter(q => q.status === 'SUCCEEDED').length;
+  banner(`${ok} dari ${queue.length} run selesai. ${ok ? 'Hasil sedang diolah.' : ''}`, ok ? 'ok' : 'bad');
+  log('Semua run berhenti.'); renderQueue(); update();
+  if (ok) olah();
+}
+async function launch(q){
+  q.status = 'MEMULAI'; renderQueue();
+  const params = new URLSearchParams();
+  if (q.maxItems) params.set('maxItems', q.maxItems);
+  if (q.maxUsd) params.set('maxTotalChargeUsd', q.maxUsd);
+  try{
+    const r = (await api(`/acts/${q.actor.replace('/','~')}/runs?${params}`, {method:'POST', body: JSON.stringify(q.input)})).data;
+    Object.assign(q, {runId: r.id, datasetId: r.defaultDatasetId, status: r.status, started: r.startedAt, build: r.buildNumber});
+    log(`Run dimulai: ${PF[q.platform].name} ${q.periode} → ${r.id}`);
+  }catch(err){
+    q.status = 'GAGAL_MULAI'; q.error = err.message; log(`Gagal memulai ${PF[q.platform].name} ${q.periode}: ${err.message}`);
+    if (err.status === 402 || /credit|usage|limit/i.test(err.message)) { queue.filter(x => x.status === 'ANTRE').forEach(x => { x.status = 'DILEWATI'; }); log('Kredit atau batas akun tercapai; run sisanya dilewati.'); }
+  }
+  saveQueue(); renderQueue();
+}
+async function pollAll(){
+  for (const q of queue.filter(q => q.runId && isActive(q.status))){
+    try{
+      const r = (await api(`/actor-runs/${q.runId}`)).data;
+      const prev = q.status;
+      Object.assign(q, {status: r.status, usd: r.usageTotalUsd || 0, finished: r.finishedAt, build: r.buildNumber, datasetId: r.defaultDatasetId});
+      try{ const ds = (await api(`/datasets/${q.datasetId}`)).data; q.items = ds.itemCount || 0; }catch(_){}
+      if (prev !== r.status) log(`${PF[q.platform].name} ${q.periode}: ${r.status} (${fmt.format(q.items)} item, ${usd(q.usd)})`);
+    }catch(err){ log('Gagal memeriksa run ' + q.runId + ': ' + err.message); }
+  }
+  saveQueue(); renderQueue();
+}
+function resumePolling(){
+  if (queue.some(q => isActive(q.status) || q.status === 'ANTRE')){ log('Melanjutkan pemantauan antrean tersimpan.'); startQueue(); }
+}
+$('#btnAbortAll').onclick = async () => {
+  queue.filter(q => q.status === 'ANTRE').forEach(q => q.status = 'DILEWATI');
+  for (const q of queue.filter(q => q.runId && isActive(q.status))){
+    try{ await api(`/actor-runs/${q.runId}/abort`, {method:'POST'}); log('Run dihentikan: ' + q.runId); }catch(err){ log('Gagal menghentikan ' + q.runId + ': ' + err.message); }
+  }
+  saveQueue(); renderQueue();
+};
+$('#btnReset').onclick = () => {
+  if (queue.some(q => isActive(q.status))){ toast('Hentikan run yang masih berjalan dulu.'); return; }
+  queue = []; hasil = null; rawCache = {}; saveQueue(); store.del('pukat-proyek-run'); projSnap = null; banner(''); renderQueue(); renderHasil(); update();
+};
+$('#btnImport').onclick = async () => {
+  if (!token){ toast('Uji token Apify dulu di halaman Proyek.'); return; }
+  const ids = $('#oldRuns').value.split(/[\s,]+/).map(s => s.trim()).filter(Boolean);
+  if (!ids.length){ toast('Isi minimal satu run ID.'); return; }
+  if (!projSnap){ projSnap = {cfg: config(), dibuat: new Date().toISOString(), akun: account ? account.user : null, impor: true}; store.set('pukat-proyek-run', projSnap); }
+  for (const id of ids){
+    if (queue.some(q => q.runId === id)) continue;
+    try{
+      const r = (await api(`/actor-runs/${id}`)).data;
+      const act = (await api(`/acts/${r.actId}`)).data; const nama = `${act.username}/${act.name}`.toLowerCase();
+      const pid = ACTOR_PF[nama];
+      if (!pid){ log(`Run ${id} memakai aktor ${nama} yang belum didukung.`); continue; }
+      let input = null; try{ input = (await api(`/key-value-stores/${r.defaultKeyValueStoreId}/records/INPUT`)); }catch(_){}
+      queue.push({platform: pid, periode:'impor', actor: nama, input, runId: id, datasetId: r.defaultDatasetId, status: r.status, usd: r.usageTotalUsd || 0, started: r.startedAt, finished: r.finishedAt, build: r.buildNumber, items: 0, impor: true});
+      log(`Run ${id} ditambahkan (${PF[pid].name}, ${r.status}).`);
+    }catch(err){ log(`Run ${id} tidak dapat dibaca: ${err.message}`); }
+  }
+  saveQueue(); await pollAllDone(); renderQueue();
+};
+async function pollAllDone(){
+  for (const q of queue.filter(q => q.datasetId && !q.items)){ try{ q.items = (await api(`/datasets/${q.datasetId}`)).data.itemCount || 0; }catch(_){} }
+  saveQueue();
+}
+
+function pill(s){
+  const map = {SUCCEEDED:['ok','Selesai'], RUNNING:['run','Berjalan'], READY:['run','Menunggu'], MEMULAI:['run','Memulai'], ANTRE:['idle','Antre'], 'TIMING-OUT':['warn','Waktu habis'], 'TIMED-OUT':['warn','Waktu habis'], ABORTING:['warn','Dihentikan'], ABORTED:['warn','Dihentikan'], FAILED:['warn','Gagal'], GAGAL_MULAI:['warn','Gagal mulai'], DILEWATI:['idle','Dilewati']};
+  const [c,t] = map[s] || ['idle', s]; return `<span class="pill ${c}">${t}</span>`;
+}
+function renderQueue(){
+  $('#queueEmpty').hidden = queue.length > 0; $('#queueWrap').hidden = queue.length === 0;
+  $('#queueBody').innerHTML = queue.map((q,i) => `<tr>
+    <td><span class="pdot" style="--c:${PF[q.platform].c}"></span>${PF[q.platform].name}</td>
+    <td>${esc(q.periode)}</td>
+    <td class="mono">${q.runId ? `<a href="https://console.apify.com/view/runs/${q.runId}" target="_blank" rel="noopener">${q.runId}</a>` : '–'}</td>
+    <td title="${esc(q.error||'')}">${pill(q.status)}</td>
+    <td class="r">${fmt.format(q.items||0)}</td><td class="r">${usd(q.usd)}</td>
+    <td>${q.runId && isActive(q.status) ? `<button type="button" class="small" data-abort="${i}">Hentikan</button>` : ''}</td></tr>`).join('');
+  const tot = queue.reduce((a,q) => a + (q.usd||0), 0);
+  $('#queueMeta').textContent = queue.length ? `${queue.length} run · ${usd(tot)} terpakai${projSnap ? ' · ' + projSnap.cfg.proyek : ''}` : '';
+  const anyActive = queue.some(q => isActive(q.status) || q.status === 'ANTRE');
+  $('#btnAbortAll').disabled = !anyActive;
+  $('#btnOlah').disabled = anyActive || !queue.some(q => q.datasetId && ['SUCCEEDED','ABORTED','TIMED-OUT','FAILED'].includes(q.status));
+}
+$('#queueBody').addEventListener('click', async e => {
+  const b = e.target.closest('[data-abort]'); if (!b) return;
+  const q = queue[+b.dataset.abort];
+  try{ await api(`/actor-runs/${q.runId}/abort`, {method:'POST'}); log('Run dihentikan: ' + q.runId); }catch(err){ log('Gagal menghentikan: ' + err.message); }
+});
+$('#btnOlah').onclick = () => olah();
+
+// ================= UTIL TEKS =================
+const RE_URL = /https?:\/\/\S+|www\.\S+/gi;
+const RE_MENTION = /(^|[^\w@])@([A-Za-z0-9_.]{2,30})/g;
+const RE_HASHTAG = /#[\p{L}\p{N}_]+/gu;
+const RE_EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+const RE_TELP = /(?<!\d)(?:\+?62|0)8\d{1,3}[-\s.]?\d{3,4}[-\s.]?\d{3,5}(?!\d)/g;
+const RE_NIK = /(?<!\d)\d{16}(?!\d)/g;
+const RE_NOMOR = /(?<![\d.,])\d{10,15}(?![\d.,])/g;
+const bersih = s => String(s||'').replace(RE_URL,' ').replace(RE_MENTION,'$1 ').replace(RE_HASHTAG,' ').replace(/\s+/g,' ').trim();
+const hitungKata = s => (String(s||'').match(/[\p{L}]{2,}/gu) || []).length;
+const normBanding = s => String(s||'').normalize('NFKC').toLowerCase().replace(RE_URL,' ').replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();
+const satuBaris = s => String(s||'').replace(/\s*[\r\n]+\s*/g,' ¶ ').trim();
+const enc = new TextEncoder();
+async function sha256(s){ const b = await crypto.subtle.digest('SHA-256', typeof s === 'string' ? enc.encode(s) : s); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join(''); }
+let hmacKey = null;
+async function hmac(ruang, nilai){
+  if (!nilai) return '';
+  const sig = await crypto.subtle.sign('HMAC', hmacKey, enc.encode(`${ruang}:${nilai}`.toLowerCase()));
+  return [...new Uint8Array(sig)].map(x => x.toString(16).padStart(2,'0')).join('').slice(0,12);
+}
+async function anonimkan(pid, teks, samarkan){
+  if (!samarkan) return teks;
+  let t = teks.replace(RE_EMAIL,'[EMAIL]').replace(RE_URL,'[URL]');
+  const ms = [...t.matchAll(RE_MENTION)]; const map = {};
+  for (const m of ms) if (!(m[2] in map)) map[m[2]] = hmacKey ? 'USER_' + await hmac(pid, m[2]) : 'USER';
+  t = t.replace(RE_MENTION, (_, pre, h) => pre + '@' + map[h]);
+  return t.replace(RE_TELP,'[TELEPON]').replace(RE_NIK,'[NIK]').replace(RE_NOMOR,'[NOMOR]');
+}
+function rng(seedStr){ let h = 1779033703 ^ seedStr.length; for (let i=0;i<seedStr.length;i++){ h = Math.imul(h ^ seedStr.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  let a = h >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function shuffle(arr, r){ const a = [...arr]; for (let i = a.length-1; i > 0; i--){ const j = Math.floor(r() * (i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+function parseTgl(v){
+  if (v == null || v === '') return null;
+  if (typeof v === 'number' || /^\d{9,13}$/.test(String(v))){ const n = +v; return new Date(n < 1e12 ? n*1000 : n); }
+  const d = new Date(v); return isNaN(d) ? null : d;
+}
+const g = (o, path) => path.split('.').reduce((c,k) => (c && typeof c === 'object' && k in c) ? c[k] : undefined, o);
+const PLACEHOLDER_KEYS = new Set(['noResults','demo','error','errorDescription','#error','#debug','message']);
+
+function adapter(pid, it){
+  if (!it || typeof it !== 'object' || !Object.keys(it).length || Object.keys(it).every(k => PLACEHOLDER_KEYS.has(k))) return {placeholder: true};
+  if (pid === 'tiktok') return {post_id: it.id, url: it.postPage, tgl: it.uploadedAt ?? it.uploadedAtFormatted, teks: it.title, author: g(it,'channel.id') || g(it,'channel.username'), kueri: it.keyword || it.inputSource, transkrip: g(it,'transcript.text') || ''};
+  if (pid === 'instagram') return {post_id: it.postId, kode: it.shortCode, url: it.url, tgl: it.publishedAt, teks: it.caption, author: it.userId || it.username, kueri: it.discoveryQuery || it.query};
+  if (pid === 'x') return {post_id: it.tweetId ?? it.id, url: it.url, tgl: it.createdAt, teks: it.text ?? it.fullText, author: it.authorId || it.authorHandle, lang: it.lang, kueri: it.searchQuery, rt: !!it.isRetweet, type: it.type, id_percakapan: it.conversationId};
+  if (pid === 'facebook') return {post_id: it.post_id, url: it.url, tgl: it.published_at ?? it.timestamp, teks: it.message, author: g(it,'author.id') || g(it,'author.name'), kueri: it.search_query};
+  return {};
+}
+function jenisMedia(pid, raw){
+  raw = raw || {};
+  if (pid === 'tiktok') return ['video','video'];
+  if (pid === 'instagram'){ const t = String(raw.contentType||'').toLowerCase();
+    return ({reel:['reels (video)','video'], video:['video','video'], carousel:['carousel','gambar'], image:['foto','gambar']})[t] || [t || 'tidak diketahui','tidak diketahui']; }
+  if (pid === 'facebook'){ let t = String(raw.type||'').toLowerCase(); if (raw.video || raw.video_id) t = 'video';
+    return ({photo:['foto','gambar'], album:['album foto','gambar'], video:['video','video'], status:['teks saja','teks saja'], text:['teks saja','teks saja'], link:['tautan','tautan/berbagi'], share:['berbagi postingan lain','tautan/berbagi']})[t] || [t || 'tidak diketahui','tidak diketahui']; }
+  if (pid === 'x'){
+    const has = k => Array.isArray(raw[k]) ? raw[k].length > 0 : !!raw[k];
+    if (has('videos')) return ['video' + (has('photos') ? ' + foto' : ''), 'video'];
+    if (has('photos')) return ['foto','gambar'];
+    if (has('links')) return ['tautan','tautan/berbagi'];
+    if (raw.isQuote) return ['kutipan tweet lain','tautan/berbagi'];
+    return ['teks saja','teks saja'];
+  }
+  return ['tidak diketahui','tidak diketahui'];
+}
+function urlKanonik(pid, r){
+  if (pid === 'x') return `https://x.com/i/status/${r.post_id}`;
+  if (pid === 'instagram' && r.kode) return `https://www.instagram.com/p/${r.kode}/`;
+  if (pid === 'tiktok' && r.post_id) return `https://www.tiktok.com/@/video/${r.post_id}`;
+  if (pid === 'facebook' && /^\d+$/.test(String(r.post_id||''))) return `https://www.facebook.com/${r.post_id}`;
+  return '';
+}
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function buatPencocok(cfg){
+  const pola = [];
+  cfg.kata_kunci.forEach(k => {
+    if (cfg.mode_cocok === 'frasa'){ pola.push([k, new RegExp(reEsc(k).replace(/\s+/g,'\\s+'), 'iu')]); if (cfg.varian_tagar && k.includes(' ')) pola.push([k, new RegExp(reEsc(k.replace(/\s+/g,'')), 'iu')]); }
+  });
+  const words = k => k.split(/\s+/).filter(Boolean);
+  return teks => {
+    const t = String(teks||''); const lo = t.toLowerCase(); const hit = new Set(); let pos = -1;
+    if (cfg.mode_cocok === 'frasa') pola.forEach(([k, re]) => { const m = re.exec(t); if (m){ hit.add(k); if (pos < 0 || m.index < pos) pos = m.index; } });
+    else cfg.kata_kunci.forEach(k => { const w = words(k); const ok = cfg.mode_cocok === 'semua' ? w.every(x => lo.includes(x)) : w.some(x => lo.includes(x)); if (ok){ hit.add(k); const i = lo.indexOf(w[0]); if (i >= 0 && (pos < 0 || i < pos)) pos = i; } });
+    return {kw: cfg.kata_kunci.filter(k => hit.has(k)), pos};
+  };
+}
+function bahasa(r, teks){
+  if (r.lang){ const l = String(r.lang).toLowerCase(); if (l === 'in' || l === 'id') return ['id', 'label platform']; if (l !== 'und' && l !== 'qme' && l !== 'zxx') return [l, 'label platform']; }
+  const tok = normBanding(bersih(teks)).split(' ').filter(Boolean);
+  let i = 0, e = 0; tok.forEach(w => { if (STOP_ID.has(w)) i++; if (STOP_EN.has(w)) e++; });
+  if (tok.length < 4) return ['id?', 'teks terlalu pendek'];
+  return i >= Math.max(1, e) ? ['id', 'heuristik'] : (e > i ? ['en', 'heuristik'] : ['tidak diketahui', 'heuristik']);
+}
+const reMelayu = new RegExp('(^|[^\\p{L}])(' + MELAYU.map(reEsc).join('|') + ')(?![\\p{L}])', 'iu');
+
+// ================= OLAH =================
+async function ambilDataset(q){
+  if (rawCache[q.runId]) return rawCache[q.runId];
+  const out = []; let off = 0;
+  while (true){
+    const r = await fetch(`${API}/datasets/${q.datasetId}/items?clean=true&format=json&limit=1000&offset=${off}`, {headers:{Authorization:'Bearer ' + token}});
+    if (!r.ok) throw new Error(`dataset ${q.datasetId}: HTTP ${r.status}`);
+    const arr = await r.json(); out.push(...arr); if (arr.length < 1000) break; off += 1000;
+  }
+  rawCache[q.runId] = out; return out;
+}
+
+async function olah(){
+  if (!token){ toast('Uji token Apify dulu.'); location.hash = 'proyek'; return; }
+  const cfg = (projSnap && projSnap.cfg) || config();
+  $('#btnOlah').disabled = true; banner('Mengunduh dataset dan mengolah korpus…', 'warn');
+  try{
+    hmacKey = null;
+    if (cfg.privasi.pseudonim){
+      const hex = kunciEl.value.trim(); const bytes = new Uint8Array(hex.match(/.{2}/g).map(h => parseInt(h,16)));
+      hmacKey = await crypto.subtle.importKey('raw', bytes, {name:'HMAC', hash:'SHA-256'}, false, ['sign']);
+    }
+    const sidikKunci = hmacKey ? (await sha256(kunciEl.value.trim())).slice(0,16) : null;
+    const off = (cfg.periode.utc_offset_jam || 7) * 3600e3;
+    const t0 = Date.parse(cfg.periode.mulai + 'T00:00:00Z') - off, t1 = Date.parse(addDay(cfg.periode.sampai,1) + 'T00:00:00Z') - off;
+    const cocok = buatPencocok(cfg); const ex = cfg.pengecualian.map(e => new RegExp(reEsc(e), 'iu'));
+    const kand = []; const seenId = new Set(); const seenTeks = new Map(); const logT = [];
+    const runsOk = queue.filter(q => q.datasetId && ['SUCCEEDED','ABORTED','TIMED-OUT','FAILED'].includes(q.status));
+    for (const q of runsOk){
+      let items; try{ items = await ambilDataset(q); }catch(err){ log(`Gagal mengunduh dataset ${q.runId}: ${err.message}`); continue; }
+      log(`Dataset ${PF[q.platform].name} ${q.periode}: ${fmt.format(items.length)} item.`);
+      for (let idx = 0; idx < items.length; idx++){
+        const it = items[idx]; const pid = q.platform; const r = adapter(pid, it);
+        const c = {pid, q, idx, raw: it, r, alasan: null};
+        c.sha_raw = await sha256(JSON.stringify(it));
+        const tolak = a => { c.alasan = a; };
+        if (r.placeholder) tolak('PLACEHOLDER');
+        else if (r.post_id == null || r.post_id === '') tolak('TANPA_ID');
+        else {
+          r.post_id = String(r.post_id);
+          const teks = String(r.teks || '');
+          c.tgl = parseTgl(r.tgl);
+          const kunciId = pid + ':' + r.post_id;
+          if (!teks.trim() && !r.transkrip) tolak('TANPA_TEKS');
+          else if (pid === 'x' && r.type && !['tweet','reply','quote'].includes(r.type)) tolak('BUKAN_TWEET');
+          else if (pid === 'x' && r.rt && !cfg.filter.retweet) tolak('RETWEET');
+          else if (!c.tgl || c.tgl.getTime() < t0 || c.tgl.getTime() >= t1) tolak('LUAR_PERIODE');
+          else if (seenId.has(kunciId)) tolak('DUPLIKAT_ID');
+          else if (oldIds.has(kunciId) || oldIds.has('*:' + r.post_id) || (pid === 'x' && oldIds.has('twitter:' + r.post_id))) tolak('DUPLIKAT_KORPUS_LAMA');
+          else {
+            seenId.add(kunciId);
+            const gabung = teks + (r.transkrip ? '\n' + r.transkrip : '');
+            const m = cocok(gabung); c.kw = m.kw; c.pos = m.pos < 0 ? '' : (m.pos < teks.length ? 'teks' : 'transkrip');
+            c.jumlah_kata = hitungKata(bersih(teks)) || hitungKata(bersih(r.transkrip));
+            const [lang, lsum] = bahasa(r, gabung); c.bahasa = lang; c.bahasa_sumber = lsum;
+            if (c.jumlah_kata < cfg.min_kata) tolak('TERLALU_PENDEK');
+            else if (!m.kw.length) tolak('TIDAK_RELEVAN');
+            else if (ex.some(re => re.test(gabung))) tolak('PENGECUALIAN');
+            else if (cfg.filter.bahasa_indonesia && !['id','id?'].includes(lang)) tolak('BUKAN_INDONESIA');
+            else if (cfg.filter.melayu && reMelayu.test(gabung)) tolak('MELAYU');
+            else if (cfg.filter.dedup){
+              const h = await sha256(normBanding(teks));
+              if (normBanding(teks).length > 20 && seenTeks.has(h)) tolak('DUPLIKAT_TEKS'); else seenTeks.set(h, c);
+            }
+          }
+        }
+        if (!c.alasan) c.alasan = 'LOLOS';
+        kand.push(c);
+        logT.push({platform: pid, run_id: q.runId, indeks_item_raw: idx, id_unggahan: r.post_id || null, sha256_item_raw: c.sha_raw, keputusan: c.alasan, kata_kunci_cocok: c.kw || [], bahasa: c.bahasa || null});
+      }
+    }
+    // seleksi
+    const pidsAll = [...new Set(kand.map(c => c.pid))];
+    let lolos = kand.filter(c => c.alasan === 'LOLOS');
+    lolos.sort((a,b) => a.pid.localeCompare(b.pid) || a.tgl - b.tgl);
+    const bulan = c => new Date(c.tgl.getTime() + off).toISOString().slice(0,7);
+    if (cfg.seleksi === 'target'){
+      const keep = new Set();
+      pidsAll.forEach(pid => { const ps = lolos.filter(c => c.pid === pid); pilihSeimbang(ps, cfg.target_per_platform, bulan, rng(cfg.seed + '|target|' + pid)).forEach(c => keep.add(c)); });
+      lolos.forEach(c => { if (!keep.has(c)){ c.alasan = 'LEWAT_TARGET'; } });
+      lolos = lolos.filter(c => keep.has(c));
+    }
+    const subset = new Set();
+    if (cfg.subset_seimbang_per_platform > 0) pidsAll.forEach(pid => pilihSeimbang(lolos.filter(c => c.pid === pid), cfg.subset_seimbang_per_platform, bulan, rng(cfg.seed + '|subset|' + pid)).forEach(c => subset.add(c)));
+    const sampel = new Set();
+    if (cfg.verifikasi.sampel_manual > 0) pidsAll.forEach(pid => { const ps = lolos.filter(c => c.pid === pid); shuffle(ps, rng(cfg.seed + '|sampel|' + pid)).slice(0, Math.ceil(ps.length * cfg.verifikasi.sampel_manual)).forEach(c => sampel.add(c)); });
+    // baris korpus
+    const kodeProyek = cfg.proyek.replace(/[^A-Za-z0-9]/g,'').slice(0,8).toUpperCase() || 'KRP';
+    const rows = []; const nomor = {};
+    for (const c of lolos){
+      const p = PF[c.pid]; nomor[c.pid] = (nomor[c.pid] || 0) + 1; const r = c.r;
+      const [jm, km] = jenisMedia(c.pid, c.raw);
+      rows.push({
+        doc_id: `${kodeProyek}-${p.kode}-${String(nomor[c.pid]).padStart(4,'0')}`,
+        doc_uid: (await sha256(`${c.pid}|${r.post_id}`)).slice(0,16),
+        platform: p.name, id_unggahan: r.post_id, id_percakapan: r.id_percakapan || r.post_id,
+        url_kanonik: urlKanonik(c.pid, r), tanggal_utc: c.tgl.toISOString(),
+        tanggal_lokal: new Date(c.tgl.getTime() + off).toISOString().replace('Z', `+${String(cfg.periode.utc_offset_jam).padStart(2,'0')}:00`),
+        bulan: bulan(c), teks_anonim: await anonimkan(c.pid, String(r.teks||''), cfg.privasi.samarkan),
+        transkrip: r.transkrip ? await anonimkan(c.pid, r.transkrip, cfg.privasi.samarkan) : '',
+        jumlah_kata: c.jumlah_kata, bahasa: c.bahasa, bahasa_sumber: c.bahasa_sumber, posisi_kata_kunci: c.pos, kata_kunci_cocok: c.kw.join('; '),
+        jenis_media: jm, kategori_media: km, subset_seimbang: cfg.subset_seimbang_per_platform > 0 ? (subset.has(c) ? 'ya' : 'tidak') : '',
+        sampel_verifikasi: sampel.has(c) ? 'ya' : '',
+        penulis_pseudonim: cfg.privasi.pseudonim && r.author ? 'USR_' + await hmac(c.pid, String(r.author)) : '',
+        kueri_pencarian: r.kueri || '', aktor_apify: c.q.actor, apify_run_id: c.q.runId, apify_dataset_id: c.q.datasetId,
+        indeks_item_raw: c.idx, sha256_item_raw: c.sha_raw, sha256_teks_asli: await sha256(String(r.teks||'')),
+        status_verifikasi_daring: c.pid === 'x' || c.pid === 'tiktok' ? 'BELUM_DICEK' : 'TIDAK_DIAKSES_OTOMATIS'
+      });
+    }
+    const alasan = {}; kand.forEach(c => { alasan[c.alasan] = (alasan[c.alasan] || 0) + 1; });
+    hasil = {cfg, rows, kand, alasan, logT, sidikKunci, dibuat: new Date().toISOString(), runs: runsOk.map(q => ({...q, input: q.input}))};
+    log(`Pengolahan selesai: ${fmt.format(kand.length)} kandidat → ${fmt.format(rows.length)} dokumen bersih.`);
+    banner(`Korpus siap: ${fmt.format(rows.length)} dokumen bersih dari ${fmt.format(kand.length)} kandidat. Unduh hasilnya di bawah.`, 'ok');
+    renderHasil();
+    if (cfg.verifikasi.oembed && rows.some(r => r.status_verifikasi_daring === 'BELUM_DICEK')) cekOembed();
+  }catch(err){
+    log('Pengolahan gagal: ' + err.message); banner('Pengolahan gagal: ' + err.message, 'bad'); console.error(err);
+  } finally { renderQueue(); }
+}
+function pilihSeimbang(list, n, bulanFn, r){
+  if (list.length <= n) return list;
+  const grup = {}; list.forEach(c => (grup[bulanFn(c)] = grup[bulanFn(c)] || []).push(c));
+  const kunci = Object.keys(grup).sort(); kunci.forEach(k => grup[k] = shuffle(grup[k], r));
+  const out = []; let i = 0;
+  while (out.length < n){ let tambah = false; for (const k of kunci){ if (grup[k][i]){ out.push(grup[k][i]); tambah = true; if (out.length >= n) break; } } if (!tambah) break; i++; }
+  return out;
+}
+
+// ================= oEMBED =================
+let oeRunning = false;
+async function cekOembed(){
+  if (!hasil || oeRunning) return; oeRunning = true; $('#btnOembed').disabled = true;
+  const target = hasil.rows.filter(r => r.status_verifikasi_daring === 'BELUM_DICEK');
+  const byId = new Map(hasil.kand.filter(c => c.alasan === 'LOLOS').map(c => [c.pid + ':' + c.r.post_id, c]));
+  let n = 0; log(`Cek oEmbed dimulai untuk ${target.length} dokumen (jeda 1,5 detik).`);
+  for (const row of target){
+    n++; $('#oeProg').textContent = `${n}/${target.length}`;
+    const pid = row.platform === 'TikTok' ? 'tiktok' : 'x'; const c = byId.get(pid + ':' + row.id_unggahan);
+    try{
+      if (pid === 'x'){
+        const r = await fetch(`https://publish.x.com/oembed?omit_script=1&url=${encodeURIComponent('https://twitter.com/i/status/' + row.id_unggahan)}`);
+        if (r.status === 404){ row.status_verifikasi_daring = 'TIDAK_DITEMUKAN'; }
+        else if (!r.ok){ row.status_verifikasi_daring = 'GAGAL_DICEK'; }
+        else {
+          const j = await r.json(); const doc = new DOMParser().parseFromString(j.html || '', 'text/html');
+          const p = doc.querySelector('blockquote p'); const asli = normBanding(bersih(p ? p.textContent : ''));
+          const kita = normBanding(bersih(c ? c.r.teks : ''));
+          const A = new Set(asli.split(' ')), B = new Set(kita.split(' ')); let inter = 0; B.forEach(w => { if (A.has(w)) inter++; });
+          const skor = (A.size + B.size) ? 2*inter / (A.size + B.size) : 0;
+          row.status_verifikasi_daring = !asli ? 'TIDAK_DAPAT_DICEK' : skor >= 0.8 ? 'LOLOS' : skor >= 0.5 ? 'LOLOS_SEBAGIAN' : 'TIDAK_COCOK';
+          row.skor_oembed = +skor.toFixed(3);
+        }
+      } else {
+        const r = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent('https://www.tiktok.com/@/video/' + row.id_unggahan)}`);
+        row.status_verifikasi_daring = r.ok ? 'ADA_TEKS_TIDAK_DAPAT_DICEK' : (r.status === 404 || r.status === 400 ? 'TIDAK_DITEMUKAN' : 'GAGAL_DICEK');
+      }
+    }catch(_){ row.status_verifikasi_daring = 'GAGAL_DICEK'; }
+    if (n % 10 === 0 || n === target.length) renderHasil();
+    await sleep(1500);
+  }
+  log('Cek oEmbed selesai.'); oeRunning = false; $('#btnOembed').disabled = false; $('#oeProg').textContent = ''; renderHasil();
+}
+$('#btnOembed').onclick = () => { if (hasil){ hasil.rows.forEach(r => { if (['GAGAL_DICEK'].includes(r.status_verifikasi_daring)) r.status_verifikasi_daring = 'BELUM_DICEK'; }); cekOembed(); } };
+
+// ================= RENDER HASIL =================
+const MC = {'teks saja':'#8A97AE', gambar:'#2BA37A', video:'var(--accent)', 'tautan/berbagi':'#D08A1E', 'tidak diketahui':'var(--line)'};
+function mediaBars(el, data){
+  el.innerHTML = data.map(([n,c,m]) => {
+    const tot = Object.values(m).reduce((a,b) => a+b, 0) || 1;
+    const segs = Object.entries(m).map(([k,v]) => `<i style="width:${v/tot*100}%;background:${MC[k] || 'var(--line)'}" title="${k}: ${v}"></i>`).join('');
+    return `<div class="mediarow"><span><span class="pdot" style="--c:${c}"></span>${n.split(' ')[0]}</span><div class="stacked" role="img" aria-label="${n}: ${Object.entries(m).map(([k,v]) => k+' '+v).join(', ')}">${segs}</div><span class="n">${Object.values(m).reduce((a,b)=>a+b,0)}</span></div>`;
+  }).join('');
+}
+mediaBars($('#mediaContoh'), [['TikTok','var(--tt)',{video:283}],['Instagram','var(--ig)',{gambar:83,video:126}],['X (Twitter)','var(--x)',{'teks saja':50,gambar:144,video:240,'tautan/berbagi':90}],['Facebook','var(--fb)',{'teks saja':3,gambar:306,video:4,'tautan/berbagi':1}]]);
+
+function renderHasil(){
+  $('#hasilReal').hidden = !hasil; $('#contoh').hidden = !!hasil;
+  if (!hasil) return;
+  const {rows, kand, alasan, cfg} = hasil;
+  $('#kKand').textContent = fmt.format(kand.length); $('#kKandS').textContent = `dari ${hasil.runs.length} run Apify`;
+  $('#kLolos').textContent = fmt.format(rows.length); $('#kLolosS').textContent = pct(rows.length, kand.length) + ' kandidat lolos';
+  const cek = rows.filter(r => r.platform === 'TikTok' || r.platform.startsWith('X'));
+  const sudah = cek.filter(r => r.status_verifikasi_daring !== 'BELUM_DICEK');
+  const cocokX = rows.filter(r => ['LOLOS','LOLOS_SEBAGIAN'].includes(r.status_verifikasi_daring)).length;
+  const xTot = rows.filter(r => r.platform.startsWith('X')).length;
+  $('#kOe').textContent = xTot ? `${cocokX}/${xTot}` : (cek.length ? `${sudah.length}/${cek.length}` : '–');
+  $('#kOeS').textContent = !cek.length ? 'tidak ada dokumen X/TikTok' : sudah.length < cek.length ? `${sudah.length} dari ${cek.length} sudah dicek` : (xTot ? 'teks X cocok dengan sumber' : 'semua sudah dicek');
+  const cost = hasil.runs.reduce((a,q) => a + (q.usd || 0), 0);
+  $('#kCost').textContent = usd(cost); $('#kCostS').textContent = rows.length ? usd(cost / rows.length) + ' per dokumen bersih' : '';
+  $('#pfTotal').textContent = 'total ' + fmt.format(rows.length);
+  const pids = [...new Set(kand.map(c => c.pid))];
+  $('#pfBody').innerHTML = pids.map(pid => {
+    const p = PF[pid]; const rs = rows.filter(r => r.platform === p.name);
+    const st = {}; rs.forEach(r => st[r.status_verifikasi_daring] = (st[r.status_verifikasi_daring]||0) + 1);
+    const oe = pid === 'x' ? `<span class="pill ${st.BELUM_DICEK ? 'idle' : 'ok'}">${(st.LOLOS||0) + (st.LOLOS_SEBAGIAN||0)} cocok${st.BELUM_DICEK ? ', ' + st.BELUM_DICEK + ' antre' : ''}</span>`
+      : pid === 'tiktok' ? `<span class="pill ${st.BELUM_DICEK ? 'idle' : 'warn'}">${st.BELUM_DICEK ? st.BELUM_DICEK + ' antre' : (st.ADA_TEKS_TIDAK_DAPAT_DICEK||0) + ' ada, teks tak dapat dicek'}</span>`
+      : '<span class="pill idle">Tidak diakses otomatis</span>';
+    return `<tr><td><span class="pdot" style="--c:${p.c}"></span>${p.name}</td><td class="r">${fmt.format(kand.filter(c => c.pid === pid).length)}</td><td class="r">${fmt.format(rs.length)}</td><td class="r">${fmt.format(rs.filter(r => r.subset_seimbang === 'ya').length)}</td><td>${oe}</td></tr>`;
+  }).join('');
+  const mx = Math.max(1, ...Object.values(alasan));
+  $('#funnel').innerHTML = Object.entries(alasan).sort((a,b) => (a[0]==='LOLOS') ? -1 : (b[0]==='LOLOS') ? 1 : b[1]-a[1])
+    .map(([k,v]) => `<div class="frow ${k==='LOLOS'?'lolos':''}"><span>${ALASAN[k] || k}</span><span class="fb"><i style="width:${v/mx*100}%"></i></span><span class="n">${fmt.format(v)}</span></div>`).join('');
+  mediaBars($('#mediaReal'), pids.map(pid => { const m = {}; rows.filter(r => r.platform === PF[pid].name).forEach(r => m[r.kategori_media] = (m[r.kategori_media]||0) + 1); return [PF[pid].name, PF[pid].c, m]; }));
+  const sel = $('#prevPf'); const cur = sel.value;
+  sel.innerHTML = '<option value="">Semua platform</option>' + pids.map(pid => `<option value="${PF[pid].name}">${PF[pid].name}</option>`).join(''); sel.value = cur;
+  renderPreview();
+}
+function renderPreview(){
+  if (!hasil) return;
+  const f = $('#prevPf').value; const rs = hasil.rows.filter(r => !f || r.platform === f);
+  $('#prevMeta').textContent = `${Math.min(50, rs.length)} dari ${fmt.format(rs.length)} dokumen`;
+  $('#prevBody').innerHTML = rs.slice(0,50).map(r => `<tr><td class="mono">${r.url_kanonik ? `<a href="${esc(r.url_kanonik)}" target="_blank" rel="noopener">${esc(r.doc_id)}</a>` : esc(r.doc_id)}</td><td>${esc(r.platform)}</td><td class="num">${esc(r.tanggal_lokal.slice(0,10))}</td><td class="teks">${esc(r.teks_anonim.slice(0,280))}${r.teks_anonim.length > 280 ? '…' : ''}</td><td>${esc(r.kata_kunci_cocok)}</td><td>${esc(r.jenis_media)}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">Tidak ada dokumen.</td></tr>';
+}
+$('#prevPf').addEventListener('change', renderPreview);
+
+// ================= EKSPOR =================
+function download(name, data, type){
+  const blob = data instanceof Blob ? data : new Blob([data], {type: type || 'application/octet-stream'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+const KOLOM = ['doc_id','doc_uid','platform','id_unggahan','id_percakapan','url_kanonik','tanggal_utc','tanggal_lokal','bulan','teks_anonim','transkrip','jumlah_kata','bahasa','bahasa_sumber','posisi_kata_kunci','kata_kunci_cocok','jenis_media','kategori_media','subset_seimbang','sampel_verifikasi','penulis_pseudonim','kueri_pencarian','aktor_apify','apify_run_id','apify_dataset_id','indeks_item_raw','sha256_item_raw','sha256_teks_asli','status_verifikasi_daring','skor_oembed'];
+function toCSV(rows){
+  const q = v => { const s = v == null ? '' : String(v); return /[",\n\r;]/.test(s) || /^[=+\-@]/.test(s) ? '"' + (/^[=+\-@]/.test(s) ? "'" : '') + s.replace(/"/g,'""') + '"' : s; };
+  return '﻿' + [KOLOM.join(','), ...rows.map(r => KOLOM.map(k => q(r[k])).join(','))].join('\r\n');
+}
+function buatXLSX(){
+  if (typeof XLSX === 'undefined') throw new Error('Pustaka XLSX belum termuat. Periksa koneksi lalu muat ulang halaman.');
+  const wb = XLSX.utils.book_new(); const {rows, cfg, kand} = hasil;
+  const ring = [['Pukat · ' + cfg.proyek], ['Dibuat', hasil.dibuat], ['Periode', `${cfg.periode.mulai} s.d. ${cfg.periode.sampai} (UTC+${cfg.periode.utc_offset_jam})`], ['Kata kunci', cfg.kata_kunci.join('; ')], [], ['Platform','Kandidat','Dokumen bersih','Subset seimbang']];
+  [...new Set(kand.map(c => c.pid))].forEach(pid => { const rs = rows.filter(r => r.platform === PF[pid].name); ring.push([PF[pid].name, kand.filter(c => c.pid === pid).length, rs.length, rs.filter(r => r.subset_seimbang === 'ya').length]); });
+  ring.push(['Total', kand.length, rows.length, rows.filter(r => r.subset_seimbang === 'ya').length]);
+  const ws0 = XLSX.utils.aoa_to_sheet(ring); ws0['!cols'] = [{wch:22},{wch:14},{wch:16},{wch:16}]; XLSX.utils.book_append_sheet(wb, ws0, 'Beranda');
+  const SIAP = ['doc_id','platform','tanggal_lokal','bulan','teks_anonim','transkrip','kata_kunci_cocok','jenis_media','kategori_media','subset_seimbang','url_kanonik','jumlah_kata','status_verifikasi_daring'];
+  const sheet = (nama, rs) => {
+    const data = rs.map(r => Object.fromEntries(SIAP.map(k => [k, k === 'teks_anonim' || k === 'transkrip' ? satuBaris(r[k]) : r[k]])));
+    const ws = XLSX.utils.json_to_sheet(data, {header: SIAP});
+    ws['!cols'] = SIAP.map(k => ({wch: k === 'teks_anonim' || k === 'transkrip' ? 80 : k === 'url_kanonik' ? 42 : 16}));
+    if (rs.length) ws['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:rs.length, c:SIAP.length-1}})};
+    XLSX.utils.book_append_sheet(wb, ws, nama.slice(0,31));
+  };
+  sheet('Semua Platform', rows);
+  [...new Set(kand.map(c => c.pid))].forEach(pid => {
+    const rs = rows.filter(r => r.platform === PF[pid].name);
+    if (pid === 'tiktok' && rs.some(r => r.transkrip)){ sheet('TikTok (ada transkrip)', rs.filter(r => r.transkrip)); sheet('TikTok (tanpa transkrip)', rs.filter(r => !r.transkrip)); }
+    else sheet(PF[pid].name, rs);
+  });
+  return new Uint8Array(XLSX.write(wb, {type:'array', bookType:'xlsx'}));
+}
+async function buatManifest(files){
+  const {cfg} = hasil;
+  return {
+    proyek: cfg.proyek, versi_pipeline: VERSI, dibuat: hasil.dibuat, akun_apify: projSnap && projSnap.akun ? 'pseudonim:' + (await sha256(projSnap.akun)).slice(0,12) : null,
+    sha256_config: await sha256(JSON.stringify(cfg)), config: cfg,
+    sidik_kunci_pseudonim: hasil.sidikKunci,
+    runs: hasil.runs.map(q => ({platform: q.platform, periode: q.periode, aktor: q.actor, build: q.build || null, run_id: q.runId, dataset_id: q.datasetId, status: q.status, mulai: q.started || null, selesai: q.finished || null, jumlah_item: q.items, biaya_usd: q.usd, input: q.input, batas_biaya_usd: q.maxUsd || null})),
+    ringkasan: {kandidat: hasil.kand.length, dokumen_bersih: hasil.rows.length, alasan: hasil.alasan},
+    berkas: files
+  };
+}
+async function paketZip(){
+  if (typeof JSZip === 'undefined') throw new Error('Pustaka ZIP belum termuat. Periksa koneksi lalu muat ulang halaman.');
+  const z = new JSZip(); const files = {}; const nama = hasil.cfg.proyek;
+  const add = async (path, data) => { z.file(path, data); files[path] = await sha256(typeof data === 'string' ? data : data); };
+  await add('korpus/korpus_final_semua.csv', toCSV(hasil.rows));
+  for (const pid of [...new Set(hasil.kand.map(c => c.pid))]) await add(`korpus/${pid}/korpus_final_${pid}.csv`, toCSV(hasil.rows.filter(r => r.platform === PF[pid].name)));
+  await add('korpus/DATA_SIAP_PAKAI.xlsx', buatXLSX());
+  await add('log/log_transformasi.jsonl', hasil.logT.map(x => JSON.stringify(x)).join('\n') + '\n');
+  await add('log/log_sesi.txt', logLines.join('\n') + '\n');
+  await add('config.json', JSON.stringify(hasil.cfg, null, 2));
+  z.file('MANIFEST.json', JSON.stringify(await buatManifest(files), null, 2));
+  z.file('BACA_SAYA.txt', `Paket publik korpus "${nama}" yang dibangun oleh Pukat (${VERSI}).\nTeks akun telah dipseudonimkan; kunci pseudonim TIDAK disertakan.\nKeaslian setiap berkas dapat diperiksa lewat hash SHA-256 pada MANIFEST.json.\n`);
+  return z.generateAsync({type:'blob'});
+}
+document.querySelector('.dl').addEventListener('click', async e => {
+  const b = e.target.closest('[data-dl]'); if (!b || !hasil) return;
+  const nama = hasil.cfg.proyek; b.disabled = true;
+  try{
+    if (b.dataset.dl === 'zip') download(`${nama}_PUBLIK.zip`, await paketZip());
+    if (b.dataset.dl === 'xlsx') download('DATA_SIAP_PAKAI.xlsx', new Blob([buatXLSX()], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    if (b.dataset.dl === 'csv') download('korpus_final_semua.csv', toCSV(hasil.rows), 'text/csv;charset=utf-8');
+    if (b.dataset.dl === 'manifest') download('MANIFEST.json', JSON.stringify(await buatManifest({}), null, 2), 'application/json');
+    if (b.dataset.dl === 'raw'){
+      const raw = {peringatan: 'DATA TERBATAS: memuat nama akun dan teks asli. Jangan dibagikan atau diunggah ke repositori publik.', runs: hasil.runs.map(q => ({run_id: q.runId, platform: q.platform, items: rawCache[q.runId] || []}))};
+      download(`${nama}_MENTAH_AUDIT_TERBATAS.json`, JSON.stringify(raw), 'application/json');
+    }
+  }catch(err){ toast(err.message); log('Unduhan gagal: ' + err.message); }
+  finally { b.disabled = false; }
+});
+$('#btnLogDl').onclick = () => download('log_pukat.txt', logLines.join('\n'), 'text/plain');
+
+// ================= ROUTING =================
+function route(){
+  const v = location.hash.replace('#','') === 'hasil' ? 'hasil' : 'proyek';
+  $('#view-proyek').hidden = v !== 'proyek'; $('#view-hasil').hidden = v !== 'hasil';
+  document.querySelectorAll('nav.tabs a').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  window.scrollTo(0,0);
+}
+addEventListener('hashchange', route);
+addEventListener('beforeunload', e => { if (pumping || oeRunning){ e.preventDefault(); e.returnValue = ''; } });
+window.__pukat = {adapter, buatPencocok, bahasa, jenisMedia, get hasil(){ return hasil; }, _setTest(t, q){ token = t; queue = q; }};
+renderChips(); update(); route(); renderQueue(); renderHasil();
+if (queue.length){ log(`Antrean tersimpan: ${queue.length} run. Uji token untuk melanjutkan.`); if (queue.some(q => isActive(q.status) || q.status==='ANTRE')) banner('Ada run dari sesi sebelumnya. Uji token di halaman Proyek untuk melanjutkan pemantauan.', 'warn'); }
+else log('Siap. Uji token Apify untuk mulai.');
 })();
 </script>
 </body>
