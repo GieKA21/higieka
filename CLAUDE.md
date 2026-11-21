@@ -94,10 +94,14 @@ Atas permintaan pemilik situs, tampilan dirancang agar sederhana, elegan, dan
 berwibawa, serta tidak berkesan dibuat oleh AI. Warna aksen adalah biru; jangan
 dikembalikan ke ungu.
 
-- Hero berupa langit malam dengan bulan SVG inline yang lebih kecil, pendar
-  lembut, gerak melayang lambat, dan sedikit bintang redup tanpa bintang jatuh.
-  Fase yang mengikuti kursor dan guliran serta paralaks tetap dipertahankan.
-  Judul besar, subjudul ringkas, dan tombol utama menjadi pusat perhatian.
+- Hero mengembalikan langit malam bergradasi, 30 titik bintang statis,
+  14 bintang berkelip, dan bintang jatuh. Bulan SVG inline berukuran besar
+  memakai maria bertepi tidak beraturan, kawah beragam dengan tepian terang
+  dan bayangan, sinar kawah, tekstur regolit, serta penggelapan tepi yang halus.
+  Pendar berdenyut setiap 7 detik dan bulan melayang setiap 11 detik.
+  Animasi hanya berjalan jika pengurangan gerak tidak diminta. Fase mengikuti
+  kursor dan guliran; bayangannya tetap di luar SVG agar filter tidak digambar
+  ulang saat cahaya bergerak. Navigasi ramping dan gaya tombol tetap dipakai.
 - Navigasi berupa bilah ramping yang melekat di atas, berlatar tembus pandang
   dengan pemburaman ringan dan garis tipis. Menu aktif ditandai garis bawah.
 - Latar biru hampir hitam `--bg` (`#0B0E14`), bidang datar `--panel`
