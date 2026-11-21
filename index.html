@@ -37,6 +37,9 @@
   --bg:#0B0E14;--panel:#12161E;--panel-2:#181D27;--line:rgba(255,255,255,.08);
   --ink:#F2F4F8;--text:#C9CED8;--muted:#9AA1AE;
   --accent:#3B82F6;--accent-rgb:59,130,246;--accent-lite:#93C5FD;--accent-deep:#2563EB;--amber:#F2A93B;
+  --sky-zenith:#03050B;--sky-middle:#070B15;--sky-horizon:#0E1320;--sky-star-rgb:235,240,255;
+  --star:#EEF2FF;--star-glow:rgba(200,215,255,.8);--meteor:rgba(235,242,255,.95);
+  --moon-glow-rgb:165,192,255;--moon-shade-rgb:6,10,20;
   --gut:clamp(1.25rem,5vw,3rem);--r-lg:20px;--r:16px;
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -76,44 +79,44 @@ button,a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 /* Langit dan bulan */
 .hero{position:relative;isolation:isolate;overflow:hidden;min-height:max(660px,min(100svh,1000px));display:flex;flex-direction:column;border-bottom:1px solid var(--line)}
 .sky{position:absolute;inset:0;z-index:-2;background:
-  radial-gradient(1px 1px at 73.7% 15.8%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1.4px 1.4px at 59.7% 5.9%,rgba(235,240,255,.35),transparent),
-  radial-gradient(1px 1px at 72.1% 44.4%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1.4px 1.4px at 93.6% 69.1%,rgba(235,240,255,.5),transparent),
-  radial-gradient(1px 1px at 77.5% 68.1%,rgba(235,240,255,.5),transparent),
-  radial-gradient(1.4px 1.4px at 15.8% 16.7%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1px 1px at 37.0% 58.3%,rgba(235,240,255,.35),transparent),
-  radial-gradient(1.8px 1.8px at 95.0% 22.0%,rgba(235,240,255,.9),transparent),
-  radial-gradient(1px 1px at 13.9% 5.0%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1.2px 1.2px at 59.6% 40.2%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1px 1px at 43.5% 49.1%,rgba(235,240,255,.6),transparent),
-  radial-gradient(1.4px 1.4px at 20.9% 44.4%,rgba(235,240,255,.9),transparent),
-  radial-gradient(1px 1px at 51.8% 6.0%,rgba(235,240,255,.5),transparent),
-  radial-gradient(1px 1px at 54.3% 50.6%,rgba(235,240,255,.35),transparent),
-  radial-gradient(1px 1px at 41.0% 27.2%,rgba(235,240,255,.9),transparent),
-  radial-gradient(1px 1px at 33.4% 29.7%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1px 1px at 69.8% 41.5%,rgba(235,240,255,.6),transparent),
-  radial-gradient(1px 1px at 11.2% 18.3%,rgba(235,240,255,.5),transparent),
-  radial-gradient(1.8px 1.8px at 67.2% 20.8%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1.4px 1.4px at 35.4% 33.9%,rgba(235,240,255,.35),transparent),
-  radial-gradient(1px 1px at 94.8% 12.3%,rgba(235,240,255,.9),transparent),
-  radial-gradient(1.4px 1.4px at 12.7% 67.3%,rgba(235,240,255,.35),transparent),
-  radial-gradient(1px 1px at 57.9% 57.5%,rgba(235,240,255,.35),transparent),
-  radial-gradient(1.4px 1.4px at 79.6% 5.3%,rgba(235,240,255,.5),transparent),
-  radial-gradient(1px 1px at 8.1% 13.5%,rgba(235,240,255,.35),transparent),
-  radial-gradient(1px 1px at 60.4% 4.2%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1.2px 1.2px at 54.4% 56.8%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1.8px 1.8px at 80.7% 23.9%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1px 1px at 4.8% 9.5%,rgba(235,240,255,.75),transparent),
-  radial-gradient(1.8px 1.8px at 24.8% 17.9%,rgba(235,240,255,.9),transparent),
-  linear-gradient(180deg,#03050B 0%,#070B15 48%,#0E1320 80%,var(--bg) 100%)}
-.star{position:absolute;width:var(--s,2px);height:var(--s,2px);border-radius:50%;background:#EEF2FF;opacity:.75;box-shadow:0 0 6px rgba(200,215,255,.8)}
-.meteor{position:absolute;top:15%;left:56%;width:150px;height:1.5px;border-radius:2px;opacity:0;background:linear-gradient(90deg,transparent,rgba(235,242,255,.95))}
+  radial-gradient(1px 1px at 73.7% 15.8%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1.4px 1.4px at 59.7% 5.9%,rgba(var(--sky-star-rgb),.35),transparent),
+  radial-gradient(1px 1px at 72.1% 44.4%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1.4px 1.4px at 93.6% 69.1%,rgba(var(--sky-star-rgb),.5),transparent),
+  radial-gradient(1px 1px at 77.5% 68.1%,rgba(var(--sky-star-rgb),.5),transparent),
+  radial-gradient(1.4px 1.4px at 15.8% 16.7%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1px 1px at 37.0% 58.3%,rgba(var(--sky-star-rgb),.35),transparent),
+  radial-gradient(1.8px 1.8px at 95.0% 22.0%,rgba(var(--sky-star-rgb),.9),transparent),
+  radial-gradient(1px 1px at 13.9% 5.0%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1.2px 1.2px at 59.6% 40.2%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1px 1px at 43.5% 49.1%,rgba(var(--sky-star-rgb),.6),transparent),
+  radial-gradient(1.4px 1.4px at 20.9% 44.4%,rgba(var(--sky-star-rgb),.9),transparent),
+  radial-gradient(1px 1px at 51.8% 6.0%,rgba(var(--sky-star-rgb),.5),transparent),
+  radial-gradient(1px 1px at 54.3% 50.6%,rgba(var(--sky-star-rgb),.35),transparent),
+  radial-gradient(1px 1px at 41.0% 27.2%,rgba(var(--sky-star-rgb),.9),transparent),
+  radial-gradient(1px 1px at 33.4% 29.7%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1px 1px at 69.8% 41.5%,rgba(var(--sky-star-rgb),.6),transparent),
+  radial-gradient(1px 1px at 11.2% 18.3%,rgba(var(--sky-star-rgb),.5),transparent),
+  radial-gradient(1.8px 1.8px at 67.2% 20.8%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1.4px 1.4px at 35.4% 33.9%,rgba(var(--sky-star-rgb),.35),transparent),
+  radial-gradient(1px 1px at 94.8% 12.3%,rgba(var(--sky-star-rgb),.9),transparent),
+  radial-gradient(1.4px 1.4px at 12.7% 67.3%,rgba(var(--sky-star-rgb),.35),transparent),
+  radial-gradient(1px 1px at 57.9% 57.5%,rgba(var(--sky-star-rgb),.35),transparent),
+  radial-gradient(1.4px 1.4px at 79.6% 5.3%,rgba(var(--sky-star-rgb),.5),transparent),
+  radial-gradient(1px 1px at 8.1% 13.5%,rgba(var(--sky-star-rgb),.35),transparent),
+  radial-gradient(1px 1px at 60.4% 4.2%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1.2px 1.2px at 54.4% 56.8%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1.8px 1.8px at 80.7% 23.9%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1px 1px at 4.8% 9.5%,rgba(var(--sky-star-rgb),.75),transparent),
+  radial-gradient(1.8px 1.8px at 24.8% 17.9%,rgba(var(--sky-star-rgb),.9),transparent),
+  linear-gradient(180deg,var(--sky-zenith) 0%,var(--sky-middle) 48%,var(--sky-horizon) 80%,var(--bg) 100%)}
+.star{position:absolute;width:var(--s,2px);height:var(--s,2px);border-radius:50%;background:var(--star);opacity:.75;box-shadow:0 0 6px var(--star-glow)}
+.meteor{position:absolute;top:15%;left:56%;width:150px;height:1.5px;border-radius:2px;opacity:0;background:linear-gradient(90deg,transparent,var(--meteor))}
 .moon{position:absolute;z-index:-1;width:min(52vmin,560px,calc(100svh - 25rem));aspect-ratio:1;top:clamp(5rem,10vh,8.5rem);right:clamp(1.5rem,10vw,11rem)}
 .moon__body{position:relative;width:100%;height:100%}
-.moon__body::before{content:"";position:absolute;inset:-38%;border-radius:50%;pointer-events:none;background:radial-gradient(closest-side,rgba(165,192,255,.2),rgba(165,192,255,.06) 52%,transparent)}
+.moon__body::before{content:"";position:absolute;inset:-38%;border-radius:50%;pointer-events:none;background:radial-gradient(closest-side,rgba(var(--moon-glow-rgb),.2),rgba(var(--moon-glow-rgb),.06) 52%,transparent)}
 .moon svg{position:relative;display:block;width:100%;height:100%}
-.moon__shade{position:absolute;inset:2.2%;border-radius:50%;background:radial-gradient(ellipse 94.7% 94.7% at var(--lx,33%) var(--ly,29%),rgba(6,10,20,0) calc(62% - var(--k,0) * 24%),rgba(6,10,20,.5) calc(82% - var(--k,0) * 24%),rgba(6,10,20,.92) calc(100% - var(--k,0) * 18%))}
+.moon__shade{position:absolute;inset:2.2%;border-radius:50%;background:radial-gradient(ellipse 94.7% 94.7% at var(--lx,33%) var(--ly,29%),rgba(var(--moon-shade-rgb),0) calc(62% - var(--k,0) * 24%),rgba(var(--moon-shade-rgb),.5) calc(82% - var(--k,0) * 24%),rgba(var(--moon-shade-rgb),.92) calc(100% - var(--k,0) * 18%))}
 @media (prefers-reduced-motion:no-preference){
   .moon__body{animation:apung 11s ease-in-out infinite}
   .moon__body::before{animation:napas 7s ease-in-out infinite}
