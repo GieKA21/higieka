@@ -622,10 +622,10 @@ if (IN_ARTIFACT) $('#modeFlag').hidden = false;
 
 // ================= DATA =================
 const PLATFORMS = [
-  {id:'tiktok', kode:'TT', name:'TikTok', c:'var(--tt)', actor:'xmolodtsov/tiktok-search-scraper', unit:0.0003, unitTxt:'±US$0,0003 / video'},
-  {id:'instagram', kode:'IG', name:'Instagram', c:'var(--ig)', actor:'scraping_solutions/instagram-boolean-search-scraper-posts-reels', unit:0.0016, page:0.01, unitTxt:'±US$0,0016 / post + US$0,01 / halaman'},
-  {id:'x', kode:'X', name:'X (Twitter)', c:'var(--x)', actor:'memo23/x-twitter-search-scraper', unit:0.0004, unitTxt:'±US$0,0004 / tweet'},
-  {id:'facebook', kode:'FB', name:'Facebook', c:'var(--fb)', actor:'topapi/facebook-search-posts-scraper', unit:0.0024, unitTxt:'±US$0,0024 / post'}
+  {id:'tiktok', kode:'TT', name:'TikTok', c:'var(--tt)', actor:'xmolodtsov/tiktok-search-scraper', unit:0.0003, unitTxt:'±US$0,0003 per video'},
+  {id:'instagram', kode:'IG', name:'Instagram', c:'var(--ig)', actor:'scraping_solutions/instagram-boolean-search-scraper-posts-reels', unit:0.0016, page:0.01, unitTxt:'±US$0,0016 per unggahan + US$0,01 per halaman'},
+  {id:'x', kode:'X', name:'X (Twitter)', c:'var(--x)', actor:'memo23/x-twitter-search-scraper', unit:0.0004, unitTxt:'±US$0,0004 per unggahan'},
+  {id:'facebook', kode:'FB', name:'Facebook', c:'var(--fb)', actor:'topapi/facebook-search-posts-scraper', unit:0.0024, unitTxt:'±US$0,0024 per unggahan'}
 ];
 const PF = Object.fromEntries(PLATFORMS.map(p => [p.id, p]));
 const ACTOR_PF = Object.fromEntries(PLATFORMS.map(p => [p.actor.toLowerCase(), p.id]));
@@ -707,8 +707,7 @@ $('#platforms').innerHTML = PLATFORMS.map(p => `
     <input type="checkbox" name="pf" value="${p.id}" checked>
     <span class="tick" aria-hidden="true">✓</span>
     <span class="pn"><span class="dot"></span>${p.name}</span>
-    <span class="actor">Sertakan sumber ini</span>
-    <span class="price">Tarif tersedia di Selengkapnya</span>
+    <span class="price">${p.unitTxt}</span>
   </label>`).join('');
 
 const chipsEl = $('#chips'), kwInput = $('#kwInput');
