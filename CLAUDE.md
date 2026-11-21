@@ -65,8 +65,11 @@ ke repositori. Isi Sheet tidak disimpan di peramban; hanya pendaftar yang dipaka
 penempatan yang masuk ke data peserta.
 
 Halaman `/pukat/` adalah Pukat, sistem pengumpulan korpus media sosial berbasis Apify
-yang menjadi bahan skripsi pemilik situs. Satu berkas dengan gayanya sendiri (Inter,
-Space Grotesk, aksen `#1F4FC9`), bukan gaya portofolio. Seluruh proses berjalan di
+yang menjadi bahan skripsi pemilik situs. Satu berkas dengan tipografinya sendiri
+(Inter, Space Grotesk, dan JetBrains Mono), memakai tampilan gelap saja: latar
+`#0B0E14`, bidang datar `#12161E` dan `#181D27`, garis tipis, serta aksen biru
+`#3B82F6` dengan tombol utama `#2563EB`. Formulir berjarak lega, navigasi ramping
+melekat di atas, dan tombol berbentuk pil selaras dengan beranda. Seluruh proses berjalan di
 peramban: token Apify pengguna dipakai untuk memulai run aktor (TikTok, Instagram, X,
 Facebook) lewat `api.apify.com`, memantau statusnya, mengunduh dataset, lalu mengolah
 korpus (filter periode, relevansi kata kunci, bahasa, Melayu, deduplikasi, pseudonim
