@@ -232,6 +232,10 @@ textarea{resize:vertical;min-height:72px;font-family:var(--f-mono);font-size:.82
 .contoh-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;margin:26px 0 12px;padding-top:18px;border-top:1px solid var(--line)}
 td a{color:var(--accent)}
 .warnlist{margin:0;padding-left:18px;font-size:.83rem;color:var(--warn)}
+.adv-body{overflow-wrap:anywhere}
+.kv{flex-wrap:wrap}
+.kv b{min-width:0;overflow-wrap:anywhere}
+@media (max-width:520px){.brand{min-width:0}.brand>span:last-child{min-width:0}.brand .mark{flex-shrink:0}section.panel{padding:16px}.page-head>div{min-width:0;max-width:100%}.files,.dl{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -255,8 +259,9 @@ td a{color:var(--accent)}
 <div id="view-proyek">
   <div class="page-head">
     <div>
-      <h1>Proyek scraping</h1>
-      <p class="muted">Isi kata kunci, akun Apify, sumber, dan periode. Run dijalankan di akun Apify Anda sendiri, lalu hasilnya diolah di peramban ini. Setiap run tercatat lengkap (aktor, input, waktu, hash) agar korpus dapat ditelusuri ulang.</p>
+      <h1>Proyek pengumpulan data</h1>
+      <p class="muted">Pilih kata kunci, sumber, dan periode. Data dikumpulkan melalui akun Apify Anda, lalu diolah di peramban.</p>
+      <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint">Korpus adalah kumpulan teks untuk penelitian. Run adalah satu proses pengumpulan data di Apify. Aktor adalah program pengumpulnya. Setiap proses mencatat program, pengaturan, waktu, dan sidik digital data agar asalnya dapat ditelusuri.</div></details>
     </div>
     <div class="field" style="min-width:220px;flex:0 1 280px">
       <label class="lbl" for="namaProyek">Nama proyek</label>
@@ -277,19 +282,20 @@ td a{color:var(--accent)}
       <section class="panel" aria-labelledby="h-akun">
         <div class="panel-head"><h2 id="h-akun">Akun Apify</h2><span class="step">LANGKAH 1</span></div>
         <div class="field">
-          <label class="lbl" for="token">API token</label>
+          <label class="lbl" for="token">Token Apify</label>
           <div class="inline">
             <input type="password" id="token" autocomplete="off" spellcheck="false" placeholder="apify_api_xxxxxxxxxxxxxxxxxxxx">
             <button type="button" id="showTok" class="small" aria-pressed="false">Tampilkan</button>
             <button type="button" id="testTok">Uji koneksi</button>
           </div>
-          <p class="hint">Ambil di Apify Console → Settings → API &amp; Integrations. Token hanya dikirim ke api.apify.com dan hilang saat halaman ditutup; tidak disimpan dan tidak ikut diekspor.</p>
+          <p class="hint">Token adalah kunci akses akun Apify. Token tidak disimpan.</p>
+          <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint">Salin API token dari Apify Console → Settings → API &amp; Integrations. Token hanya dikirim ke api.apify.com. Token hilang saat halaman ditutup dan tidak ikut diekspor.</div></details>
         </div>
         <div class="status" id="tokStatus" style="margin-top:12px">Belum diuji.</div>
         <div class="acct" id="acct" hidden>
           <div><b id="aPlan">–</b><span>Paket</span></div>
           <div><b id="aCredit">–</b><span>Sisa kredit bulan ini</span></div>
-          <div><b id="aRet">–</b><span>Retensi dataset</span></div>
+          <div><b id="aRet">–</b><span>Masa simpan data di Apify</span></div>
         </div>
       </section>
 
@@ -322,37 +328,38 @@ td a{color:var(--accent)}
       <section class="panel" aria-labelledby="h-sumber">
         <div class="panel-head"><h2 id="h-sumber">Sumber &amp; periode</h2><span class="step">LANGKAH 3</span></div>
         <div class="platforms" id="platforms"></div>
+        <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint"><p>Program dan perkiraan tarif per hasil:</p><p>TikTok: <code>xmolodtsov/tiktok-search-scraper</code> · ±US$0,0003 per video.</p><p>Instagram: <code>scraping_solutions/instagram-boolean-search-scraper-posts-reels</code> · ±US$0,0016 per unggahan + US$0,01 per halaman.</p><p>X: <code>memo23/x-twitter-search-scraper</code> · ±US$0,0004 per unggahan.</p><p>Facebook: <code>topapi/facebook-search-posts-scraper</code> · ±US$0,0024 per unggahan.</p></div></details>
         <div class="row" style="margin-top:16px">
           <div class="field"><label class="lbl" for="dFrom">Mulai</label><input type="date" id="dFrom" value="2026-04-01"></div>
           <div class="field"><label class="lbl" for="dTo">Sampai</label><input type="date" id="dTo" value="2026-09-30"></div>
           <div class="field"><label class="lbl" for="tz">Zona waktu</label>
             <select id="tz"><option value="7">WIB (UTC+7)</option><option value="8">WITA (UTC+8)</option><option value="9">WIT (UTC+9)</option></select></div>
         </div>
-        <label class="sw" style="border:0;margin-top:6px"><input type="checkbox" id="split" checked><span>Pecah run per bulan (X dan Facebook)<small>Hasil tersebar merata sepanjang periode. TikTok dan Instagram memakai satu run dengan filter tanggal.</small></span></label>
+        <label class="sw" style="border:0;margin-top:6px"><input type="checkbox" id="split" checked><span>Kumpulkan per bulan untuk X dan Facebook<small>TikTok dan Instagram dikumpulkan sekaligus, lalu disaring menurut tanggal.</small></span></label>
       </section>
 
       <section class="panel" aria-labelledby="h-opsi">
         <div class="panel-head"><h2 id="h-opsi">Opsi pengolahan</h2><span class="step">LANGKAH 4</span></div>
         <div class="row">
-          <div class="field"><label class="lbl" for="target">Target dokumen bersih / platform</label><input type="number" id="target" min="10" step="10" value="150"></div>
-          <div class="field"><label class="lbl" for="maxq">Maks. hasil per kueri</label><input type="number" id="maxq" min="10" step="5" value="20"></div>
+          <div class="field"><label class="lbl" for="target">Target teks bersih per sumber</label><input type="number" id="target" min="10" step="10" value="150"></div>
+          <div class="field"><label class="lbl" for="maxq">Batas hasil per pencarian</label><input type="number" id="maxq" min="10" step="5" value="20"></div>
           <div class="field"><label class="lbl" for="cap">Batas biaya (US$)</label><input type="number" id="cap" min="0" step="0.5" value="5"></div>
         </div>
 
-        <details class="adv" open>
+        <details class="adv">
           <summary>Penyaringan &amp; seleksi</summary>
           <div class="adv-body">
             <div class="row">
               <div class="field"><label class="lbl" for="sel">Seleksi dokumen</label>
                 <select id="sel"><option value="semua_lolos">Pakai semua yang lolos</option><option value="target">Potong tepat di target</option></select></div>
-              <div class="field"><label class="lbl" for="subset">Subset seimbang / platform</label><input type="number" id="subset" min="0" step="10" value="200"></div>
+              <div class="field"><label class="lbl" for="subset">Sampel seimbang per sumber</label><input type="number" id="subset" min="0" step="10" value="200"></div>
               <div class="field"><label class="lbl" for="minw">Minimal kata per dokumen</label><input type="number" id="minw" min="0" value="5"></div>
             </div>
             <div class="switches">
-              <label class="sw"><input type="checkbox" id="oLang" checked><span>Hanya bahasa Indonesia<small>Label bahasa X, selain itu heuristik kata fungsi</small></span></label>
-              <label class="sw"><input type="checkbox" id="oMelayu" checked><span>Saring konten Melayu<small>Kosakata khas MY/BN ditandai lalu dibuang</small></span></label>
+              <label class="sw"><input type="checkbox" id="oLang" checked><span>Hanya bahasa Indonesia<small>Bahasa diperkirakan dari label sumber atau kosakata.</small></span></label>
+              <label class="sw"><input type="checkbox" id="oMelayu" checked><span>Saring konten Melayu<small>Buang teks dengan kosakata khas Malaysia atau Brunei.</small></span></label>
               <label class="sw"><input type="checkbox" id="oRt"><span>Sertakan retweet</span></label>
-              <label class="sw"><input type="checkbox" id="oDedup" checked><span>Deduplikasi teks<small>ID ganda dan teks identik</small></span></label>
+              <label class="sw"><input type="checkbox" id="oDedup" checked><span>Hapus data ganda<small>Buang unggahan berulang dan teks yang sama.</small></span></label>
             </div>
             <div class="field">
               <label class="lbl" for="oldIds">ID korpus lama untuk dikecualikan</label>
@@ -366,21 +373,22 @@ td a{color:var(--accent)}
           <summary>Verifikasi &amp; privasi</summary>
           <div class="adv-body">
             <div class="switches">
-              <label class="sw"><input type="checkbox" id="oOembed" checked><span>Cek ulang lewat oEmbed<small>X: teks dicocokkan; TikTok: keberadaan video</small></span></label>
-              <label class="sw"><input type="checkbox" id="oTrans"><span>Transkrip bawaan TikTok<small>Add-on berbayar aktor, hanya paket Apify berbayar</small></span></label>
-              <label class="sw"><input type="checkbox" id="oPseudo" checked><span>Pseudonimkan akun<small>HMAC-SHA256 dengan kunci proyek</small></span></label>
+              <label class="sw"><input type="checkbox" id="oOembed" checked><span>Periksa ulang sumber<small>Cocokkan teks X dan periksa keberadaan video TikTok.</small></span></label>
+              <label class="sw"><input type="checkbox" id="oTrans"><span>Ambil teks percakapan TikTok<small>Memerlukan biaya tambahan dan paket Apify berbayar.</small></span></label>
+              <label class="sw"><input type="checkbox" id="oPseudo" checked><span>Ganti nama akun dengan kode<small>Identitas yang sama mendapat kode yang sama.</small></span></label>
               <label class="sw"><input type="checkbox" id="oMask" checked><span>Samarkan email, telepon, NIK, @mention</span></label>
               <label class="sw"><input type="checkbox" id="oSample" checked><span>Tandai sampel verifikasi manual 10%</span></label>
             </div>
             <div class="field">
-              <label class="lbl" for="kunci">Kunci pseudonim (heksadesimal)</label>
+              <label class="lbl" for="kunci">Kunci penyamaran akun</label>
               <div class="inline">
                 <input type="password" id="kunci" autocomplete="off" spellcheck="false" placeholder="64 karakter hex">
                 <button type="button" id="kunciBaru" class="small">Buat baru</button>
                 <button type="button" id="kunciUnduh" class="small">Unduh</button>
               </div>
-              <p class="hint">Kunci yang sama menghasilkan pseudonim yang sama antar-run. Simpan berkasnya secara terpisah dan jangan dibagikan. Kunci disimpan di peramban ini saja.</p>
+              <p class="hint">Gunakan kunci yang sama agar kode akun tetap konsisten. Simpan terpisah dan jangan dibagikan. Kunci hanya disimpan di peramban ini.</p>
             </div>
+            <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint"><p>Pseudonim adalah kode pengganti nama akun. HMAC-SHA256 membuat kode tersebut dengan kunci proyek.</p><p>oEmbed adalah layanan untuk memeriksa unggahan dari sumbernya.</p><p>Heuristik kata fungsi memperkirakan bahasa dari kata umum. X memakai label bahasa sumber.</p><p>Kunci heksadesimal memakai angka 0–9 dan huruf a–f, minimal 32 karakter.</p></div></details>
           </div>
         </details>
       </section>
@@ -388,7 +396,7 @@ td a{color:var(--accent)}
 
     <aside class="summary" aria-labelledby="h-sum">
       <div class="sum-head">
-        <h2 id="h-sum">Ringkasan run</h2>
+        <h2 id="h-sum">Ringkasan pengumpulan</h2>
         <p class="hint" style="margin-top:2px">Diperbarui setiap kali formulir diubah.</p>
       </div>
       <div class="sum-body">
@@ -401,21 +409,22 @@ td a{color:var(--accent)}
         <div class="kv"><span>Kata kunci</span><b id="sKw">0</b></div>
         <div class="kv"><span>Platform</span><b id="sPf">0</b></div>
         <div class="kv"><span>Periode</span><b id="sPer">–</b></div>
-        <div class="kv"><span>Jumlah run</span><b id="sRuns">0</b></div>
-        <div class="kv"><span>Batas item diminta</span><b id="sItems">0</b></div>
+        <div class="kv"><span>Jumlah proses</span><b id="sRuns">0</b></div>
+        <div class="kv"><span>Batas data diminta</span><b id="sItems">0</b></div>
         <div class="kv"><span>Target dokumen bersih</span><b id="sTarget">0</b></div>
-        <p class="hint">Jumlah item diminta = target × 2,3, mengikuti rasio korpus v2 (3.008 kandidat untuk 1.330 dokumen bersih). Biaya sebenarnya dibatasi per run lewat maxTotalChargeUsd.</p>
+        <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint"><div class="kv"><span>Cadangan sebelum penyaringan</span><b>±2,3 × target</b></div><p>Dasar perkiraan: 3.008 data awal menghasilkan 1.330 teks bersih pada korpus v2.</p><p><code>maxTotalChargeUsd</code> membatasi biaya setiap proses di Apify.</p></div></details>
         <ul class="warnlist" id="warns"></ul>
         <ul class="issues" id="issues"></ul>
       </div>
       <div class="sum-foot">
-        <button type="submit" class="primary" id="runBtn">Jalankan scraping</button>
+        <button type="submit" class="primary" id="runBtn">Mulai pengumpulan</button>
         <div class="inline">
           <button type="button" id="saveDraft" class="small">Simpan draf</button>
-          <button type="button" id="copyCfg" class="small">Salin config.json</button>
+          <button type="button" id="copyCfg" class="small">Salin pengaturan</button>
         </div>
         <details>
-          <summary class="hint" style="cursor:pointer">Lihat config.json</summary>
+          <summary class="hint" style="cursor:pointer">Selengkapnya</summary>
+          <p class="hint">Pengaturan teknis dalam format config.json.</p>
           <pre class="json" id="cfgOut"></pre>
         </details>
       </div>
@@ -428,7 +437,7 @@ td a{color:var(--accent)}
   <div class="page-head">
     <div>
       <h1>Pemantauan &amp; hasil</h1>
-      <p class="muted" id="hasilSub">Antrean run di atas, hasil pengolahan di bawahnya.</p>
+      <p class="muted" id="hasilSub">Pantau pengumpulan data, lalu unduh hasil yang sudah diolah.</p>
     </div>
     <a href="#proyek"><button type="button">← Kembali ke proyek</button></a>
   </div>
@@ -439,9 +448,10 @@ td a{color:var(--accent)}
     <div class="panel-head"><h2 id="h-riwayat">Riwayat proyek</h2><button type="button" class="small" id="btnSinkron">Sinkronkan sekarang</button></div>
     <div class="btnrow" style="margin-bottom:12px;justify-content:space-between">
       <div id="sinkronInfo" class="btnrow"></div>
-      <label class="sw" style="border:0;padding:0"><input type="checkbox" id="sinkronOn" checked><span>Simpan riwayat ke akun Apify<small>Store “pukat-riwayat”, bisa dibuka dari perangkat lain</small></span></label>
+      <label class="sw" style="border:0;padding:0"><input type="checkbox" id="sinkronOn" checked><span>Simpan riwayat ke akun Apify<small>Buka kembali dari perangkat lain dengan akun yang sama.</small></span></label>
     </div>
-    <div id="riwayatEmpty" class="empty">Belum ada proyek. Setiap kali Jalankan ditekan, proyek baru tercatat di sini beserta run, log, dan hasilnya. Di perangkat lain, uji token yang sama untuk memuat riwayat dari akun Apify.</div>
+    <div id="riwayatEmpty" class="empty">Belum ada proyek. Riwayat muncul setelah pengumpulan dimulai.</div>
+    <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint">Riwayat berisi proses, catatan kegiatan, dan hasil. Salinannya disimpan di akun Apify pada store “pukat-riwayat”. Untuk membukanya di perangkat lain, uji token akun yang sama.</div></details>
     <div class="tbl-wrap" id="riwayatWrap" hidden>
       <table>
         <thead><tr><th>Proyek</th><th>Dibuat</th><th class="r">Run</th><th class="r">Dokumen</th><th class="r">Biaya</th><th>Status</th><th></th></tr></thead>
@@ -451,16 +461,16 @@ td a{color:var(--accent)}
     <details class="adv" style="margin-top:14px">
       <summary>Pulihkan dari akun Apify</summary>
       <div class="adv-body">
-        <p class="hint">Untuk peramban atau laptop lain, atau bila data peramban terhapus: Apify menyimpan riwayat run di akun Anda. Pilih run yang ingin dimasukkan kembali, lalu olah ulang tanpa biaya selama datasetnya belum kedaluwarsa.</p>
-        <div class="btnrow"><button type="button" id="btnApifyHist">Baca riwayat run Apify</button></div>
+        <p class="hint">Pilih proses lama untuk diolah ulang. Tidak ada biaya pengumpulan baru selama datanya masih tersimpan di Apify.</p>
+        <div class="btnrow"><button type="button" id="btnApifyHist">Baca riwayat pengumpulan</button></div>
         <div id="apifyHist"></div>
       </div>
     </details>
   </section>
 
   <section class="panel" style="margin-bottom:18px">
-    <div class="panel-head"><h2>Antrean run</h2><span class="hint" id="queueMeta"></span></div>
-    <div id="queueEmpty" class="empty">Belum ada proyek aktif. Jalankan dari halaman Proyek, buka proyek dari riwayat, atau olah run lama di bawah.</div>
+    <div class="panel-head"><h2>Antrean pengumpulan</h2><span class="hint" id="queueMeta"></span></div>
+    <div id="queueEmpty" class="empty">Belum ada proyek aktif. Mulai dari halaman Proyek atau buka riwayat.</div>
     <div class="tbl-wrap" id="queueWrap" hidden>
       <table>
         <thead><tr><th>Platform</th><th>Periode</th><th>Run ID</th><th>Status</th><th class="r">Item</th><th class="r">Biaya</th><th></th></tr></thead>
@@ -469,16 +479,17 @@ td a{color:var(--accent)}
     </div>
     <div class="btnrow" style="margin-top:12px">
       <button type="button" id="btnOlah" class="primary" disabled>Olah hasil</button>
-      <button type="button" id="btnAbortAll" disabled>Hentikan semua run</button>
+      <button type="button" id="btnAbortAll" disabled>Hentikan semua proses</button>
       <button type="button" id="btnReset" class="ghost">Tutup proyek</button>
     </div>
     <details class="adv" style="margin-top:14px">
-      <summary>Olah run yang sudah ada</summary>
+      <summary>Olah pengumpulan lama</summary>
       <div class="adv-body">
         <div class="field">
-          <label class="lbl" for="oldRuns">Run ID Apify, satu per baris</label>
+          <label class="lbl" for="oldRuns">Kode proses Apify (Run ID), satu per baris</label>
           <textarea id="oldRuns" spellcheck="false" placeholder="D6nTg3ugDyl3xrum7&#10;5xC8wpxbyG9oaIf4V"></textarea>
-          <p class="hint">Tanpa biaya: hanya membaca dataset yang masih tersimpan di akun (retensi paket gratis 7 hari). Platform dikenali dari nama aktornya. Perlu token yang sudah diuji.</p>
+          <p class="hint">Uji token terlebih dahulu. Hanya data yang masih tersimpan yang dapat dibaca.</p>
+          <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint">Dataset adalah kumpulan hasil yang disimpan di Apify. Retensi adalah masa simpannya; pada paket gratis, data disimpan selama 7 hari. Membaca ulang tidak menjalankan pengumpulan baru. Sumber dikenali dari program pengumpulnya.</div></details>
         </div>
         <div class="btnrow"><button type="button" id="btnImport">Tambahkan ke antrean</button></div>
       </div>
@@ -489,7 +500,7 @@ td a{color:var(--accent)}
     <div class="kpis">
       <div class="kpi"><div class="k">Kandidat terkumpul</div><div class="v" id="kKand">0</div><div class="s" id="kKandS"></div></div>
       <div class="kpi"><div class="k">Dokumen bersih</div><div class="v" id="kLolos">0</div><div class="s" id="kLolosS"></div></div>
-      <div class="kpi"><div class="k">Cek oEmbed</div><div class="v" id="kOe">–</div><div class="s" id="kOeS">belum dijalankan</div></div>
+      <div class="kpi"><div class="k">Pemeriksaan sumber</div><div class="v" id="kOe">–</div><div class="s" id="kOeS">belum dijalankan</div></div>
       <div class="kpi"><div class="k">Biaya aktual</div><div class="v" id="kCost">US$0,00</div><div class="s" id="kCostS"></div></div>
     </div>
 
@@ -498,12 +509,12 @@ td a{color:var(--accent)}
         <div class="panel-head"><h2>Per platform</h2><span class="hint num" id="pfTotal"></span></div>
         <div class="tbl-wrap">
           <table style="min-width:440px">
-            <thead><tr><th>Platform</th><th class="r">Kandidat</th><th class="r">Lolos</th><th class="r">Subset</th><th>oEmbed</th></tr></thead>
+            <thead><tr><th>Platform</th><th class="r">Data awal</th><th class="r">Lolos</th><th class="r">Sampel seimbang</th><th>Cek sumber</th></tr></thead>
             <tbody id="pfBody"></tbody>
           </table>
         </div>
         <div class="btnrow" style="margin-top:12px">
-          <button type="button" id="btnOembed" class="small">Jalankan cek oEmbed</button>
+          <button type="button" id="btnOembed" class="small">Periksa sumber</button>
           <span class="hint" id="oeProg"></span>
         </div>
       </section>
@@ -522,10 +533,10 @@ td a{color:var(--accent)}
       <section class="panel">
         <div class="panel-head"><h2>Unduhan</h2></div>
         <div class="dl">
-          <button type="button" data-dl="zip"><b>Paket publik (.zip)</b><small>CSV, XLSX, log, MANIFEST</small></button>
-          <button type="button" data-dl="xlsx"><b>DATA_SIAP_PAKAI.xlsx</b><small>Satu sheet per platform</small></button>
-          <button type="button" data-dl="csv"><b>korpus_final_semua.csv</b><small>Semua platform</small></button>
-          <button type="button" data-dl="manifest"><b>MANIFEST.json</b><small>Run, input, hash berkas</small></button>
+          <button type="button" data-dl="zip"><b>Paket untuk dibagikan (.zip)</b><small>Data, catatan, dan asal-usul berkas</small></button>
+          <button type="button" data-dl="xlsx"><b>Data siap pakai (.xlsx)</b><small>Satu lembar per sumber</small></button>
+          <button type="button" data-dl="csv"><b>Gabungan teks (.csv)</b><small>Semua sumber</small></button>
+          <button type="button" data-dl="manifest"><b>Asal-usul berkas (.json)</b><small>Pengaturan dan penanda keutuhan data</small></button>
           <button type="button" data-dl="raw" class="terbatas"><b>Data mentah (terbatas)</b><small>Memuat nama akun asli, jangan dibagikan</small></button>
         </div>
       </section>
@@ -546,7 +557,7 @@ td a{color:var(--accent)}
   </div>
 
   <section class="panel" style="margin-bottom:18px">
-    <div class="panel-head"><h2>Log</h2><button type="button" class="small ghost" id="btnLogDl">Unduh log</button></div>
+    <div class="panel-head"><h2>Catatan kegiatan</h2><button type="button" class="small ghost" id="btnLogDl">Unduh catatan</button></div>
     <pre class="log" id="log" aria-live="polite"></pre>
   </section>
 
@@ -558,7 +569,7 @@ td a{color:var(--accent)}
     <div class="kpis">
       <div class="kpi"><div class="k">Kandidat terkumpul</div><div class="v">3.008</div><div class="s">dari 33 run Apify</div></div>
       <div class="kpi"><div class="k">Dokumen bersih</div><div class="v">1.330</div><div class="s">44,2% kandidat lolos</div></div>
-      <div class="kpi"><div class="k">Cek oEmbed X</div><div class="v">523/524</div><div class="s">teks cocok dengan sumber</div></div>
+      <div class="kpi"><div class="k">Pemeriksaan sumber X</div><div class="v">523/524</div><div class="s">teks cocok dengan sumber</div></div>
       <div class="kpi"><div class="k">Transkrip TikTok</div><div class="v">150/283</div><div class="s">dari subtitle bawaan</div></div>
     </div>
     <div class="two">
@@ -624,7 +635,7 @@ const STOP_ID = new Set('yang dan di ke dari ini itu dengan untuk tidak ada akan
 const STOP_EN = new Set('the and of to is are was were for with that this you it on be have has not they we what which from by at an or but their his her will would can could should there been'.split(' '));
 const RATIO = 3008/1330;
 const ALASAN = {
-  LOLOS:'Lolos semua tahap', PLACEHOLDER:'Item kosong / placeholder aktor', TANPA_ID:'Tanpa ID unggahan', TANPA_TEKS:'Tanpa teks',
+  LOLOS:'Lolos semua tahap', PLACEHOLDER:'Data kosong dari pengumpul', TANPA_ID:'Tanpa kode unggahan', TANPA_TEKS:'Tanpa teks',
   BUKAN_TWEET:'Bukan tweet (profil, dll.)', RETWEET:'Retweet', LUAR_PERIODE:'Di luar periode', DUPLIKAT_ID:'ID ganda antar-run',
   DUPLIKAT_KORPUS_LAMA:'Sudah ada di korpus lama', TERLALU_PENDEK:'Kurang dari minimal kata', TIDAK_RELEVAN:'Tidak memuat kata kunci',
   PENGECUALIAN:'Memuat kata pengecualian', BUKAN_INDONESIA:'Bukan bahasa Indonesia', MELAYU:'Penanda bahasa Melayu',
@@ -696,8 +707,8 @@ $('#platforms').innerHTML = PLATFORMS.map(p => `
     <input type="checkbox" name="pf" value="${p.id}" checked>
     <span class="tick" aria-hidden="true">✓</span>
     <span class="pn"><span class="dot"></span>${p.name}</span>
-    <span class="actor">${p.actor}</span>
-    <span class="price">${p.unitTxt}</span>
+    <span class="actor">Sertakan sumber ini</span>
+    <span class="price">Tarif tersedia di Selengkapnya</span>
   </label>`).join('');
 
 const chipsEl = $('#chips'), kwInput = $('#kwInput');
@@ -788,7 +799,7 @@ kunciEl.value = store.get('pukat-kunci', '');
 function kunciBaru(){ const b = crypto.getRandomValues(new Uint8Array(32)); kunciEl.value = [...b].map(x => x.toString(16).padStart(2,'0')).join(''); store.set('pukat-kunci', kunciEl.value); }
 if (!kunciEl.value) kunciBaru();
 kunciEl.addEventListener('change', () => store.set('pukat-kunci', kunciEl.value.trim()));
-$('#kunciBaru').onclick = () => { kunciBaru(); update(); toast('Kunci pseudonim baru dibuat. Unduh dan simpan terpisah.'); };
+$('#kunciBaru').onclick = () => { kunciBaru(); update(); toast('Kunci penyamaran dibuat. Unduh dan simpan terpisah.'); };
 $('#kunciUnduh').onclick = () => download('.kunci_pseudonim', kunciEl.value.trim(), 'text/plain');
 
 // ================= KONFIGURASI =================
@@ -887,23 +898,23 @@ function update(){
 
   const warns = [];
   if (account && account.free){
-    if (cfg.platform.includes('tiktok')) warns.push('Paket gratis: TikTok dibatasi 100 hasil per run dan 20 run per bulan oleh pengembang aktor.');
-    if (cfg.platform.includes('x')) warns.push('Paket gratis: X dibatasi 100 tweet per run.');
+    if (cfg.platform.includes('tiktok')) warns.push('Paket gratis TikTok: 100 hasil per proses. Maksimal 20 proses per bulan.');
+    if (cfg.platform.includes('x')) warns.push('Paket gratis X: 100 unggahan per proses.');
     if (cfg.verifikasi.transkrip_tiktok) warns.push('Transkrip TikTok dilewati karena butuh paket berbayar.');
   }
-  if (cfg.platform.includes('tiktok') && (Date.now() - Date.parse(cfg.periode.mulai)) / 864e5 > 180) warns.push('TikTok tidak punya filter tanggal di atas 180 hari; hasil di luar periode akan tersaring saat diolah.');
+  if (cfg.platform.includes('tiktok') && (Date.now() - Date.parse(cfg.periode.mulai)) / 864e5 > 180) warns.push('TikTok: penyaringan tanggal lebih dari 180 hari dilakukan saat pengolahan.');
   pl.runs.filter(r => r.catatan).forEach(r => warns.push('Instagram: ' + r.catatan + '.'));
   $('#warns').innerHTML = warns.map(w => '<li>' + esc(w) + '</li>').join('');
 
   const issues = [];
-  if (!token) issues.push('Uji koneksi token Apify dulu.');
+  if (!token) issues.push('Uji koneksi Apify terlebih dahulu.');
   if (!cfg.kata_kunci.length) issues.push('Tambahkan minimal satu kata kunci.');
   if (!cfg.platform.length) issues.push('Pilih minimal satu platform.');
   if (!pl.months.length) issues.push('Tanggal “sampai” harus sama atau setelah tanggal “mulai”.');
   if (cost > cap) issues.push('Perkiraan biaya melebihi batas. Kurangi platform, bulan, atau target.');
   if (account && account.left != null && cap > account.left + 0.001) issues.push(`Batas biaya melebihi sisa kredit akun (${usd(account.left)}).`);
-  if (cfg.privasi.pseudonim && !/^[0-9a-f]{32,}$/i.test(kunciEl.value.trim())) issues.push('Kunci pseudonim harus heksadesimal minimal 32 karakter.');
-  if (queue.some(q => isActive(q.status))) issues.push('Masih ada run berjalan. Tunggu selesai atau hentikan dulu.');
+  if (cfg.privasi.pseudonim && !/^[0-9a-f]{32,}$/i.test(kunciEl.value.trim())) issues.push('Kunci penyamaran: minimal 32 karakter, hanya angka 0–9 dan huruf a–f.');
+  if (queue.some(q => isActive(q.status))) issues.push('Pengumpulan masih berjalan. Tunggu atau hentikan terlebih dahulu.');
   $('#issues').innerHTML = issues.map(i => '<li>' + esc(i) + '</li>').join('');
   $('#runBtn').disabled = issues.length > 0;
 
@@ -916,8 +927,8 @@ $('#form').addEventListener('change', update);
 
 $('#copyCfg').onclick = async () => {
   const txt = $('#cfgOut').textContent;
-  try{ await navigator.clipboard.writeText(txt); toast('config.json disalin.'); }
-  catch(_){ const d = $('#cfgOut').closest('details'); d.open = true; const r = document.createRange(); r.selectNodeContents($('#cfgOut')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Teks sudah diblok, tekan Ctrl+C.'); }
+  try{ await navigator.clipboard.writeText(txt); toast('Pengaturan disalin.'); }
+  catch(_){ const d = $('#cfgOut').closest('details'); d.open = true; const r = document.createRange(); r.selectNodeContents($('#cfgOut')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Teks sudah dipilih. Tekan Ctrl+C untuk menyalin.'); }
 };
 $('#saveDraft').onclick = () => { store.set('pukat-draf', config()); toast('Draf tersimpan di peramban ini (tanpa token).'); };
 (function loadDraft(){
@@ -959,8 +970,8 @@ async function muatHasil(p){
     try{ h = await kvGet('HASIL-' + p.id, true); if (h) await IDB.put('hasil', p.id, h); }catch(err){ log('Gagal mengambil hasil dari Apify: ' + err.message); }
   }
   if (h && projSnap === p){ hasil = h; renderHasil(); banner(`Hasil tersimpan dimuat: ${fmt.format(h.rows.length)} dokumen bersih (diolah ${new Date(h.dibuat).toLocaleString('id-ID')}).`, 'ok'); }
-  else if (p.queue.some(q => isActive(q.status) || q.status === 'ANTRE')) banner('Proyek ini masih punya run berjalan. Uji token di halaman Proyek untuk melanjutkan pemantauan.', 'warn');
-  else if (p.queue.some(q => q.datasetId)) banner('Hasil olahan belum tersimpan. Tekan “Olah hasil” untuk mengolah ulang dari data run.', 'warn');
+  else if (p.queue.some(q => isActive(q.status) || q.status === 'ANTRE')) banner('Pengumpulan masih berjalan. Uji token di halaman Proyek untuk memantaunya.', 'warn');
+  else if (p.queue.some(q => q.datasetId)) banner('Hasil olahan belum tersimpan. Tekan “Olah hasil” untuk mengolah ulang.', 'warn');
   else banner('');
 }
 $('#form').addEventListener('submit', async e => {
@@ -976,7 +987,7 @@ $('#form').addEventListener('submit', async e => {
 let pumping = false;
 async function startQueue(){
   if (pumping) return; pumping = true;
-  banner('Run sedang berjalan di akun Apify Anda. Halaman ini boleh ditutup; buka lagi dan uji token untuk melanjutkan pemantauan.', 'warn');
+  banner('Pengumpulan berjalan di akun Apify. Halaman boleh ditutup. Uji token saat membukanya kembali untuk memantau.', 'warn');
   try{
     while (true){
       const active = queue.filter(q => isActive(q.status)).length;
@@ -987,7 +998,7 @@ async function startQueue(){
     }
   } finally { pumping = false; }
   const ok = queue.filter(q => q.status === 'SUCCEEDED').length;
-  banner(`${ok} dari ${queue.length} run selesai. ${ok ? 'Hasil sedang diolah.' : ''}`, ok ? 'ok' : 'bad');
+  banner(`${ok} dari ${queue.length} proses selesai. ${ok ? 'Hasil sedang diolah.' : ''}`, ok ? 'ok' : 'bad');
   log('Semua run berhenti.'); renderQueue(); update();
   if (ok) olah();
 }
@@ -1063,7 +1074,7 @@ $('#btnApifyHist').onclick = async () => {
       if (!(r.actId in actCache)){ try{ const a = (await api(`/acts/${r.actId}`)).data; actCache[r.actId] = `${a.username}/${a.name}`.toLowerCase(); }catch(_){ actCache[r.actId] = ''; } }
       const pid = ACTOR_PF[actCache[r.actId]]; if (pid) rows.push({r, pid});
     }
-    if (!rows.length){ box.innerHTML = '<p class="hint">Tidak ada run dari keempat aktor Pukat di 100 run terakhir.</p>'; return; }
+    if (!rows.length){ box.innerHTML = '<p class="hint">Tidak ada pengumpulan yang didukung Pukat dalam 100 proses terakhir.</p>'; return; }
     const sudah = new Set(projects.flatMap(p => p.queue.map(q => q.runId)));
     box.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th></th><th>Platform</th><th>Mulai</th><th>Run ID</th><th>Status</th><th class="r">Biaya</th></tr></thead><tbody>${rows.map(({r, pid}) => `<tr><td><input type="checkbox" value="${r.id}" aria-label="Pilih run ${r.id}" ${sudah.has(r.id) ? 'disabled' : ''}></td><td><span class="pdot" style="--c:${PF[pid].c}"></span>${PF[pid].name}</td><td class="num">${new Date(r.startedAt).toLocaleString('id-ID')}</td><td class="mono">${r.id}${sudah.has(r.id) ? ' <span class="tag">sudah ada</span>' : ''}</td><td>${pill(r.status)}</td><td class="r">${usd(r.usageTotalUsd)}</td></tr>`).join('')}</tbody></table></div>
       <div class="btnrow" style="margin-top:10px"><button type="button" class="small" id="btnHistAdd">Tambahkan yang dipilih</button><span class="hint">Dataset paket gratis hanya disimpan Apify selama 7 hari.</span></div>`;
@@ -1089,7 +1100,7 @@ function renderQueue(){
     <td class="r">${fmt.format(q.items||0)}</td><td class="r">${usd(q.usd)}</td>
     <td>${q.runId && isActive(q.status) ? `<button type="button" class="small" data-abort="${i}">Hentikan</button>` : ''}</td></tr>`).join('');
   const tot = queue.reduce((a,q) => a + (q.usd||0), 0);
-  $('#queueMeta').textContent = queue.length ? `${queue.length} run · ${usd(tot)} terpakai${projSnap ? ' · ' + projSnap.cfg.proyek : ''}` : '';
+  $('#queueMeta').textContent = queue.length ? `${queue.length} proses · ${usd(tot)} terpakai${projSnap ? ' · ' + projSnap.cfg.proyek : ''}` : '';
   const anyActive = queue.some(q => isActive(q.status) || q.status === 'ANTRE');
   $('#btnAbortAll').disabled = !anyActive;
   $('#btnOlah').disabled = anyActive || !queue.some(q => q.datasetId && ['SUCCEEDED','ABORTED','TIMED-OUT','FAILED'].includes(q.status));
@@ -1216,7 +1227,7 @@ async function ambilDataset(q){
 async function olah(){
   if (!projSnap){ toast('Belum ada proyek aktif.'); return; }
   const cfg = projSnap.cfg || config();
-  $('#btnOlah').disabled = true; banner('Mengunduh dataset dan mengolah korpus…', 'warn');
+  $('#btnOlah').disabled = true; banner('Mengunduh data dan mengolah teks…', 'warn');
   try{
     hmacKey = null;
     if (cfg.privasi.pseudonim){
@@ -1342,7 +1353,7 @@ async function cekOembed(){
   const target = hasil.rows.filter(r => r.status_verifikasi_daring === 'BELUM_DICEK');
   const byId = new Map(hasil.kand.filter(c => c.alasan === 'LOLOS').map(c => [c.pid + ':' + c.r.post_id, c]));
   const proyekOe = projSnap, hOe = hasil;
-  let n = 0; log(`Cek oEmbed dimulai untuk ${target.length} dokumen (jeda 1,5 detik).`);
+  let n = 0; log(`Memeriksa sumber ${target.length} dokumen. Jeda antarperiksa: 1,5 detik.`);
   for (const row of target){
     if (oeStop || projSnap !== proyekOe){ if (proyekOe && projects.some(x => x.id === proyekOe.id)) await IDB.put('hasil', proyekOe.id, hOe); log('Cek oEmbed dihentikan karena proyek ditutup atau diganti; status yang sudah dicek tetap tersimpan.'); break; }
     n++; $('#oeProg').textContent = `${n}/${target.length}`;
@@ -1370,7 +1381,7 @@ async function cekOembed(){
     await sleep(1500);
   }
   if (proyekOe && projects.some(x => x.id === proyekOe.id)) kirimHasil(proyekOe.id, hOe);
-  log('Cek oEmbed selesai.'); oeRunning = false; $('#btnOembed').disabled = false; $('#oeProg').textContent = ''; renderHasil();
+  log('Pemeriksaan sumber selesai.'); oeRunning = false; $('#btnOembed').disabled = false; $('#oeProg').textContent = ''; renderHasil();
 }
 $('#btnOembed').onclick = () => { if (hasil){ hasil.rows.forEach(r => { if (['GAGAL_DICEK'].includes(r.status_verifikasi_daring)) r.status_verifikasi_daring = 'BELUM_DICEK'; }); cekOembed(); } };
 
@@ -1389,7 +1400,7 @@ function renderHasil(){
   $('#hasilReal').hidden = !hasil; $('#contoh').hidden = !!hasil;
   if (!hasil) return;
   const {rows, kand, alasan, cfg} = hasil;
-  $('#kKand').textContent = fmt.format(kand.length); $('#kKandS').textContent = `dari ${hasil.runs.length} run Apify`;
+  $('#kKand').textContent = fmt.format(kand.length); $('#kKandS').textContent = `dari ${hasil.runs.length} proses pengumpulan`;
   $('#kLolos').textContent = fmt.format(rows.length); $('#kLolosS').textContent = pct(rows.length, kand.length) + ' kandidat lolos';
   const cek = rows.filter(r => r.platform === 'TikTok' || r.platform.startsWith('X'));
   const sudah = cek.filter(r => r.status_verifikasi_daring !== 'BELUM_DICEK');
