@@ -27,7 +27,7 @@
   "url":"https://higieka.web.id/","email":"asshadiqnur21@gmail.com",
   "affiliation":{"@type":"CollegeOrUniversity","name":"UIN Alauddin Makassar"},
   "address":{"@type":"PostalAddress","addressLocality":"Makassar","addressCountry":"ID"},
-  "sameAs":["https://github.com/GieKAAA","https://instagram.com/hidhithere"]
+  "sameAs":["https://github.com/GieKA21","https://instagram.com/hidhithere"]
 }
 </script>
 <script>document.documentElement.classList.add('js')</script>
@@ -67,7 +67,7 @@ body{
   background:var(--base);
   color:var(--text);
   font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  font-size:clamp(1rem,.96rem + .2vw,1.0625rem);
+  font-size:clamp(1.0625rem,1rem + .2vw,1.125rem);
   line-height:1.7;
   -webkit-font-smoothing:antialiased;
 }
@@ -301,7 +301,7 @@ h3{font-size:clamp(1.35rem,1.1rem + .8vw,1.75rem);letter-spacing:-.025em;line-he
 .lanjut:hover{text-decoration:underline;text-underline-offset:.25em}
 .lanjut svg{width:16px;height:16px;flex:none}
 figure{margin:0}
-figcaption{margin-top:.8rem;font-size:.78rem;color:var(--muted);line-height:1.5}
+figcaption{margin-top:.8rem;font-size:.875rem;color:var(--muted);line-height:1.5}
 
 /* ---------- sections ---------- */
 .section{padding-block:clamp(4.5rem,9vw,7.5rem)}
@@ -601,13 +601,11 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
     <h2 id="tentang" class="reveal">Tentang</h2>
     <div class="reveal">
       <p>
-        Kebanyakan proyek saya berawal dari kebutuhan sendiri atau kebutuhan teman di kampus.
-        Aplikasi presensi KKN hanya tersedia untuk Android, jadi saya membuat versi iOS-nya.
-        Menguji fitur GPS di iPhone dari laptop Windows ternyata merepotkan, jadi saya menulis Lokasi.
+        Saya membuat aplikasi untuk kebutuhan di kampus, termasuk presensi KKN di iPhone
+        dan alat pengujian lokasi dari Windows.
       </p>
       <p>
-        Sehari-hari saya menulis Python dan TypeScript. Saya lebih suka menuntaskan satu proyek
-        sampai benar-benar dipakai daripada memulai banyak purwarupa.
+        Sehari-hari saya menggunakan Python dan TypeScript.
       </p>
     </div>
   </section>
@@ -615,21 +613,18 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
   <section class="section wrap projects" aria-labelledby="proyek">
     <header class="reveal">
       <h2 id="proyek">Proyek</h2>
-      <p class="lead">Perkakas yang saya bangun dan masih saya pakai. Visual di setiap proyek adalah ilustrasi, bukan tangkapan layar.</p>
+      <p class="lead">Visual setiap proyek adalah ilustrasi, bukan tangkapan layar.</p>
     </header>
 
     <article class="surface panel panel--lokasi reveal" aria-labelledby="lokasi-judul">
       <div class="panel__text">
         <div class="meta"><h3 id="lokasi-judul">Lokasi</h3><span class="tag tag--live">Dipakai · 2026</span></div>
         <p>
-          Aplikasi desktop untuk menyimulasikan lokasi iPhone dari laptop Windows saat menguji
-          fitur yang bergantung pada GPS. Terowongan dan sesi DVT dinyalakan sendiri oleh
-          aplikasi, tanpa langkah manual di terminal.
+          Aplikasi Windows untuk menguji fitur lokasi di iPhone.
+          Lokasi diatur melalui joystick, peta, atau koordinat.
         </p>
         <p>
-          Kendalinya joystick empat kecepatan, klik peta, dan masukan koordinat langsung.
-          Label hanya diperbarui saat digit yang terlihat berubah, dan gelung gerak berhenti
-          saat joystick diam, sehingga CPU tidak terpakai ketika aplikasi menganggur.
+          Koneksi disiapkan otomatis. Proses gerak berhenti saat joystick diam.
         </p>
         <p class="stack">Python · Tkinter · pymobiledevice3 · tkintermapview</p>
       </div>
@@ -702,19 +697,16 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
       <div class="panel__text">
         <div class="meta"><h3 id="lkh-judul">LKH KKN untuk iOS</h3><span class="tag tag--done">Selesai · 2026</span></div>
         <p>
-          Versi iOS dari aplikasi presensi mahasiswa KKN yang semula hanya tersedia di Android.
-          Verifikasi wajah berjalan sepenuhnya di perangkat memakai MobileFaceNet. Wajah dideteksi
-          dari pratinjau kamera, dipotong dan diluruskan dari foto resolusi penuh, lalu diubah menjadi
-          vektor 192 dimensi yang dibandingkan dengan data pendaftaran.
+          Versi iPhone dari aplikasi presensi KKN yang semula hanya tersedia di Android.
+          Pencocokan wajah dengan foto pendaftaran dilakukan di perangkat.
         </p>
         <div class="finding">
           <p class="finding__label">Temuan keamanan</p>
           <p>
-            Server ternyata menerima begitu saja nilai yang dikirim aplikasi, termasuk informasi
-            perangkat, koordinat, dan hasil verifikasi wajah. Akibatnya, presensi dapat dipalsukan
-            lewat proksi intersepsi tanpa menyentuh pengenalan wajahnya sama sekali.
+            Sistem menerima data perangkat, lokasi, dan hasil pemeriksaan wajah tanpa memeriksanya
+            kembali. Celah ini memungkinkan pemalsuan presensi.
           </p>
-          <p class="muted">Temuan ini saya susun menjadi laporan dan sampaikan lebih dahulu secara tertutup kepada pengelola sistem kampus.</p>
+          <p class="muted">Temuan dilaporkan secara tertutup kepada pengelola sistem kampus.</p>
         </div>
         <a class="lanjut" href="/kkn/">Lihat rancangan dashboard admin LKH KKN
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
@@ -768,13 +760,11 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
         </figure>
         <div class="meta"><h3 id="pkti-judul">Pemeriksa naskah PKTI</h3><span class="tag tag--live">Dikerjakan · 2026</span></div>
         <p>
-          Mahasiswa mengunggah proposal atau skripsi dalam bentuk DOCX, lalu sistem memeriksanya
-          terhadap Pedoman Karya Tulis Ilmiah UIN Alauddin Makassar pada tiga lapis: format dokumen,
-          ragam bahasa, dan kelengkapan isi.
+          Memeriksa format, bahasa, dan kelengkapan proposal atau skripsi berformat Word (.docx).
+          Acuannya adalah Pedoman Karya Tulis Ilmiah UIN Alauddin Makassar.
         </p>
         <p>
-          Pemeriksaan dilakukan langsung pada struktur berkas Word, sehingga tata letak paragraf
-          dapat diperiksa tanpa merusak medan sitasi Mendeley atau Zotero di dalam naskah.
+          Data sitasi Mendeley dan Zotero di dalam naskah tetap utuh.
         </p>
         <p class="stack">Python · OOXML · analisis dokumen</p>
       </article>
@@ -800,16 +790,17 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
           </div>
           <figcaption>Ilustrasi rekaman asal-usul yang menyertai setiap dokumen; nilainya contoh.</figcaption>
         </figure>
-        <div class="meta"><h3 id="korpus-judul">Pipeline korpus penelitian</h3><span class="tag tag--done">Selesai · 2026</span></div>
+        <div class="meta"><h3 id="korpus-judul">Korpus penelitian</h3><span class="tag tag--done">Selesai · 2026</span></div>
         <p>
-          Alur pengumpulan teks publik dari Facebook, Instagram, X, dan Google News sebagai bahan
-          penelitian. Setiap dokumen dibawa bersama asal-usulnya: URL, platform, tanggal, penanda
-          unggahan, kode pengambilan, log, dan catatan setiap transformasi.
+          Mengumpulkan teks publik dari Facebook, Instagram, X, dan Google News untuk penelitian.
+          Sumber dan riwayat pengolahan setiap teks dicatat agar dapat ditelusuri.
         </p>
         <p>
-          Datanya dicantumkan dalam naskah dan harus dapat ditelusuri ulang. Karena itu hanya data
-          publik yang diambil, sesuai ketentuan platform, dan identitas pengguna tidak ikut disimpan.
+          Hanya data publik yang diambil sesuai ketentuan platform. Identitas pengguna tidak disimpan.
         </p>
+        <a class="lanjut" href="/pukat/">Buka Pukat, pengumpul teks penelitian
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </a>
         <p class="stack">Python · Apify · perunutan asal-usul data</p>
       </article>
     </div>
@@ -820,9 +811,8 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
         <h3 id="layanan-judul">Layanan korpus mandiri</h3>
       </div>
       <p>
-        Membuka pipeline di atas sebagai layanan web. Peneliti lain menghubungkan akun Apify
-        miliknya sendiri, menjalankan pengumpulan dari peramban, dan menerima keluaran lengkap
-        dengan berkas asal-usul yang sama. Biaya dan data tetap di tangan masing-masing peneliti.
+        Layanan web agar peneliti dapat mengumpulkan teks melalui akun Apify sendiri.
+        Hasil disertai catatan asal-usul. Biaya dan data dikelola masing-masing peneliti.
       </p>
       <span class="tag tag--plan">Rencana</span>
     </article>
@@ -838,7 +828,7 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
         <a href="mailto:asshadiqnur21@gmail.com">asshadiqnur21@gmail.com <em>Surel</em></a>
         <button type="button" class="copy" data-copy="asshadiqnur21@gmail.com" aria-label="Salin alamat surel"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 3.5v-.5A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" stroke="currentColor" stroke-width="1.4"/></svg><span>Salin</span></button>
       </li>
-      <li><a href="https://github.com/GieKAAA" rel="me noopener">github.com/GieKAAA <em>Kode</em></a></li>
+      <li><a href="https://github.com/GieKA21" rel="me noopener">github.com/GieKA21 <em>Kode</em></a></li>
       <li><a href="https://instagram.com/hidhithere" rel="me noopener">@hidhithere <em>Instagram</em></a></li>
     </ul>
   </section>
