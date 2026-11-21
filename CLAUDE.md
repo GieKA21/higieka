@@ -65,8 +65,11 @@ ke repositori. Isi Sheet tidak disimpan di peramban; hanya pendaftar yang dipaka
 penempatan yang masuk ke data peserta.
 
 Halaman `/pukat/` adalah Pukat, sistem pengumpulan korpus media sosial berbasis Apify
-yang menjadi bahan skripsi pemilik situs. Satu berkas dengan gayanya sendiri (Inter,
-Space Grotesk, aksen `#1F4FC9`), bukan gaya portofolio. Seluruh proses berjalan di
+yang menjadi bahan skripsi pemilik situs. Satu berkas dengan tipografinya sendiri
+(Inter, Space Grotesk, dan JetBrains Mono), memakai tampilan gelap saja: latar
+`#0B0E14`, bidang datar `#12161E` dan `#181D27`, garis tipis, serta aksen biru
+`#3B82F6` dengan tombol utama `#2563EB`. Formulir berjarak lega, navigasi ramping
+melekat di atas, dan tombol berbentuk pil selaras dengan beranda. Seluruh proses berjalan di
 peramban: token Apify pengguna dipakai untuk memulai run aktor (TikTok, Instagram, X,
 Facebook) lewat `api.apify.com`, memantau statusnya, mengunduh dataset, lalu mengolah
 korpus (filter periode, relevansi kata kunci, bahasa, Melayu, deduplikasi, pseudonim
@@ -91,22 +94,30 @@ Atas permintaan pemilik situs, tampilan dirancang agar sederhana, elegan, dan
 berwibawa, serta tidak berkesan dibuat oleh AI. Warna aksen adalah biru; jangan
 dikembalikan ke ungu.
 
-- Hero berupa langit malam penuh layar dengan bulan besar yang digambar sebagai
-  SVG inline (bukan foto). Judul besar di kiri bawah, pil surel putih, dan dua
-  kartu kaca (`.glass`, `backdrop-filter`) di kanan bawah
-- Navigasi berupa pil kaca yang melayang di bagian atas layar
-- Bagian di bawah hero memakai neumorphism gelap di atas latar `#151A24`:
-  permukaan timbul (`--raise`, `.surface`) dan sumur cekung (`--inset`, `.well`)
-  dengan cahaya dari kiri atas. Tombol yang aktif tampil tertekan (`--inset-sm`)
+- Hero berupa langit malam dengan bulan SVG inline yang lebih kecil, pendar
+  lembut, gerak melayang lambat, dan sedikit bintang redup tanpa bintang jatuh.
+  Fase yang mengikuti kursor dan guliran serta paralaks tetap dipertahankan.
+  Judul besar, subjudul ringkas, dan tombol utama menjadi pusat perhatian.
+- Navigasi berupa bilah ramping yang melekat di atas, berlatar tembus pandang
+  dengan pemburaman ringan dan garis tipis. Menu aktif ditandai garis bawah.
+- Latar biru hampir hitam `--bg` (`#0B0E14`), bidang datar `--panel`
+  (`#12161E`), dan bidang ilustrasi `--panel-2` (`#181D27`) dipisahkan garis
+  tipis `--line`, tanpa bayangan berat atau gradasi permukaan. Kartu proyek
+  bersudut 20 piksel dan lebar konten maksimum 1100 piksel.
+- Sistem tombol memakai pil utama biru gelap, pil sekunder bergaris tipis,
+  dan tautan teks. Tombol KKN dan Pukat bergaya sama, dengan sasaran sentuh
+  minimal 44 piksel serta keadaan sorot, tekan, dan fokus yang jelas.
 - Aksen utama biru `#3B82F6`, varian terang `#93C5FD`, varian gelap `#2563EB`
   untuk latar tombol bertulisan putih (aksen utama tidak memenuhi kontras AA)
 - Amber `#F2A93B` khusus sebagai penanda status aktif
 - Seluruh teks memakai Plus Jakarta Sans; JetBrains Mono hanya untuk data seperti
   angka, koordinat, kode, dan daftar teknologi
 
-Warna dan bayangan ditetapkan sebagai variabel pada `:root` (`--accent`,
-`--accent-rgb`, `--accent-lite`, `--accent-deep`, `--raise`, `--inset`, dan
-seterusnya); gunakan variabel tersebut, bukan nilai mentah.
+Warna ditetapkan sebagai variabel pada `:root`: `--bg`, `--panel`,
+`--panel-2`, `--line`, `--ink`, `--text`, `--muted`, `--accent`,
+`--accent-rgb`, `--accent-lite`, `--accent-deep`, dan `--amber`.
+Gunakan variabel tersebut, bukan nilai mentah. Teks isi berukuran 17–18 piksel
+dengan tinggi baris sekitar 1,6; judul besar memakai jarak huruf rapat.
 
 Hindari pola yang lazim pada halaman buatan AI: label kecil berkotak dengan huruf
 kapital renggang, bingkai jendela tiruan bertitik tiga, judul aforistik, tanda pisah
