@@ -382,7 +382,7 @@ td a{color:var(--accent)}
             <div class="field">
               <label class="lbl" for="kunci">Kunci penyamaran akun</label>
               <div class="inline">
-                <input type="password" id="kunci" autocomplete="off" spellcheck="false" placeholder="64 karakter hex">
+                <input type="password" id="kunci" autocomplete="off" spellcheck="false" placeholder="64 karakter: angka 0–9 dan huruf a–f">
                 <button type="button" id="kunciBaru" class="small">Buat baru</button>
                 <button type="button" id="kunciUnduh" class="small">Unduh</button>
               </div>
@@ -410,7 +410,7 @@ td a{color:var(--accent)}
         <div class="kv"><span>Platform</span><b id="sPf">0</b></div>
         <div class="kv"><span>Periode</span><b id="sPer">–</b></div>
         <div class="kv"><span>Jumlah proses</span><b id="sRuns">0</b></div>
-        <div class="kv"><span>Batas data diminta</span><b id="sItems">0</b></div>
+        <div class="kv"><span>Jumlah maksimum hasil</span><b id="sItems">0</b></div>
         <div class="kv"><span>Target dokumen bersih</span><b id="sTarget">0</b></div>
         <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint"><div class="kv"><span>Cadangan sebelum penyaringan</span><b>±2,3 × target</b></div><p>Dasar perkiraan: 3.008 data awal menghasilkan 1.330 teks bersih pada korpus v2.</p><p><code>maxTotalChargeUsd</code> membatasi biaya setiap proses di Apify.</p></div></details>
         <ul class="warnlist" id="warns"></ul>
@@ -473,7 +473,7 @@ td a{color:var(--accent)}
     <div id="queueEmpty" class="empty">Belum ada proyek aktif. Mulai dari halaman Proyek atau buka riwayat.</div>
     <div class="tbl-wrap" id="queueWrap" hidden>
       <table>
-        <thead><tr><th>Platform</th><th>Periode</th><th>Run ID</th><th>Status</th><th class="r">Item</th><th class="r">Biaya</th><th></th></tr></thead>
+        <thead><tr><th>Platform</th><th>Periode</th><th>Kode proses</th><th>Status</th><th class="r">Item</th><th class="r">Biaya</th><th></th></tr></thead>
         <tbody id="queueBody"></tbody>
       </table>
     </div>
@@ -486,7 +486,7 @@ td a{color:var(--accent)}
       <summary>Olah pengumpulan lama</summary>
       <div class="adv-body">
         <div class="field">
-          <label class="lbl" for="oldRuns">Kode proses Apify (Run ID), satu per baris</label>
+          <label class="lbl" for="oldRuns">Kode proses Apify, satu per baris</label>
           <textarea id="oldRuns" spellcheck="false" placeholder="D6nTg3ugDyl3xrum7&#10;5xC8wpxbyG9oaIf4V"></textarea>
           <p class="hint">Uji token terlebih dahulu. Hanya data yang masih tersimpan yang dapat dibaca.</p>
           <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint">Dataset adalah kumpulan hasil yang disimpan di Apify. Retensi adalah masa simpannya; pada paket gratis, data disimpan selama 7 hari. Membaca ulang tidak menjalankan pengumpulan baru. Sumber dikenali dari program pengumpulnya.</div></details>
@@ -498,7 +498,7 @@ td a{color:var(--accent)}
 
   <div id="hasilReal" hidden>
     <div class="kpis">
-      <div class="kpi"><div class="k">Kandidat terkumpul</div><div class="v" id="kKand">0</div><div class="s" id="kKandS"></div></div>
+      <div class="kpi"><div class="k">Data awal terkumpul</div><div class="v" id="kKand">0</div><div class="s" id="kKandS"></div></div>
       <div class="kpi"><div class="k">Dokumen bersih</div><div class="v" id="kLolos">0</div><div class="s" id="kLolosS"></div></div>
       <div class="kpi"><div class="k">Pemeriksaan sumber</div><div class="v" id="kOe">–</div><div class="s" id="kOeS">belum dijalankan</div></div>
       <div class="kpi"><div class="k">Biaya aktual</div><div class="v" id="kCost">US$0,00</div><div class="s" id="kCostS"></div></div>
@@ -567,7 +567,7 @@ td a{color:var(--accent)}
       <span class="pill idle">Data contoh · Apr–Sep 2026</span>
     </div>
     <div class="kpis">
-      <div class="kpi"><div class="k">Kandidat terkumpul</div><div class="v">3.008</div><div class="s">dari 33 run Apify</div></div>
+      <div class="kpi"><div class="k">Data awal terkumpul</div><div class="v">3.008</div><div class="s">dari 33 proses pengumpulan</div></div>
       <div class="kpi"><div class="k">Dokumen bersih</div><div class="v">1.330</div><div class="s">44,2% kandidat lolos</div></div>
       <div class="kpi"><div class="k">Pemeriksaan sumber X</div><div class="v">523/524</div><div class="s">teks cocok dengan sumber</div></div>
       <div class="kpi"><div class="k">Transkrip TikTok</div><div class="v">150/283</div><div class="s">dari subtitle bawaan</div></div>
