@@ -943,6 +943,12 @@ $('#saveDraft').onclick = () => { store.set('pukat-draf', config()); toast('Draf
     ['target','maxq','subset','minw'].forEach((id,i) => { const v = [d.target_per_platform, d.maks_per_kueri, d.subset_seimbang_per_platform, d.min_kata][i]; if (v != null) $('#'+id).value = v; });
     if (d.batas_biaya_usd != null) $('#cap').value = d.batas_biaya_usd;
     if (d.seleksi) $('#sel').value = d.seleksi;
+    [['filter', {oLang:'bahasa_indonesia', oMelayu:'melayu', oRt:'retweet', oDedup:'dedup'}],
+      ['verifikasi', {oOembed:'oembed', oTrans:'transkrip_tiktok'}],
+      ['privasi', {oPseudo:'pseudonim', oMask:'samarkan'}]].forEach(([grup, fields]) => {
+      Object.entries(fields).forEach(([id, key]) => { if (typeof d[grup]?.[key] === 'boolean') $('#'+id).checked = d[grup][key]; });
+    });
+    if (d.verifikasi?.sampel_manual != null) $('#oSample').checked = d.verifikasi.sampel_manual > 0;
   }catch(_){}
 })();
 
