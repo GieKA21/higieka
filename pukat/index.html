@@ -68,7 +68,7 @@ main{padding-block:48px 80px}
 
 section.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px;min-width:0}
 .panel-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:24px}
-.panel-head .step{font-size:.8125rem;color:var(--muted)}
+.panel-head .step{font-size:.8125rem;color:var(--muted);letter-spacing:normal;text-transform:none}
 .hint{font-size:.83rem;color:var(--muted)}
 
 .lbl{display:block;font-size:.875rem;font-weight:500;color:var(--muted);margin-bottom:6px}
@@ -145,7 +145,13 @@ details.adv[open]>summary::after{transform:rotate(225deg)}
 /* summary sidebar */
 aside.summary{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 @media (max-width:920px){aside.summary{position:static}}
-@media (min-width:921px){aside.summary{max-height:calc(100svh - 96px);overflow-y:auto;scrollbar-gutter:stable}}
+@media (min-width:921px){
+  aside.summary{display:flex;flex-direction:column;max-height:calc(100dvh - env(safe-area-inset-top,0px) - 96px)}
+  .summary .sum-head,.summary .sum-foot{flex:none}
+  .summary .sum-body{min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+  .summary .sum-foot{padding-bottom:32px}
+  .summary .json{max-height:min(180px,20dvh)}
+}
 .sum-head{padding:16px 18px;border-bottom:1px solid var(--line)}
 .sum-body{padding:14px 18px;display:flex;flex-direction:column;gap:10px}
 .kv{display:flex;justify-content:space-between;gap:10px;font-size:.88rem}
@@ -308,7 +314,7 @@ details.adv>summary:hover{color:var(--ink)}
     <div class="stack">
 
       <section class="panel" aria-labelledby="h-akun">
-        <div class="panel-head"><h2 id="h-akun">Akun Apify</h2><span class="step">LANGKAH 1</span></div>
+        <div class="panel-head"><h2 id="h-akun">Akun Apify</h2><span class="step">Langkah 1</span></div>
         <div class="field">
           <label class="lbl" for="token">Token Apify</label>
           <div class="inline">
@@ -328,7 +334,7 @@ details.adv>summary:hover{color:var(--ink)}
       </section>
 
       <section class="panel" aria-labelledby="h-kunci">
-        <div class="panel-head"><h2 id="h-kunci">Kata kunci</h2><span class="step">LANGKAH 2</span></div>
+        <div class="panel-head"><h2 id="h-kunci">Kata kunci</h2><span class="step">Langkah 2</span></div>
         <div class="field">
           <label class="lbl" for="kwInput">Daftar kata kunci <span class="num" id="kwCount"></span></label>
           <div class="chips" id="chips">
@@ -354,7 +360,7 @@ details.adv>summary:hover{color:var(--ink)}
       </section>
 
       <section class="panel" aria-labelledby="h-sumber">
-        <div class="panel-head"><h2 id="h-sumber">Sumber &amp; periode</h2><span class="step">LANGKAH 3</span></div>
+        <div class="panel-head"><h2 id="h-sumber">Sumber &amp; periode</h2><span class="step">Langkah 3</span></div>
         <div class="platforms" id="platforms"></div>
         <details class="adv"><summary>Selengkapnya</summary><div class="adv-body hint"><p>Program dan perkiraan tarif per hasil:</p><p>TikTok: <code>xmolodtsov/tiktok-search-scraper</code> · ±US$0,0003 per video.</p><p>Instagram: <code>scraping_solutions/instagram-boolean-search-scraper-posts-reels</code> · ±US$0,0016 per unggahan + US$0,01 per halaman.</p><p>X: <code>memo23/x-twitter-search-scraper</code> · ±US$0,0004 per unggahan.</p><p>Facebook: <code>topapi/facebook-search-posts-scraper</code> · ±US$0,0024 per unggahan.</p></div></details>
         <div class="row" style="margin-top:16px">
@@ -367,7 +373,7 @@ details.adv>summary:hover{color:var(--ink)}
       </section>
 
       <section class="panel" aria-labelledby="h-opsi">
-        <div class="panel-head"><h2 id="h-opsi">Opsi pengolahan</h2><span class="step">LANGKAH 4</span></div>
+        <div class="panel-head"><h2 id="h-opsi">Opsi pengolahan</h2><span class="step">Langkah 4</span></div>
         <div class="row">
           <div class="field"><label class="lbl" for="target">Target teks bersih per sumber</label><input type="number" id="target" min="10" step="10" value="150"></div>
           <div class="field"><label class="lbl" for="maxq">Batas hasil per pencarian</label><input type="number" id="maxq" min="10" step="5" value="20"></div>
