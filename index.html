@@ -1877,15 +1877,25 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
     });
   }
 
+  // Reveal a selected choice inside its row without moving the page.
+  function revealChoice(button) {
+    const row = button.parentElement;
+    if (!row.matches('.pkti__tabs,.seg') || row.scrollWidth <= row.clientWidth) return;
+    const bounds = row.getBoundingClientRect(), choice = button.getBoundingClientRect();
+    row.scrollLeft += Math.min(0, choice.left - bounds.left) || Math.max(0, choice.right - bounds.right);
+  }
+
   // toggle-button groups that drive a data-state on their target
   function segments() {
     document.querySelectorAll('[data-seg]').forEach(group => {
       const target = document.getElementById(group.dataset.seg);
       const buttons = [...group.querySelectorAll('button')];
+      buttons.forEach(b => b.addEventListener('focus', () => revealChoice(b)));
       buttons.forEach(b => b.addEventListener('click', () => {
         buttons.forEach(x => x.setAttribute('aria-pressed', x === b));
         target.dataset.state = b.value;
         target.dispatchEvent(new Event('statechange'));
+        revealChoice(b);
       }));
     });
   }
@@ -1903,6 +1913,7 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
           if (on) host.dataset.state = i + 1;
         });
         if (focus) tab.focus();
+        revealChoice(tab);
       };
       all.forEach((tab, i) => {
         tab.addEventListener('click', () => select(tab));
