@@ -11,7 +11,14 @@
 <meta property="og:title" content="As Shadiq Nur">
 <meta property="og:description" content="Mahasiswa Teknik Informatika UIN Alauddin Makassar. Membuat aplikasi untuk masalah yang ditemui sendiri.">
 <meta property="og:locale" content="id_ID">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://higieka.web.id/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="As Shadiq Nur, mahasiswa Teknik Informatika UIN Alauddin Makassar, dengan ilustrasi bulan di langit malam.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://higieka.web.id/og-image.png">
+<meta name="twitter:image:alt" content="As Shadiq Nur, mahasiswa Teknik Informatika UIN Alauddin Makassar, dengan ilustrasi bulan di langit malam.">
 <meta name="theme-color" content="#05070D">
 <meta name="color-scheme" content="dark">
 
@@ -335,6 +342,31 @@ h2[id]{scroll-margin-top:6rem}
 /* corpus pipeline: provenance record */
 .prov{padding:1.1rem}
 .seg{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1rem}
+@media (max-width:480px){
+  .pkti,.prov{min-width:0;position:relative}
+  .pkti__tabs,.seg{
+    flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+    --fade-size:1rem;--fade-start:0px;--fade-end:0px;
+    scroll-padding-inline:var(--fade-size);
+    mask:
+      linear-gradient(#000,#000) no-clip subtract,
+      linear-gradient(to right,#000,transparent) 0 0 / var(--fade-start) 100% no-repeat no-clip,
+      linear-gradient(to right,transparent,#000) 100% 0 / var(--fade-end) 100% no-repeat no-clip;
+  }
+  .pkti__tabs::-webkit-scrollbar,.seg::-webkit-scrollbar{display:none}
+  .pkti__tabs.more-start,.seg.more-start{--fade-start:var(--fade-size)}
+  .pkti__tabs.more-end,.seg.more-end{--fade-end:var(--fade-size)}
+  .pkti:has(.pkti__tabs.more-start)::before,.prov:has(.seg.more-start)::before,
+  .pkti:has(.pkti__tabs.more-end)::after,.prov:has(.seg.more-end)::after{
+    content:"";position:absolute;top:calc(1.1rem + 19px);width:6px;height:6px;
+    border-top:1.5px solid var(--accent-lite);border-right:1.5px solid var(--accent-lite);
+    pointer-events:none;
+  }
+  .pkti::before,.prov::before{left:.5rem;transform:rotate(-135deg)}
+  .pkti::after,.prov::after{right:.5rem;transform:rotate(45deg)}
+  .pkti__tabs .nbtn,.seg .nbtn{flex:none;white-space:nowrap}
+  .pkti__tabs .nbtn:focus-visible,.seg .nbtn:focus-visible{outline-offset:-2px}
+}
 .code{
   margin:0;font-family:"JetBrains Mono",monospace;font-size:.72rem;line-height:1.75;color:var(--text);
   white-space:pre-wrap;overflow-wrap:anywhere;
@@ -1864,15 +1896,40 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
     });
   }
 
+  // Pudarkan tepi hanya jika masih ada pilihan yang tersembunyi.
+  function projectTabHints() {
+    document.querySelectorAll('.pkti__tabs,.seg').forEach(row => {
+      const first = row.firstElementChild, last = row.lastElementChild;
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(({ target, intersectionRatio }) => {
+          row.classList.toggle(target === first ? 'more-start' : 'more-end', intersectionRatio < 1);
+        });
+      }, { root: row, threshold: 1, rootMargin: '1px' });
+      observer.observe(first);
+      observer.observe(last);
+    });
+  }
+
+  // Tampilkan pilihan dalam barisnya tanpa menggulir halaman.
+  function revealChoice(button) {
+    const row = button.parentElement;
+    if (!row.matches('.pkti__tabs,.seg') || row.scrollWidth <= row.clientWidth) return;
+    const bounds = row.getBoundingClientRect(), choice = button.getBoundingClientRect();
+    const inset = parseFloat(getComputedStyle(row).scrollPaddingInlineStart) || 0;
+    row.scrollLeft += Math.min(0, choice.left - bounds.left - inset) || Math.max(0, choice.right - bounds.right + inset);
+  }
+
   // toggle-button groups that drive a data-state on their target
   function segments() {
     document.querySelectorAll('[data-seg]').forEach(group => {
       const target = document.getElementById(group.dataset.seg);
       const buttons = [...group.querySelectorAll('button')];
+      buttons.forEach(b => b.addEventListener('focus', () => revealChoice(b)));
       buttons.forEach(b => b.addEventListener('click', () => {
         buttons.forEach(x => x.setAttribute('aria-pressed', x === b));
         target.dataset.state = b.value;
         target.dispatchEvent(new Event('statechange'));
+        revealChoice(b);
       }));
     });
   }
@@ -1890,6 +1947,7 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
           if (on) host.dataset.state = i + 1;
         });
         if (focus) tab.focus();
+        revealChoice(tab);
       };
       all.forEach((tab, i) => {
         tab.addEventListener('click', () => select(tab));
@@ -1945,7 +2003,7 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
   }
 
   // reveal runs first: if anything later fails, content must not stay hidden
-  [reveal, scrollSpy, clock, moonLight, countUp, lokasi, vectors, segments, tabs, provenance, copyMail].forEach(init => {
+  [reveal, scrollSpy, clock, moonLight, countUp, lokasi, vectors, projectTabHints, segments, tabs, provenance, copyMail].forEach(init => {
     try { init(); } catch (err) { console.error(err); }
   });
 })();
