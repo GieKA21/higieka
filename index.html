@@ -343,7 +343,7 @@ h2[id]{scroll-margin-top:6rem}
 .prov{padding:1.1rem}
 .seg{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1rem}
 @media (max-width:480px){
-  .pkti,.prov{min-width:0}
+  .pkti,.prov{min-width:0;position:relative}
   .pkti__tabs,.seg{
     flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
     --fade-size:1rem;--fade-start:0px;--fade-end:0px;
@@ -356,6 +356,14 @@ h2[id]{scroll-margin-top:6rem}
   .pkti__tabs::-webkit-scrollbar,.seg::-webkit-scrollbar{display:none}
   .pkti__tabs.more-start,.seg.more-start{--fade-start:var(--fade-size)}
   .pkti__tabs.more-end,.seg.more-end{--fade-end:var(--fade-size)}
+  .pkti:has(.pkti__tabs.more-start)::before,.prov:has(.seg.more-start)::before,
+  .pkti:has(.pkti__tabs.more-end)::after,.prov:has(.seg.more-end)::after{
+    content:"";position:absolute;top:calc(1.1rem + 19px);width:6px;height:6px;
+    border-top:1.5px solid var(--accent-lite);border-right:1.5px solid var(--accent-lite);
+    pointer-events:none;
+  }
+  .pkti::before,.prov::before{left:.5rem;transform:rotate(-135deg)}
+  .pkti::after,.prov::after{right:.5rem;transform:rotate(45deg)}
   .pkti__tabs .nbtn,.seg .nbtn{flex:none;white-space:nowrap}
   .pkti__tabs .nbtn:focus-visible,.seg .nbtn:focus-visible{outline-offset:-2px}
 }
