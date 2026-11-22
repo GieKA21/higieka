@@ -344,7 +344,18 @@ h2[id]{scroll-margin-top:6rem}
 .seg{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1rem}
 @media (max-width:480px){
   .pkti,.prov{min-width:0}
-  .pkti__tabs,.seg{flex-wrap:nowrap;overflow-x:auto}
+  .pkti__tabs,.seg{
+    flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+    --fade-size:1rem;--fade-start:0px;--fade-end:0px;
+    scroll-padding-inline:var(--fade-size);
+    mask:
+      linear-gradient(#000,#000) no-clip subtract,
+      linear-gradient(to right,#000,transparent) 0 0 / var(--fade-start) 100% no-repeat no-clip,
+      linear-gradient(to right,transparent,#000) 100% 0 / var(--fade-end) 100% no-repeat no-clip;
+  }
+  .pkti__tabs::-webkit-scrollbar,.seg::-webkit-scrollbar{display:none}
+  .pkti__tabs.more-start,.seg.more-start{--fade-start:var(--fade-size)}
+  .pkti__tabs.more-end,.seg.more-end{--fade-end:var(--fade-size)}
   .pkti__tabs .nbtn,.seg .nbtn{flex:none;white-space:nowrap}
   .pkti__tabs .nbtn:focus-visible,.seg .nbtn:focus-visible{outline-offset:-2px}
 }
@@ -1877,12 +1888,27 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
     });
   }
 
-  // Reveal a selected choice inside its row without moving the page.
+  // Pudarkan tepi hanya jika masih ada pilihan yang tersembunyi.
+  function projectTabHints() {
+    document.querySelectorAll('.pkti__tabs,.seg').forEach(row => {
+      const first = row.firstElementChild, last = row.lastElementChild;
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(({ target, intersectionRatio }) => {
+          row.classList.toggle(target === first ? 'more-start' : 'more-end', intersectionRatio < 1);
+        });
+      }, { root: row, threshold: 1, rootMargin: '1px' });
+      observer.observe(first);
+      observer.observe(last);
+    });
+  }
+
+  // Tampilkan pilihan dalam barisnya tanpa menggulir halaman.
   function revealChoice(button) {
     const row = button.parentElement;
     if (!row.matches('.pkti__tabs,.seg') || row.scrollWidth <= row.clientWidth) return;
     const bounds = row.getBoundingClientRect(), choice = button.getBoundingClientRect();
-    row.scrollLeft += Math.min(0, choice.left - bounds.left) || Math.max(0, choice.right - bounds.right);
+    const inset = parseFloat(getComputedStyle(row).scrollPaddingInlineStart) || 0;
+    row.scrollLeft += Math.min(0, choice.left - bounds.left - inset) || Math.max(0, choice.right - bounds.right + inset);
   }
 
   // toggle-button groups that drive a data-state on their target
@@ -1969,7 +1995,7 @@ footer p{margin:0;font-size:.85rem;color:var(--muted)}
   }
 
   // reveal runs first: if anything later fails, content must not stay hidden
-  [reveal, scrollSpy, clock, moonLight, countUp, lokasi, vectors, segments, tabs, provenance, copyMail].forEach(init => {
+  [reveal, scrollSpy, clock, moonLight, countUp, lokasi, vectors, projectTabHints, segments, tabs, provenance, copyMail].forEach(init => {
     try { init(); } catch (err) { console.error(err); }
   });
 })();
