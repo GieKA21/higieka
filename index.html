@@ -11,7 +11,14 @@
 <meta property="og:title" content="As Shadiq Nur">
 <meta property="og:description" content="Mahasiswa Teknik Informatika UIN Alauddin Makassar. Membuat aplikasi untuk masalah yang ditemui sendiri.">
 <meta property="og:locale" content="id_ID">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://higieka.web.id/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="As Shadiq Nur, mahasiswa Teknik Informatika UIN Alauddin Makassar, dengan ilustrasi bulan di langit malam.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://higieka.web.id/og-image.png">
+<meta name="twitter:image:alt" content="As Shadiq Nur, mahasiswa Teknik Informatika UIN Alauddin Makassar, dengan ilustrasi bulan di langit malam.">
 <meta name="theme-color" content="#05070D">
 <meta name="color-scheme" content="dark">
 
@@ -335,6 +342,11 @@ h2[id]{scroll-margin-top:6rem}
 /* corpus pipeline: provenance record */
 .prov{padding:1.1rem}
 .seg{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1rem}
+@media (max-width:480px){
+  .pkti__tabs,.seg{flex-wrap:nowrap;overflow-x:auto}
+  .pkti__tabs .nbtn,.seg .nbtn{flex:none;white-space:nowrap}
+  .pkti__tabs .nbtn:focus-visible,.seg .nbtn:focus-visible{outline-offset:-2px}
+}
 .code{
   margin:0;font-family:"JetBrains Mono",monospace;font-size:.72rem;line-height:1.75;color:var(--text);
   white-space:pre-wrap;overflow-wrap:anywhere;
