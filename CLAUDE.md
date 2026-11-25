@@ -23,7 +23,7 @@ dari branch `main`, akar repositori. Berkas `CNAME` dan `.nojekyll` wajib tetap 
 | `sitemap.xml`  | Peta situs                                  |
 | `kkn/index.html` | Rancangan dashboard admin LKH KKN          |
 | `pukat/index.html` | Pukat, pengumpul korpus media sosial berbasis Apify |
-| `vdu/` (submodule) | Cbot Upeks, chatbot RAG dan VDU dari repositori `GieKA21/vdu` |
+| `vdu/` | Tampilan Cbot Upeks, salinan `web/` dari repositori `GieKA21/vdu` |
 
 Seluruh CSS dan JavaScript berada inline di dalam `index.html`. Jangan memecahnya
 menjadi berkas terpisah tanpa diminta; sifat satu-berkas adalah keputusan desain
@@ -89,13 +89,13 @@ yang disinkronkan. Token dan kunci pseudonim tidak pernah ikut disinkronkan. Run
 dipulihkan dari riwayat run di akun Apify. Pemetaan kolom aktor mengikuti `korpus_agama.py`.
 Jangan menambahkan token, kunci, atau data mentah ke repositori.
 
-Folder `/vdu/` adalah submodule Git yang menunjuk ke repositori `GieKA21/vdu`, yaitu
-Cbot Upeks, chatbot RAG dan VDU layanan periklanan dan sirkulasi PT Ujungpandang Ekspres
-yang merupakan skripsi rekan pemilik situs, bukan karya pemilik situs. Jangan
-mencantumkannya pada beranda atau `sitemap.xml`. Perubahan aplikasi dilakukan di
-repositori `GieKA21/vdu`; setelah itu perbarui penunjuk submodule di sini dengan
-`git submodule update --remote vdu`, lalu commit dan dorong agar GitHub Pages ikut
-menayangkannya.
+Folder `/vdu/` berisi tampilan Cbot Upeks, chatbot RAG dan VDU layanan periklanan dan
+sirkulasi PT Ujungpandang Ekspres yang merupakan skripsi rekan pemilik situs, bukan karya
+pemilik situs. Jangan mencantumkannya pada beranda atau `sitemap.xml`. Isinya salinan
+folder `web/` dari repositori `GieKA21/vdu`; ubah di sana, lalu salin ulang ke sini. Data,
+login admin, dokumen, dan pemanggilan OpenAI berjalan di Supabase (edge function `tanya`,
+`indeks`, `wa`). Folder ini hanya boleh memuat alamat proyek dan kunci anon Supabase pada
+`vdu/assets/konfig.js`; jangan menaruh data, dokumen, atau kunci lain di sini.
 
 ## Arah desain
 
