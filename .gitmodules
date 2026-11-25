@@ -1,0 +1,3 @@
+[submodule "vdu"]
+	path = vdu
+	url = https://github.com/GieKA21/vdu.git
