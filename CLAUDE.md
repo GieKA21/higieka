@@ -22,6 +22,7 @@ dari branch `main`, akar repositori. Berkas `CNAME` dan `.nojekyll` wajib tetap 
 | `robots.txt`   | Izin perayapan mesin pencari                |
 | `sitemap.xml`  | Peta situs                                  |
 | `kkn/index.html` | Rancangan dashboard admin LKH KKN          |
+| `kkn/buka-absen/index.html` | Pembuat kode buka akses absen untuk admin KKN |
 | `pukat/index.html` | Pukat, pengumpul korpus media sosial berbasis Apify |
 | `vdu/` | Tampilan Cbot Upeks, salinan `web/` dari repositori `GieKA21/vdu` |
 
@@ -57,6 +58,19 @@ sama dengan pola pada penerima; ubah keduanya bersamaan. Judul kolom Sheet sama 
 judul kolom yang dikenali pengimpor di `/kkn/`. Formulir ini terbuka tanpa masuk akun,
 jadi hanya untuk data karangan sampai ada keputusan tentang pemilik formulir resmi.
 Berkas pendaftar yang dimuat ke dashboard dibaca di peramban dan tidak dikirim ke peladen.
+
+Halaman `/kkn/buka-absen/` membuat kode buka akses absen harian untuk admin KKN.
+Aplikasi LKH KKN memblokir absen seorang peserta setelah tiga percobaan gagal
+dalam satu hari WITA; admin mengetik NIM peserta dan nomor pembukaan, lalu halaman
+menghitung kode enam angka di peramban dengan WebCrypto: HMAC-SHA256 atas
+`buka-absen|NIM|YYYY-MM-DD (WITA)|ke`, dipotong dinamis seperti RFC 4226. Rumusnya
+harus sama persis dengan `utils/batasAbsen.ts` di repositori aplikasi; vektor
+ujinya ada di `tests/vektor-kode-buka.json` di sana. Kunci rahasianya ditempel
+admin dan disimpan di `localStorage` peramban itu saja (kunci
+`kkn-buka-absen-kunci`), begitu pula riwayat kode (`kkn-buka-absen-riwayat`);
+keduanya tidak pernah ditulis ke repositori dan tidak dikirim ke mana pun. Halaman
+itu memakai set warna `/kkn/`, diberi `noindex`, dan tidak dicantumkan pada
+`sitemap.xml`.
 
 Menu Pendaftar pada `/kkn/` membaca Sheet yang sama lewat aplikasi web yang sama
 (`aksi=daftar`) setiap 15 detik dan dapat mengubah kolom Status serta Catatan

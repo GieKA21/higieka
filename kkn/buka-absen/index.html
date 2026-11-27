@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buka Akses Absen (uji coba)</title>
+<meta name="description" content="Pembuat kode buka akses absen harian untuk admin KKN. Uji coba.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#13261F">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --malam:#13261F; --kertas:#F2F4EF; --muka:#FFFFFF; --alas:#E7EBE5;
+  --garis:#D9DED8; --garis-tegas:#8E9A93;
+  --tinta:#18231F; --tinta-2:#3A4842; --batu:#56655E;
+  --daun:#1F7A4D; --daun-tua:#155E3A; --daun-muda:#E3F1E8;
+  --bata:#B4432E; --bata-muda:#F9E4DF; --nila:#2E4A86;
+  --huruf:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--kertas);color:var(--tinta);font-family:var(--huruf);font-size:16px;line-height:1.5;accent-color:var(--daun);-webkit-font-smoothing:antialiased}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--nila);outline-offset:2px}
+a{color:var(--daun-tua)}
+h1,h2,p{margin:0}
+button,a,label,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none !important}
+
+.pita{background:var(--malam);color:#D6E4DB}
+.pita-dalam{max-width:620px;margin:0 auto;padding:20px 16px 30px;display:flex;flex-direction:column;gap:6px}
+.pita a{color:#A9C2B5;font-size:14px;font-weight:600;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;align-self:flex-start}
+.pita a:hover{color:#fff}
+.pita h1{color:#fff;font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+
+main{max-width:620px;margin:0 auto;padding:16px 16px 64px;display:flex;flex-direction:column;gap:14px}
+.bagian{background:var(--muka);border:1px solid var(--garis);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.bagian h2{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.isian{display:flex;flex-direction:column;gap:6px;min-width:0}
+.isian label{font-size:15px;font-weight:600}
+.bantu{font-size:13px;color:var(--batu)}
+input,select{width:100%;min-height:48px;padding:11px 13px;border:1px solid var(--garis-tegas);border-radius:10px;background:var(--muka);font-size:16px}
+input:hover,select:hover{border-color:var(--tinta-2)}
+input:user-invalid{border-color:var(--bata);background:var(--bata-muda)}
+.dua{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px}
+.tombol{min-height:48px;padding:12px 20px;border-radius:999px;border:0;background:var(--daun);color:#fff;font-weight:700;cursor:pointer}
+.tombol:hover{background:var(--daun-tua)}
+.tombol:disabled{background:var(--garis-tegas);cursor:not-allowed}
+.tombol-tipis{min-height:44px;padding:10px 16px;border-radius:999px;border:1px solid var(--garis-tegas);background:transparent;color:var(--tinta);font-weight:600;cursor:pointer}
+.tombol-tipis:hover{border-color:var(--tinta)}
+.baris{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+.hasil{border-radius:16px;background:var(--daun-muda);border:1px solid #B9DCC6;padding:20px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.kode{font-size:44px;font-weight:800;letter-spacing:.18em;font-variant-numeric:tabular-nums;color:var(--daun-tua);word-break:break-all}
+.galat{color:var(--bata);font-size:14px;font-weight:600}
+
+.riwayat{width:100%;border-collapse:collapse;font-size:14px}
+.riwayat th,.riwayat td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--garis);font-variant-numeric:tabular-nums}
+.riwayat th{color:var(--batu);font-weight:600}
+.kosong{color:var(--batu);font-size:14px}
+
+details.lipat{font-size:14px;color:var(--tinta-2)}
+details.lipat summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center}
+details.lipat p{margin-top:6px}
+code{font-size:13px;background:var(--alas);padding:1px 5px;border-radius:6px;word-break:break-all}
+
+@media (max-width:420px){.dua{grid-template-columns:1fr}.kode{font-size:36px}}
+</style>
+</head>
+<body>
+<header class="pita">
+  <div class="pita-dalam">
+    <a href="/kkn/">Dashboard KKN</a>
+    <h1>Buka akses absen</h1>
+  </div>
+</header>
+
+<main>
+  <noscript><p class="galat">Halaman ini memerlukan JavaScript untuk membuat kode.</p></noscript>
+
+  <section class="bagian" id="bagian-kunci" aria-labelledby="judul-kunci">
+    <h2 id="judul-kunci">Kunci rahasia</h2>
+    <div class="isian">
+      <label for="kunci">Kunci</label>
+      <input id="kunci" type="password" autocomplete="off" spellcheck="false">
+      <span class="bantu">Disimpan di peramban ini saja.</span>
+    </div>
+    <div class="baris">
+      <button class="tombol-tipis" id="simpan-kunci" type="button">Simpan kunci</button>
+      <button class="tombol-tipis" id="hapus-kunci" type="button" hidden>Hapus kunci</button>
+      <span class="bantu" id="status-kunci" role="status"></span>
+    </div>
+  </section>
+
+  <section class="bagian" aria-labelledby="judul-buat">
+    <h2 id="judul-buat">Buat kode</h2>
+    <form id="formulir" novalidate>
+      <div class="dua">
+        <div class="isian">
+          <label for="nim">NIM peserta</label>
+          <input id="nim" inputmode="numeric" autocomplete="off" required pattern="[0-9]{5,20}" maxlength="20">
+        </div>
+        <div class="isian">
+          <label for="ke">Pembukaan ke-</label>
+          <select id="ke">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          </select>
+        </div>
+      </div>
+      <p class="galat" id="galat" role="alert"></p>
+      <div class="baris" style="margin-top:14px">
+        <button class="tombol" id="buat" type="submit">Buat kode</button>
+      </div>
+    </form>
+    <div class="hasil" id="hasil" hidden aria-live="polite">
+      <span class="kode" id="kode"></span>
+      <span id="keterangan"></span>
+    </div>
+  </section>
+
+  <section class="bagian" aria-labelledby="judul-riwayat">
+    <h2 id="judul-riwayat">Riwayat di peramban ini</h2>
+    <p class="kosong" id="riwayat-kosong">Belum ada kode yang dibuat.</p>
+    <div style="overflow-x:auto">
+      <table class="riwayat" id="riwayat" hidden>
+        <thead><tr><th scope="col">Waktu (WITA)</th><th scope="col">NIM</th><th scope="col">Ke-</th><th scope="col">Kode</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="baris"><button class="tombol-tipis" id="kosongkan" type="button" hidden>Kosongkan riwayat</button></div>
+  </section>
+
+  <details class="lipat">
+    <summary>Cara kerja</summary>
+    <p>Kode berlaku untuk satu NIM pada tanggal hari ini menurut WITA dan hanya dapat dipakai sekali. Bila peserta terblokir lagi pada hari yang sama, buat kode dengan pembukaan ke-2, dan seterusnya sampai ke-5.</p>
+    <p>Kode dihitung di peramban dari kunci, NIM, tanggal, dan nomor pembukaan: enam angka dari HMAC-SHA256 atas <code>buka-absen|NIM|YYYY-MM-DD|ke</code>, sama dengan aplikasi LKH KKN. Tidak ada data yang dikirim ke mana pun.</p>
+  </details>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var KUNCI_SIMPAN = "kkn-buka-absen-kunci";
+  var RIWAYAT_SIMPAN = "kkn-buka-absen-riwayat";
+  var WITA_MS = 8 * 60 * 60 * 1000;
+
+  function baca(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function tulis(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* peramban menolak */ } }
+  function hapus(k) { try { localStorage.removeItem(k); } catch (e) { /* abaikan */ } }
+
+  function tanggalWita(ms) { return new Date(ms + WITA_MS).toISOString().slice(0, 10); }
+  function jamWita(ms) { return new Date(ms + WITA_MS).toISOString().slice(11, 16); }
+
+  // Rumus yang sama persis dengan utils/batasAbsen.ts pada aplikasi; dibuktikan
+  // dengan tests/vektor-kode-buka.json di repositori aplikasi.
+  async function hitungKode(rahasia, nim, tanggal, ke) {
+    var enc = new TextEncoder();
+    var kunci = await crypto.subtle.importKey("raw", enc.encode(rahasia), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    var h = new Uint8Array(await crypto.subtle.sign("HMAC", kunci, enc.encode("buka-absen|" + nim + "|" + tanggal + "|" + ke)));
+    var o = h[h.length - 1] & 0x0f;
+    var bin = ((h[o] & 0x7f) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3];
+    return String(bin % 1000000).padStart(6, "0");
+  }
+  window.hitungKodeBukaAbsen = hitungKode;
+
+  var el = function (id) { return document.getElementById(id); };
+  var kunci = el("kunci"), nim = el("nim"), ke = el("ke"), galat = el("galat");
+
+  function muatKunci() {
+    var ada = !!baca(KUNCI_SIMPAN);
+    kunci.value = ada ? baca(KUNCI_SIMPAN) : "";
+    el("hapus-kunci").hidden = !ada;
+    el("status-kunci").textContent = ada ? "Kunci tersimpan." : "";
+  }
+  el("simpan-kunci").addEventListener("click", function () {
+    var v = kunci.value.trim();
+    if (!v) { el("status-kunci").textContent = "Kunci masih kosong."; return; }
+    tulis(KUNCI_SIMPAN, v);
+    muatKunci();
+  });
+  el("hapus-kunci").addEventListener("click", function () { hapus(KUNCI_SIMPAN); muatKunci(); });
+
+  function bacaRiwayat() {
+    try { var r = JSON.parse(baca(RIWAYAT_SIMPAN) || "[]"); return Array.isArray(r) ? r : []; } catch (e) { return []; }
+  }
+  function tampilkanRiwayat() {
+    var r = bacaRiwayat();
+    var tb = el("riwayat").querySelector("tbody");
+    tb.textContent = "";
+    r.slice().reverse().forEach(function (x) {
+      var tr = document.createElement("tr");
+      [x.tanggal + " " + x.jam, x.nim, String(x.ke), x.kode].forEach(function (v) {
+        var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    el("riwayat").hidden = r.length === 0;
+    el("riwayat-kosong").hidden = r.length !== 0;
+    el("kosongkan").hidden = r.length === 0;
+  }
+  el("kosongkan").addEventListener("click", function () { hapus(RIWAYAT_SIMPAN); tampilkanRiwayat(); });
+
+  // Usulan nomor pembukaan: satu lebih besar dari kode yang sudah dibuat untuk
+  // NIM ini hari ini di peramban ini.
+  nim.addEventListener("input", function () {
+    var hariIni = tanggalWita(Date.now());
+    var n = bacaRiwayat().filter(function (x) { return x.nim === nim.value.trim() && x.tanggal === hariIni; }).length;
+    ke.value = String(Math.min(5, n + 1));
+  });
+
+  el("formulir").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    galat.textContent = "";
+    var rahasia = (baca(KUNCI_SIMPAN) || kunci.value).trim();
+    var n = nim.value.trim();
+    if (!rahasia) { galat.textContent = "Isi dan simpan kunci rahasia dulu."; kunci.focus(); return; }
+    if (!/^[0-9]{5,20}$/.test(n)) { galat.textContent = "NIM hanya berisi angka."; nim.focus(); return; }
+    if (!(window.crypto && crypto.subtle)) { galat.textContent = "Peramban ini tidak mendukung pembuatan kode."; return; }
+    var sekarang = Date.now();
+    var tanggal = tanggalWita(sekarang);
+    var k = Number(ke.value);
+    var kode = await hitungKode(rahasia, n, tanggal, k);
+    el("kode").textContent = kode;
+    el("keterangan").textContent = "Untuk NIM " + n + ", pembukaan ke-" + k + ", berlaku sampai 23.59 WITA tanggal " + tanggal + ".";
+    el("hasil").hidden = false;
+    var r = bacaRiwayat();
+    r.push({ tanggal: tanggal, jam: jamWita(sekarang), nim: n, ke: k, kode: kode });
+    tulis(RIWAYAT_SIMPAN, JSON.stringify(r.slice(-30)));
+    tampilkanRiwayat();
+  });
+
+  muatKunci();
+  tampilkanRiwayat();
+})();
+</script>
+</body>
+</html>
