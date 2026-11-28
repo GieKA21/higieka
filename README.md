@@ -14,10 +14,11 @@ selain berkas font yang dimuat dari Google Fonts.
 | `.nojekyll`    | Menyajikan berkas apa adanya, tanpa Jekyll    |
 | `robots.txt`   | Izin perayapan mesin pencari                  |
 | `sitemap.xml`  | Peta situs                                    |
-| `kkn/index.html` | Rancangan dashboard admin LKH KKN: berkas yang dimuat, serta tabel pendaftar yang dibaca langsung dari Google Sheet |
+| `kkn/index.html` | Rancangan dashboard admin LKH KKN: berkas yang dimuat, tabel pendaftar yang dibaca langsung dari Google Sheet, serta pembuat kode buka akses absen |
 | `kkn/Templat-Impor-LKH-KKN.xlsx` | Templat Excel impor data, diunduh dari halaman rancangan |
 | `pukat/index.html` | Pukat: sistem pengumpulan korpus media sosial berbasis Apify; menjalankan run dengan token pengguna, memantau, mengolah, dan mengekspor korpus langsung di peramban |
-| `kkn/daftar/index.html` | Formulir uji coba pendaftaran KKN; jawabannya dikirim ke Google Sheet lewat Apps Script bila `ALAMAT_PENERIMA` diisi |
+| `kkn/daftar/index.html` | Pemberitahuan bahwa pendaftaran KKN dilakukan melalui sistem resmi `kkn.uin-alauddin.ac.id` |
+| `kkn/buka-absen/index.html` | Pengalih ke layar Buka absen pada `/kkn/#buka-absen` |
 
 ## Menjalankan secara lokal
 

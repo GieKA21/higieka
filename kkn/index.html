@@ -229,6 +229,15 @@ details.lipat p{margin-bottom:10px}
 .setuju{display:flex;gap:10px;align-items:flex-start;font-weight:500;cursor:pointer}
 .setuju input{width:20px;height:20px;margin:1px 0 0;flex:none}
 
+/* Buka absen */
+.buat-kode{display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:12px;align-items:end}
+.kode-hasil{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 16px;border-radius:12px;border:1px solid #B9DCC6;background:var(--daun-muda);text-align:center}
+.kode-hasil b{font-size:40px;font-weight:800;letter-spacing:.18em;line-height:1.15;font-variant-numeric:tabular-nums;color:var(--daun-tua)}
+.kode-hasil span{font-size:13.5px;color:var(--tinta-2)}
+.galat-isian{color:var(--bata-tua);font-size:13.5px;font-weight:600}
+.t-kode [role="row"]{grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) 40px 76px}
+.t-kode [role="cell"]:last-child{font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.06em}
+
 @media (max-width:900px){
   .atur-grid{grid-template-columns:minmax(0,1fr)}
 }
@@ -277,6 +286,12 @@ details.lipat p{margin-bottom:10px}
   .masa-sel i.lewat{height:15px}
   .masa-sel i.kini{height:24px}
   .masa-minggu small{display:none}
+  .buat-kode{grid-template-columns:minmax(0,1fr) 104px}
+  .buat-kode .tombol{grid-column:1 / -1}
+  .kode-hasil b{font-size:34px}
+}
+@media (max-width:440px){
+  .dok button[aria-current="page"] span{display:none}
 }
 @media (max-width:400px){
   .dok{gap:2px;padding:5px}
@@ -301,7 +316,7 @@ details.lipat p{margin-bottom:10px}
 <div class="puncak-atas">
 <a class="merek" href="./">LKH KKN<span>Admin</span></a>
 <span class="cip-contoh" title="Rancangan antarmuka. Angka berasal dari berkas dan Sheet yang dimuat di peramban ini, bukan dari basis data.">Rancangan</span>
-<nav class="tautan-puncak" aria-label="Tautan lain"><a href="daftar/">Formulir pendaftaran</a><a href="/">Kembali ke situs</a></nav>
+<nav class="tautan-puncak" aria-label="Tautan lain"><a href="https://kkn.uin-alauddin.ac.id/">Pendaftaran KKN resmi</a><a href="/">Kembali ke situs</a></nav>
 </div>
 <div class="masa" id="masa"></div>
 </div></header>
@@ -327,7 +342,9 @@ details.lipat p{margin-bottom:10px}
     riwayat: [], tanyaKosong: false,
     // Tabel pendaftar langsung dari Google Sheet.
     alamatAdmin: '', kunciAdmin: '', alamatDraft: '', kunciDraft: '', L: null, lStatus: '', lPesan: '', lWaktu: 0,
-    lSaring: 'semua', lFak: '', lCari: '', tolakNim: null, alasan: '', lPesanBaris: '', mengubah: {}, masuk: {}, hanyaVerif: true
+    lSaring: 'semua', lFak: '', lCari: '', tolakNim: null, alasan: '', lPesanBaris: '', mengubah: {}, masuk: {}, hanyaVerif: true,
+    // Buka absen: kunci dan riwayat di localStorage tersendiri (lihat bukaAbsen).
+    bKunci: '', bGanti: false, bNim: '', bKe: '1', bHasil: null, bGalat: ''
   };
 
   var IMPOR = {
@@ -1733,12 +1750,102 @@ details.lipat p{margin-bottom:10px}
     return '<div class="masa-teks"><span><b>Angkatan ' + esc(A.angkatan) + '</b>, ' + ket + '</span><span>' + kanan + '</span></div>' +
       '<div class="masa-hari" role="img" aria-label="Angkatan ' + esc(A.angkatan) + ', ' + ket + ', ' + total + ' hari">' + html + '</div>';
   }
+  // BUKA ABSEN. Aplikasi LKH KKN memblokir absen seorang peserta sesudah tiga
+  // percobaan gagal dalam satu hari WITA. Admin membuat kode enam angka di sini
+  // untuk membukanya. Kunci rahasia dan riwayat kode disimpan di peramban ini
+  // saja, dengan kunci localStorage yang sama seperti halaman lama
+  // /kkn/buka-absen/, sehingga kunci yang sudah disimpan tetap terpakai.
+  var KUNCI_BUKA = 'kkn-buka-absen-kunci';
+  var RIWAYAT_BUKA = 'kkn-buka-absen-riwayat';
+  var WITA_MS = 8 * 60 * 60 * 1000;
+  function bacaLokal(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function tulisLokal(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* peramban menolak */ } }
+  function hapusLokal(k) { try { localStorage.removeItem(k); } catch (e) { /* abaikan */ } }
+  function tanggalWita(ms) { return new Date(ms + WITA_MS).toISOString().slice(0, 10); }
+  function jamWita(ms) { return new Date(ms + WITA_MS).toISOString().slice(11, 16); }
+
+  // Rumus yang sama persis dengan utils/batasAbsen.ts pada aplikasi; dibuktikan
+  // dengan tests/vektor-kode-buka.json di repositori aplikasi.
+  async function hitungKode(rahasia, nim, tanggal, ke) {
+    var enc = new TextEncoder();
+    var kunci = await crypto.subtle.importKey('raw', enc.encode(rahasia), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    var h = new Uint8Array(await crypto.subtle.sign('HMAC', kunci, enc.encode('buka-absen|' + nim + '|' + tanggal + '|' + ke)));
+    var o = h[h.length - 1] & 0x0f;
+    var bin = ((h[o] & 0x7f) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3];
+    return String(bin % 1000000).padStart(6, '0');
+  }
+
+  function riwayatBuka() {
+    try { var r = JSON.parse(bacaLokal(RIWAYAT_BUKA) || '[]'); return Array.isArray(r) ? r : []; } catch (e) { return []; }
+  }
+  // Usulan nomor pembukaan: satu lebih besar dari jumlah kode yang sudah dibuat
+  // untuk NIM ini hari ini di peramban ini.
+  function usulanKe(nim) {
+    var hariIni = tanggalWita(Date.now());
+    var n = riwayatBuka().filter(function (x) { return x.nim === nim && x.tanggal === hariIni; }).length;
+    return String(Math.min(5, n + 1));
+  }
+
+  async function buatKode() {
+    var rahasia = (bacaLokal(KUNCI_BUKA) || '').trim();
+    var nim = S.bNim.trim();
+    if (!rahasia) { atur({ bGalat: 'Simpan kunci rahasia dulu.' }, 'b-kunci'); return; }
+    if (!/^[0-9]{5,20}$/.test(nim)) { atur({ bGalat: 'NIM hanya berisi angka, 5 sampai 20 digit.' }, 'b-nim'); return; }
+    if (!(window.crypto && crypto.subtle)) { atur({ bGalat: 'Peramban ini tidak mendukung pembuatan kode.' }); return; }
+    var sekarang = Date.now(), tanggal = tanggalWita(sekarang), ke = Number(S.bKe);
+    var kode = await hitungKode(rahasia, nim, tanggal, ke);
+    var r = riwayatBuka();
+    r.push({ tanggal: tanggal, jam: jamWita(sekarang), nim: nim, ke: ke, kode: kode });
+    tulisLokal(RIWAYAT_BUKA, JSON.stringify(r.slice(-30)));
+    atur({ bGalat: '', bHasil: { kode: kode, ket: 'Untuk NIM ' + nim + ', pembukaan ke-' + ke + ', berlaku sampai 23.59 WITA tanggal ' + tanggal + '.' } }, 'b-buat');
+  }
+
+  function bukaAbsen() {
+    var adaKunci = !!bacaLokal(KUNCI_BUKA);
+    var html = '<header class="kepala"><h1>Buka absen</h1></header>';
+
+    if (!adaKunci || S.bGanti) {
+      html += '<section class="kartu sempit-maks"><div><h2>Kunci rahasia</h2><p class="sub">Sama dengan kunci RAHASIA_BUKA_ABSEN pada build aplikasi. Disimpan di peramban ini saja.</p></div>' +
+        '<div class="isian"><label for="b-kunci">Kunci</label><input id="b-kunci" type="password" autocomplete="off" spellcheck="false" translate="no" value="' + esc(S.bKunci) + '"></div>' +
+        '<div class="baris"><button type="button" class="tombol utama" data-a="b-simpan-kunci">Simpan kunci</button>' +
+        (S.bGanti ? '<button type="button" class="tombol" data-a="b-batal-kunci">Batal</button>' : '') + '</div></section>';
+    }
+
+    var ke = ['1', '2', '3', '4', '5'].map(function (n) { return '<option' + (S.bKe === n ? ' selected' : '') + '>' + n + '</option>'; }).join('');
+    html += '<section class="kartu sempit-maks"><div class="atas"><h2>Buat kode</h2>' +
+      (adaKunci && !S.bGanti ? '<div class="baris"><span class="kecil">Kunci tersimpan</span><button type="button" class="tombol rapat" data-a="b-ganti-kunci">Ganti</button><button type="button" class="tombol rapat" data-a="b-hapus-kunci">Hapus</button></div>' : '') +
+      '</div><form id="b-formulir" class="buat-kode" novalidate>' +
+      '<div class="isian"><label for="b-nim">NIM peserta</label><input id="b-nim" type="text" inputmode="numeric" autocomplete="off" maxlength="20" value="' + esc(S.bNim) + '"></div>' +
+      '<div class="isian"><label for="b-ke">Pembukaan ke-</label><select id="b-ke">' + ke + '</select></div>' +
+      '<button type="submit" class="tombol utama" data-a="b-buat"' + (adaKunci ? '' : ' disabled') + '>Buat kode</button></form>' +
+      (S.bGalat ? '<p class="galat-isian" role="alert">' + esc(S.bGalat) + '</p>' : '') +
+      (S.bHasil ? '<div class="kode-hasil" aria-live="polite"><b id="b-kode">' + esc(S.bHasil.kode) + '</b><span id="b-ket">' + esc(S.bHasil.ket) + '</span></div>' : '') +
+      '</section>';
+
+    html += '<section class="kartu sempit-maks"><h2>Terblokir hari ini</h2><p class="kecil">Daftar peserta yang terblokir tampil di sini setelah dashboard tersambung ke peladen LKH.</p></section>';
+
+    var r = riwayatBuka().slice().reverse();
+    html += '<section class="kartu sempit-maks"><h2>Riwayat di peramban ini</h2>' +
+      (r.length ? '<div class="tabel t-kode" role="table" aria-label="Riwayat kode"><div role="row" class="judul"><span role="columnheader">Waktu (WITA)</span><span role="columnheader">NIM</span><span role="columnheader">Ke-</span><span role="columnheader">Kode</span></div>' +
+        r.map(function (x) {
+          return '<div role="row"><span role="cell">' + esc(x.tanggal.slice(5) + ' ' + x.jam) + '</span><span role="cell">' + esc(x.nim) + '</span><span role="cell">' + esc(String(x.ke)) + '</span><span role="cell">' + esc(x.kode) + '</span></div>';
+        }).join('') + '</div><div class="baris"><button type="button" class="tombol rapat" data-a="b-kosongkan">Kosongkan riwayat</button></div>'
+        : '<p class="kecil">Belum ada kode yang dibuat.</p>') +
+      '</section>';
+
+    html += '<details class="lipat sempit-maks"><summary>Cara kerja</summary>' +
+      '<p>Kode berlaku untuk satu NIM pada tanggal hari ini menurut WITA dan hanya dapat dipakai sekali. Bila peserta terblokir lagi pada hari yang sama, buat kode dengan pembukaan ke-2, dan seterusnya sampai ke-5.</p>' +
+      '<p>Kode dihitung di peramban dari kunci, NIM, tanggal, dan nomor pembukaan: enam angka dari HMAC-SHA256 atas buka-absen|NIM|YYYY-MM-DD|ke, sama dengan aplikasi LKH KKN. Tidak ada data yang dikirim ke mana pun.</p></details>';
+    return html;
+  }
+
   var IKON_MENU = {
     ringkasan: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
     impor: '<path d="M12 15V4M8 8l4-4 4 4M4 15v5h16v-5"/>',
     penempatan: '<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
     riwayat: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-    pendaftar: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.6a6.5 6.5 0 0 1 3.5 5.4"/>'
+    pendaftar: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.6a6.5 6.5 0 0 1 3.5 5.4"/>',
+    buka: '<rect x="4.5" y="11" width="15" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 7.6-1.8"/><path d="M12 15v2"/>'
   };
 
   function render(fokusKe) {
@@ -1747,12 +1854,12 @@ details.lipat p{margin-bottom:10px}
     // Posisi kursor pada isian teks dipulihkan sesudah halaman digambar ulang.
     var pilihan = null;
     try { if (!fokusKe && aktif && aktif.tagName === 'INPUT' && aktif.id && typeof aktif.selectionStart === 'number') pilihan = [aktif.selectionStart, aktif.selectionEnd]; } catch (e) { pilihan = null; }
-    menu.innerHTML = [['ringkasan', 'Ringkasan'], ['pendaftar', 'Pendaftar'], ['impor', 'Impor data'], ['penempatan', 'Penempatan'], ['riwayat', 'Riwayat impor']].map(function (n) {
+    menu.innerHTML = [['ringkasan', 'Ringkasan'], ['pendaftar', 'Pendaftar'], ['impor', 'Impor data'], ['penempatan', 'Penempatan'], ['buka', 'Buka absen'], ['riwayat', 'Riwayat impor']].map(function (n) {
       return '<button type="button" data-a="layar:' + n[0] + '" title="' + n[1] + '" aria-label="' + n[1] + '"' + (S.layar === n[0] ? ' aria-current="page"' : '') + '>' +
         '<svg viewBox="0 0 24 24" aria-hidden="true">' + IKON_MENU[n[0]] + '</svg><span>' + n[1] + '</span></button>';
     }).join('');
     masa.innerHTML = garisWaktu();
-    utama.innerHTML = S.layar === 'ringkasan' ? ringkasan() : S.layar === 'pendaftar' ? pendaftar() : (S.layar === 'impor' ? impor() : (S.layar === 'penempatan' ? penempatan() : riwayat()));
+    utama.innerHTML = S.layar === 'ringkasan' ? ringkasan() : S.layar === 'pendaftar' ? pendaftar() : (S.layar === 'impor' ? impor() : (S.layar === 'penempatan' ? penempatan() : (S.layar === 'buka' ? bukaAbsen() : riwayat())));
     if (kunci) {
       var el = document.querySelector('[data-a="' + kunci + '"]') || document.getElementById(kunci);
       if (el && !el.disabled) {
@@ -1785,6 +1892,15 @@ details.lipat p{margin-bottom:10px}
     var bagian = t.getAttribute('data-a').split(':');
     var a = bagian[0], v = bagian[1];
     if (a === 'layar') atur({ layar: v, tanyaBatal: null, tanyaKosong: false });
+    else if (a === 'b-simpan-kunci') {
+      var kb = S.bKunci.trim();
+      if (!kb) atur({ bGalat: 'Kunci masih kosong.' }, 'b-kunci');
+      else { tulisLokal(KUNCI_BUKA, kb); atur({ bKunci: '', bGanti: false, bGalat: '' }, 'b-nim'); }
+    }
+    else if (a === 'b-ganti-kunci') atur({ bGanti: true, bKunci: '', bGalat: '' }, 'b-kunci');
+    else if (a === 'b-batal-kunci') atur({ bGanti: false, bKunci: '', bGalat: '' });
+    else if (a === 'b-hapus-kunci') { hapusLokal(KUNCI_BUKA); atur({ bGanti: false, bKunci: '', bHasil: null }, 'b-kunci'); }
+    else if (a === 'b-kosongkan') { hapusLokal(RIWAYAT_BUKA); atur({}); }
     else if (a === 'rentang') atur({ rentang: v });
     else if (a === 'kelompok') atur({ kelompok: v });
     else if (a === 'tindak') atur({ tindak: v });
@@ -1894,6 +2010,7 @@ details.lipat p{margin-bottom:10px}
     else if (t.id === 'lewati') atur({ lewati: t.checked });
     else if (t.id === 'l-fak') atur({ lFak: t.value });
     else if (t.id === 'l-hanya') atur({ hanyaVerif: t.checked });
+    else if (t.id === 'b-ke') atur({ bKe: t.value });
     else if (/^kab-(nama|bahasa|bobot)-\d+$/.test(t.id)) {
       var bagian = t.id.split('-'), baris = S.kab[Number(bagian[2])];
       if (!baris) return;
@@ -1942,6 +2059,13 @@ details.lipat p{margin-bottom:10px}
     else if (t.id === 'alasan') S.alasan = t.value;
     else if (t.id === 'l-kunci') S.kunciDraft = t.value;
     else if (t.id === 'l-alamat') S.alamatDraft = t.value;
+    else if (t.id === 'b-kunci') S.bKunci = t.value;
+    else if (t.id === 'b-nim') atur({ bNim: t.value, bKe: usulanKe(t.value.trim()), bGalat: '' });
+  });
+  document.addEventListener('submit', function (e) {
+    if (e.target.id !== 'b-formulir') return;
+    e.preventDefault();
+    buatKode();
   });
 
   // Berkas dapat ditarik ke zona unggah.
@@ -1958,6 +2082,8 @@ details.lipat p{margin-bottom:10px}
   });
 
   muat();
+  // Alamat lama /kkn/buka-absen/ dialihkan ke /kkn/#buka-absen.
+  if (location.hash === '#buka-absen') S.layar = 'buka';
   render();
   cekPendaftar();
   setInterval(function () { if (document.visibilityState !== 'hidden') cekPendaftar(); }, JEDA_CEK);
