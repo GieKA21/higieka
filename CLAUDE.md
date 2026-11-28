@@ -25,7 +25,8 @@ dari branch `main`, akar repositori. Berkas `CNAME` dan `.nojekyll` wajib tetap 
 | `kkn/daftar/index.html` | Pemberitahuan pendaftaran KKN resmi |
 | `kkn/buka-absen/index.html` | Pengalih ke layar Buka absen di `/kkn/` |
 | `pukat/index.html` | Pukat, pengumpul korpus media sosial berbasis Apify |
-| `vdu/` | Tampilan Cbot Upeks, salinan `web/` dari repositori `GieKA21/vdu` |
+| `upeks/` | Tampilan Cbot Upeks, salinan `web/` dari repositori `GieKA21/vdu` |
+| `vdu/index.html` | Pengalihan dari alamat lama `/vdu/` ke `/upeks/` |
 
 Seluruh CSS dan JavaScript berada inline di dalam `index.html`. Jangan memecahnya
 menjadi berkas terpisah tanpa diminta; sifat satu-berkas adalah keputusan desain
@@ -99,13 +100,14 @@ yang disinkronkan. Token dan kunci pseudonim tidak pernah ikut disinkronkan. Run
 dipulihkan dari riwayat run di akun Apify. Pemetaan kolom aktor mengikuti `korpus_agama.py`.
 Jangan menambahkan token, kunci, atau data mentah ke repositori.
 
-Folder `/vdu/` berisi tampilan Cbot Upeks, chatbot RAG dan VDU layanan periklanan dan
+Folder `/upeks/` berisi tampilan Cbot Upeks, chatbot RAG dan VDU layanan periklanan dan
 sirkulasi PT Ujungpandang Ekspres yang merupakan skripsi rekan pemilik situs, bukan karya
 pemilik situs. Jangan mencantumkannya pada beranda atau `sitemap.xml`. Isinya salinan
 folder `web/` dari repositori `GieKA21/vdu`; ubah di sana, lalu salin ulang ke sini. Data,
 login admin, dokumen, dan pemanggilan OpenAI berjalan di Supabase (edge function `tanya`,
 `indeks`, `wa`). Folder ini hanya boleh memuat alamat proyek dan kunci anon Supabase pada
-`vdu/assets/konfig.js`; jangan menaruh data, dokumen, atau kunci lain di sini.
+`upeks/assets/konfig.js`; jangan menaruh data, dokumen, atau kunci lain di sini. Alamat lama
+`/vdu/` hanya berisi halaman pengalihan ke `/upeks/` yang mempertahankan bagian `#` alamat.
 
 ## Arah desain
 
