@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pendaftaran KKN (uji coba)</title>
-<meta name="description" content="Formulir uji coba pendaftaran KKN. Belum menjadi pendaftaran resmi.">
+<title>Pendaftaran KKN</title>
+<meta name="description" content="Pendaftaran KKN UIN Alauddin Makassar dilakukan melalui sistem resmi.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#13261F">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
@@ -17,438 +17,42 @@
 <style>
 :root{
   color-scheme:light;
-  --malam:#13261F; --kertas:#F2F4EF; --muka:#FFFFFF; --alas:#E7EBE5;
-  --garis:#D9DED8; --garis-tegas:#8E9A93;
-  --tinta:#18231F; --tinta-2:#3A4842; --batu:#56655E;
-  --daun:#1F7A4D; --daun-tua:#155E3A; --daun-muda:#E3F1E8;
-  --padi:#E9B949; --bata:#B4432E; --bata-tua:#8E2F1E; --bata-muda:#F9E4DF; --nila:#2E4A86;
+  --malam:#13261F; --kertas:#F2F4EF; --muka:#FFFFFF; --garis:#D9DED8;
+  --tinta:#18231F; --tinta-2:#3A4842;
+  --daun:#1F7A4D; --daun-tua:#155E3A; --nila:#2E4A86;
   --huruf:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--kertas);color:var(--tinta);font-family:var(--huruf);font-size:16px;line-height:1.5;accent-color:var(--daun);-webkit-font-smoothing:antialiased}
-button,select,input{font:inherit;color:inherit}
+body{background:var(--kertas);color:var(--tinta);font-family:var(--huruf);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 :focus-visible{outline:3px solid var(--nila);outline-offset:2px}
-a{color:var(--daun-tua)}
-h1,h2,p{margin:0}
-.lompat{position:absolute;left:12px;top:-60px;z-index:30;padding:10px 14px;border-radius:10px;background:#fff;color:var(--malam);font-weight:700}
-.lompat:focus{top:12px}
-button,a,label,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-h1,h2,h3{text-wrap:balance}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-[hidden]{display:none !important}
-
+h1,p{margin:0}
+a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .pita{background:var(--malam);color:#D6E4DB}
 .pita-dalam{max-width:680px;margin:0 auto;padding:20px 16px 30px;display:flex;flex-direction:column;gap:6px}
 .pita a{color:#A9C2B5;font-size:14px;font-weight:600;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;align-self:flex-start}
 .pita a:hover{color:#fff}
+.pita :focus-visible{outline-color:#fff}
 .pita h1{color:#fff;font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
-.pita p{color:#A9C2B5;font-size:15px;max-width:46ch}
-
-main{max-width:680px;margin:0 auto;padding:0 16px 64px}
-.catatan{position:relative;margin:-14px 0 20px;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:var(--muka);border:1px solid var(--garis);font-size:14px;color:var(--tinta-2)}
-.catatan::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--padi);flex:none}
-
-form{display:flex;flex-direction:column;gap:14px}
-.bagian{background:var(--muka);border:1px solid var(--garis);border-radius:16px;padding:22px 20px;display:flex;flex-direction:column;gap:18px}
-.bagian h2{font-size:18px;font-weight:700;letter-spacing:-.01em}
-.dua{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
-.isian{display:flex;flex-direction:column;gap:6px;min-width:0}
-.isian label,legend{font-size:15px;font-weight:600;padding:0;color:var(--tinta)}
-.bantu{font-size:13px;color:var(--batu)}
-input[type=text],input[type=date],select{width:100%;min-height:48px;padding:11px 13px;border:1px solid var(--garis-tegas);border-radius:10px;background:var(--muka);font-size:16px}
-input[type=text]:hover,input[type=date]:hover,select:hover{border-color:var(--tinta-2)}
-:is(input,select):user-invalid{border-color:var(--bata);background:var(--bata-muda)}
-:is(input[type=text],input[type=date],select):user-valid{border-color:var(--daun)}
-.galat-isian{display:none;margin:0;font-size:13.5px;font-weight:600;color:var(--bata-tua)}
-.galat-isian::before{content:"!";display:inline-grid;place-items:center;width:17px;height:17px;margin-right:6px;border-radius:50%;background:var(--bata);color:#fff;font-size:11px;font-weight:800;vertical-align:1px}
-.isian:has(:user-invalid) .galat-isian,fieldset:has(:user-invalid) .galat-isian,.setuju-blok:has(:user-invalid) .galat-isian{display:block}
-
-fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
-.pilihan{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
-.pilihan label{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:8px 12px;border:1px solid var(--garis-tegas);border-radius:10px;background:var(--muka);font-weight:600;font-size:15px;cursor:pointer;text-align:center}
-.pilihan input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
-.pilihan label:hover{border-color:var(--tinta-2)}
-.pilihan label:has(input:checked){border-color:var(--daun);background:var(--daun-muda);color:var(--daun-tua);box-shadow:inset 0 0 0 1px var(--daun)}
-.pilihan label:has(input:focus-visible){outline:3px solid var(--nila);outline-offset:2px}
-fieldset:has(:user-invalid) .pilihan label{border-color:var(--bata)}
-.skala{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--batu)}
-.skala b{color:var(--tinta-2);font-weight:600}
-
-.akhir{background:var(--muka);border:1px solid var(--garis);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:16px}
-.setuju-blok{display:flex;flex-direction:column;gap:6px}
-.setuju{display:flex;gap:12px;align-items:flex-start;font-size:15px;cursor:pointer}
-.setuju input{width:22px;height:22px;margin:1px 0 0;flex:none}
-.setuju input:user-invalid{outline:2px solid var(--bata);outline-offset:2px}
-.galat{padding:12px 14px;border-radius:10px;background:var(--bata-muda);color:var(--bata-tua);font-weight:600;font-size:14.5px}
-.kirim{min-height:52px;padding:12px 24px;border:0;border-radius:12px;background:var(--daun);color:#fff;font-weight:700;font-size:16px;cursor:pointer}
-.kirim:hover{background:var(--daun-tua)}
-.kirim:disabled{opacity:.55;cursor:not-allowed}
-
-.berhasil{background:var(--muka);border:1px solid var(--garis);border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;gap:14px}
-.berhasil:focus{outline:none}
-.tanda{width:44px;height:44px;border-radius:50%;background:var(--daun-muda);display:grid;place-items:center}
-.tanda svg{width:22px;height:22px;stroke:var(--daun-tua);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.berhasil h2{font-size:22px;font-weight:800;letter-spacing:-.02em}
-.berhasil > p{color:var(--batu)}
-.rekap{margin:0;display:grid;grid-template-columns:minmax(110px,auto) 1fr;gap:8px 16px;font-size:14.5px;padding-top:14px;border-top:1px solid var(--alas)}
-.rekap dt{color:var(--batu)}
-.rekap dd{margin:0;font-weight:600;overflow-wrap:anywhere}
-.jebakan{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-@media (min-width:640px){
-  .pita-dalam{padding:28px 16px 40px}
-  .pita h1{font-size:40px}
-  .bagian{padding:26px 28px}
-  .akhir{padding:24px 28px;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between}
-  .akhir .setuju-blok{flex:1 1 100%}
-  .akhir .galat{flex:1 1 100%}
-}
-@media (prefers-reduced-motion:no-preference){
-  .pilihan label,input,select{transition:border-color .12s,background-color .12s}
-}
+main{max-width:680px;margin:0 auto;padding:20px 16px 64px}
+.bagian{background:var(--muka);border:1px solid var(--garis);border-radius:16px;padding:22px 20px;display:flex;flex-direction:column;gap:16px;align-items:flex-start}
+.bagian p{color:var(--tinta-2)}
+.tombol{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 22px;border-radius:999px;background:var(--daun);color:#fff;font-weight:700;text-decoration:none}
+.tombol:hover{background:var(--daun-tua)}
 </style>
 </head>
 <body>
-<a class="lompat" href="#formulir">Lompat ke formulir</a>
-<header class="pita"><div class="pita-dalam">
-<a href="/kkn/">LKH KKN</a>
-<h1>Pendaftaran KKN</h1>
-<p>Posko diacak menurut jurusan, jenis kelamin, dan bahasa daerah.</p>
-</div></header>
+<header class="pita">
+  <div class="pita-dalam">
+    <a href="/kkn/">Dashboard KKN</a>
+    <h1>Pendaftaran KKN</h1>
+  </div>
+</header>
 <main>
-<p class="catatan" id="catatan">Uji coba, belum pendaftaran resmi. Pengiriman sedang tidak aktif.</p>
-
-<form id="formulir" name="pendaftaran-kkn" method="POST">
-<p class="jebakan"><label>Kosongkan kolom ini <input name="situs" tabindex="-1" autocomplete="off"></label></p>
-
-<section class="bagian" aria-labelledby="j-diri">
-<h2 id="j-diri">Data diri</h2>
-<div class="isian">
-<label for="nama">Nama lengkap</label>
-<input id="nama" name="nama_lengkap" type="text" autocomplete="name" minlength="2" maxlength="120" required data-error="nama-galat">
-<p class="galat-isian" id="nama-galat"><span class="sr">Galat: </span>Tulis nama sesuai kartu mahasiswa, diawali huruf.</p>
-</div>
-<div class="isian">
-<label for="nim">NIM</label>
-<span class="bantu" id="nim-bantu">8 sampai 15 angka</span>
-<input id="nim" name="nim" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" pattern="[0-9]{8,15}" maxlength="15" aria-describedby="nim-bantu" required data-error="nim-galat">
-<p class="galat-isian" id="nim-galat"><span class="sr">Galat: </span>NIM hanya angka, 8 sampai 15 digit.</p>
-</div>
-<fieldset data-error="jk-galat">
-<legend>Jenis kelamin</legend>
-<div class="pilihan">
-<label><input type="radio" name="jenis_kelamin" value="L" required>Laki-laki</label>
-<label><input type="radio" name="jenis_kelamin" value="P">Perempuan</label>
-</div>
-<p class="galat-isian" id="jk-galat"><span class="sr">Galat: </span>Pilih jenis kelamin.</p>
-</fieldset>
-<div class="dua">
-<div class="isian">
-<label for="tempat">Tempat lahir</label>
-<input id="tempat" name="tempat_lahir" type="text" minlength="2" maxlength="80" required data-error="tempat-galat">
-<p class="galat-isian" id="tempat-galat"><span class="sr">Galat: </span>Tulis kota atau kabupaten lahir.</p>
-</div>
-<div class="isian">
-<label for="tanggal">Tanggal lahir</label>
-<input id="tanggal" name="tanggal_lahir" type="date" min="1970-01-01" required data-error="tanggal-galat">
-<p class="galat-isian" id="tanggal-galat"><span class="sr">Galat: </span>Pilih tanggal lahir yang sah.</p>
-</div>
-</div>
-</section>
-
-<section class="bagian" aria-labelledby="j-akademik">
-<h2 id="j-akademik">Akademik</h2>
-<div class="dua">
-<div class="isian">
-<label for="fakultas">Fakultas</label>
-<select id="fakultas" name="fakultas" required data-error="fakultas-galat">
-<option value="">Pilih fakultas</option>
-<option>Syariah dan Hukum</option>
-<option>Tarbiyah dan Keguruan</option>
-<option>Ushuluddin dan Filsafat</option>
-<option>Adab dan Humaniora</option>
-<option>Dakwah dan Komunikasi</option>
-<option>Sains dan Teknologi</option>
-<option>Kedokteran dan Ilmu Kesehatan</option>
-<option>Ekonomi dan Bisnis Islam</option>
-</select>
-<p class="galat-isian" id="fakultas-galat"><span class="sr">Galat: </span>Pilih fakultas.</p>
-</div>
-<div class="isian">
-<label for="jurusan">Jurusan</label>
-<select id="jurusan" name="jurusan" required data-error="jurusan-galat">
-<option value="">Pilih jurusan</option>
-<optgroup label="Syariah dan Hukum">
-<option>Hukum Ekonomi Syariah</option>
-<option>Hukum Keluarga Islam</option>
-<option>Hukum Tatanegara</option>
-<option>Ilmu Falak</option>
-<option>Ilmu Hukum</option>
-<option>Perbandingan Mazhab dan Hukum</option>
-</optgroup>
-<optgroup label="Tarbiyah dan Keguruan">
-<option>Manajemen Pendidikan Islam</option>
-<option>Pendidikan Agama Islam</option>
-<option>Pendidikan Bahasa Arab</option>
-<option>Pendidikan Bahasa Inggris</option>
-<option>Pendidikan Biologi</option>
-<option>Pendidikan Fisika</option>
-<option>Pendidikan Guru Madrasah Ibtidaiyah</option>
-<option>Pendidikan Islam Anak Usia Dini</option>
-<option>Pendidikan Matematika</option>
-</optgroup>
-<optgroup label="Ushuluddin dan Filsafat">
-<option>Aqidah dan Filsafat Islam</option>
-<option>Hubungan Internasional</option>
-<option>Ilmu Al-Qur&#39;an dan Tafsir</option>
-<option>Ilmu Hadis</option>
-<option>Ilmu Politik</option>
-<option>Sosiologi Agama</option>
-<option>Studi Agama-Agama</option>
-</optgroup>
-<optgroup label="Adab dan Humaniora">
-<option>Bahasa dan Sastra Arab</option>
-<option>Bahasa dan Sastra Inggris</option>
-<option>Ilmu Perpustakaan</option>
-<option>Sejarah Peradaban Islam</option>
-</optgroup>
-<optgroup label="Dakwah dan Komunikasi">
-<option>Bimbingan dan Penyuluhan Islam</option>
-<option>Ilmu Komunikasi</option>
-<option>Jurnalistik</option>
-<option>Kesejahteraan Sosial</option>
-<option>Komunikasi dan Penyiaran Islam</option>
-<option>Manajemen Dakwah</option>
-<option>Manajemen Haji dan Umrah</option>
-<option>Pengembangan Masyarakat Islam</option>
-</optgroup>
-<optgroup label="Sains dan Teknologi">
-<option>Biologi</option>
-<option>Fisika</option>
-<option>Ilmu Peternakan</option>
-<option>Kimia</option>
-<option>Matematika</option>
-<option>Sistem Informasi</option>
-<option>Teknik Arsitektur</option>
-<option>Teknik Informatika</option>
-<option>Teknik Perencanaan Wilayah dan Kota</option>
-</optgroup>
-<optgroup label="Ekonomi dan Bisnis Islam">
-<option>Akuntansi</option>
-<option>Ekonomi Islam</option>
-<option>Ilmu Ekonomi</option>
-<option>Manajemen</option>
-<option>Perbankan Syariah</option>
-</optgroup>
-<optgroup label="Kedokteran dan Ilmu Kesehatan">
-<option>Farmasi</option>
-<option>Kebidanan</option>
-<option>Keperawatan</option>
-<option>Kesehatan Masyarakat</option>
-<option>Pendidikan Dokter</option>
-</optgroup>
-</select>
-<p class="galat-isian" id="jurusan-galat"><span class="sr">Galat: </span>Pilih jurusan di fakultas Anda.</p>
-</div>
-</div>
-<div class="isian">
-<label for="hobi">Hobi</label>
-<input id="hobi" name="hobi" type="text" maxlength="120" required data-error="hobi-galat">
-<p class="galat-isian" id="hobi-galat"><span class="sr">Galat: </span>Tulis satu hobi, diawali huruf atau angka.</p>
-</div>
-</section>
-
-<section class="bagian" aria-labelledby="j-bahasa">
-<h2 id="j-bahasa">Bahasa daerah</h2>
-<p class="skala"><span><b>Pasif</b> paham, belum lancar bicara</span><span><b>Aktif</b> lancar bicara</span></p>
-<fieldset data-error="bugis-galat">
-<legend>Bugis</legend>
-<div class="pilihan">
-<label><input type="radio" name="bahasa_bugis" value="Tidak bisa" required>Tidak bisa</label>
-<label><input type="radio" name="bahasa_bugis" value="Pasif">Pasif</label>
-<label><input type="radio" name="bahasa_bugis" value="Aktif">Aktif</label>
-</div>
-<p class="galat-isian" id="bugis-galat"><span class="sr">Galat: </span>Pilih salah satu.</p>
-</fieldset>
-<fieldset data-error="makassar-galat">
-<legend>Makassar</legend>
-<div class="pilihan">
-<label><input type="radio" name="bahasa_makassar" value="Tidak bisa" required>Tidak bisa</label>
-<label><input type="radio" name="bahasa_makassar" value="Pasif">Pasif</label>
-<label><input type="radio" name="bahasa_makassar" value="Aktif">Aktif</label>
-</div>
-<p class="galat-isian" id="makassar-galat"><span class="sr">Galat: </span>Pilih salah satu.</p>
-</fieldset>
-</section>
-
-<div class="akhir">
-<div class="setuju-blok">
-<label class="setuju"><input type="checkbox" name="persetujuan" value="Ya" required data-error="setuju-galat"><span>Data di atas benar dan boleh dipakai untuk pendaftaran serta penempatan KKN.</span></label>
-<p class="galat-isian" id="setuju-galat"><span class="sr">Galat: </span>Centang persetujuan untuk mengirim.</p>
-</div>
-<p id="galat" class="galat" role="alert" hidden></p>
-<button id="kirim" class="kirim" type="submit" disabled>Pengiriman sedang tidak aktif</button>
-</div>
-</form>
-
-<section id="berhasil" class="berhasil" tabindex="-1" hidden>
-<span class="tanda" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-<h2>Pendaftaran terkirim</h2>
-<p>Penempatan posko diumumkan panitia.</p>
-<dl class="rekap" id="rekap"></dl>
-</section>
+  <section class="bagian">
+    <p>Pendaftaran KKN UIN Alauddin Makassar dilakukan melalui sistem resmi LP2M. Formulir uji coba yang sebelumnya ada di halaman ini sudah tidak dipakai.</p>
+    <a class="tombol" href="https://kkn.uin-alauddin.ac.id/">Buka pendaftaran resmi</a>
+  </section>
 </main>
-<div class="sr" id="pengumuman" aria-live="polite"></div>
-<script>
-(function () {
-  'use strict';
-  var form = document.getElementById('formulir');
-  var galat = document.getElementById('galat');
-  var tombol = document.getElementById('kirim');
-  var tanggal = document.getElementById('tanggal');
-  // Alamat aplikasi web Apps Script yang menampung jawaban (berakhiran /exec).
-  // Selama kosong, tombol kirim tetap nonaktif.
-  var ALAMAT_PENERIMA = 'https://script.google.com/macros/s/AKfycbyqQbncW3TuKgv3q-4TkcMqC_lNIO-WiJ3lcteOZrfcxqot1dyy2joYbbyUBeEa02sx/exec';
-  tanggal.max = new Date().toISOString().slice(0, 10);
-
-  // Daftar jurusan mengikuti fakultas yang dipilih. Tanpa JavaScript, semua
-  // jurusan tetap tampil berkelompok per fakultas.
-  var fakultas = document.getElementById('fakultas');
-  var jurusan = document.getElementById('jurusan');
-  var kelompok = Array.prototype.slice.call(jurusan.getElementsByTagName('optgroup'));
-  function saring() {
-    kelompok.forEach(function (g) {
-      var cocok = !fakultas.value || g.label === fakultas.value;
-      g.hidden = !cocok;
-      g.disabled = !cocok;
-    });
-    var terpilih = jurusan.options[jurusan.selectedIndex];
-    if (terpilih && terpilih.parentNode.disabled) jurusan.value = '';
-  }
-  fakultas.addEventListener('change', saring);
-  jurusan.addEventListener('change', function () {
-    var terpilih = jurusan.options[jurusan.selectedIndex];
-    if (terpilih && terpilih.parentNode.tagName === 'OPTGROUP' && fakultas.value !== terpilih.parentNode.label) {
-      fakultas.value = terpilih.parentNode.label;
-      saring();
-    }
-  });
-  saring();
-
-  var LABEL = [
-    ['nama_lengkap', 'Nama lengkap'], ['nim', 'NIM'], ['jenis_kelamin', 'Jenis kelamin'],
-    ['tempat_lahir', 'Tempat lahir'], ['tanggal_lahir', 'Tanggal lahir'], ['fakultas', 'Fakultas'],
-    ['jurusan', 'Jurusan'], ['hobi', 'Hobi'], ['bahasa_bugis', 'Bahasa Bugis'], ['bahasa_makassar', 'Bahasa Makassar']
-  ];
-
-  // Isian yang diketik diperiksa dengan pola yang sama dengan pola pada penerima.
-  var POLA = {
-    nama: [/^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ0-9 .,'’`-]*$/, 'Hanya huruf, angka, spasi, titik, koma, dan tanda petik, diawali huruf.'],
-    tempat: [/^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ0-9 .,'’`-]*$/, 'Hanya huruf, angka, spasi, titik, koma, dan tanda petik, diawali huruf.'],
-    hobi: [/^[A-Za-zÀ-ÖØ-öø-ÿ0-9][A-Za-zÀ-ÖØ-öø-ÿ0-9 .,'’`&()\/-]*$/, 'Hanya huruf, angka, spasi, dan tanda baca biasa, diawali huruf atau angka.']
-  };
-  function periksaPola() {
-    Object.keys(POLA).forEach(function (id) {
-      var el = document.getElementById(id), v = el.value.replace(/\s+/g, ' ').trim();
-      el.setCustomValidity(v === '' || POLA[id][0].test(v) ? '' : POLA[id][1]);
-    });
-  }
-  Object.keys(POLA).forEach(function (id) { document.getElementById(id).addEventListener('input', periksaPola); });
-
-  // aria-invalid dan pesan galat mengikuti :user-invalid, yaitu baru setelah isian
-  // disentuh atau formulir dicoba dikirim. Pesan galat dibacakan satu wilayah siar.
-  var pengumuman = document.getElementById('pengumuman'), jamUmum;
-  function wadah(el) { return el.type === 'radio' ? el.closest('fieldset') : el; }
-  function tautGalat(el, tampak) {
-    var w = wadah(el), id = w.getAttribute('data-error');
-    if (!id) return;
-    var ids = (w.getAttribute('aria-describedby') || '').split(/\s+/).filter(function (x) { return x && x !== id; });
-    if (tampak) ids.push(id);
-    if (ids.length) w.setAttribute('aria-describedby', ids.join(' ')); else w.removeAttribute('aria-describedby');
-  }
-  function selaraskan(el, umumkan) {
-    if (!el || !el.matches || !el.matches('input, select') || el.name === 'situs') return;
-    var salah = el.matches(':user-invalid');
-    el.setAttribute('aria-invalid', salah ? 'true' : 'false');
-    tautGalat(el, salah);
-    if (salah && umumkan) {
-      var p = document.getElementById(wadah(el).getAttribute('data-error'));
-      clearTimeout(jamUmum); pengumuman.textContent = '';
-      if (p) jamUmum = setTimeout(function () { pengumuman.textContent = p.textContent; }, 500);
-    }
-  }
-  Array.prototype.forEach.call(form.querySelectorAll('input, select'), function (el) { selaraskan(el); });
-  form.addEventListener('blur', function (e) { selaraskan(e.target, true); }, true);
-  form.addEventListener('input', function (e) { selaraskan(e.target); galat.hidden = true; });
-  form.addEventListener('change', function (e) {
-    if (e.target.type === 'radio') Array.prototype.forEach.call(form.querySelectorAll('input[name="' + e.target.name + '"]'), function (r) { selaraskan(r); });
-    else selaraskan(e.target, true);
-  });
-  form.addEventListener('invalid', function (e) { setTimeout(function () { selaraskan(e.target); }); }, true);
-
-  var aktif = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(ALAMAT_PENERIMA);
-  if (aktif) {
-    document.getElementById('catatan').textContent = 'Uji coba, belum pendaftaran resmi. Gunakan data karangan.';
-    tombol.disabled = false;
-    tombol.textContent = 'Kirim pendaftaran';
-  }
-
-  function tampilGalat(pesan) {
-    galat.textContent = pesan;
-    galat.hidden = false;
-    tombol.disabled = false;
-    tombol.textContent = 'Kirim pendaftaran';
-  }
-  function tampilBerhasil(data, sudahAda) {
-    var rekap = document.getElementById('rekap');
-    rekap.textContent = '';
-    LABEL.forEach(function (l) {
-      var dt = document.createElement('dt'), dd = document.createElement('dd');
-      dt.textContent = l[1];
-      dd.textContent = l[0] === 'jenis_kelamin' ? (data.get(l[0]) === 'L' ? 'Laki-laki' : 'Perempuan') : data.get(l[0]);
-      rekap.appendChild(dt); rekap.appendChild(dd);
-    });
-    form.hidden = true;
-    var berhasil = document.getElementById('berhasil');
-    berhasil.querySelector('p').textContent = sudahAda
-      ? 'Data ini sudah tersimpan sejak pengiriman sebelumnya dan tidak dicatat dua kali. Penempatan posko diumumkan panitia.'
-      : 'Penempatan posko diumumkan panitia.';
-    berhasil.hidden = false;
-    berhasil.focus();
-  }
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!aktif) return;
-    galat.hidden = true;
-    // Rapikan spasi berlebih pada isian yang diketik.
-    ['nama', 'tempat', 'hobi'].forEach(function (id) {
-      var el = document.getElementById(id);
-      el.value = el.value.replace(/\s+/g, ' ').trim();
-    });
-    periksaPola();
-    if (!form.reportValidity()) return;
-    var data = new FormData(form);
-    tombol.disabled = true;
-    tombol.textContent = 'Mengirim…';
-    var batas = new AbortController();
-    var jam = setTimeout(function () { batas.abort(); }, 45000);
-    // Isian dikirim sebagai formulir biasa (tanpa kepala khusus), sebab penerima
-    // di Google tidak melayani permintaan pendahuluan (preflight).
-    fetch(ALAMAT_PENERIMA, { method: 'POST', body: new URLSearchParams(data), signal: batas.signal }).then(function (r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    }).then(function (j) {
-      clearTimeout(jam);
-      if (j && j.ok) return tampilBerhasil(data, !!j.sudahAda);
-      if (j && j.kode === 'ganda') return tampilGalat('NIM ini sudah terdaftar dengan isian berbeda. Satu NIM hanya bisa mendaftar sekali.');
-      tampilGalat((j && j.pesan) || 'Pendaftaran belum tersimpan. Coba kirim lagi.');
-    }).catch(function () {
-      clearTimeout(jam);
-      tampilGalat('Belum pasti tersimpan karena jawaban peladen tidak sampai. Periksa internet, lalu kirim sekali lagi. Isian yang sudah tersimpan tidak tercatat dua kali.');
-    });
-  });
-})();
-</script>
 </body>
 </html>

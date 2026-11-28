@@ -22,7 +22,8 @@ dari branch `main`, akar repositori. Berkas `CNAME` dan `.nojekyll` wajib tetap 
 | `robots.txt`   | Izin perayapan mesin pencari                |
 | `sitemap.xml`  | Peta situs                                  |
 | `kkn/index.html` | Rancangan dashboard admin LKH KKN          |
-| `kkn/buka-absen/index.html` | Pembuat kode buka akses absen untuk admin KKN |
+| `kkn/daftar/index.html` | Pemberitahuan pendaftaran KKN resmi |
+| `kkn/buka-absen/index.html` | Pengalih ke layar Buka absen di `/kkn/` |
 | `pukat/index.html` | Pukat, pengumpul korpus media sosial berbasis Apify |
 | `vdu/` | Tampilan Cbot Upeks, salinan `web/` dari repositori `GieKA21/vdu` |
 
@@ -46,20 +47,16 @@ yang dimuat lewat menu Impor data dan disimpan di `localStorage` peramban (kunci
 `kkn-dashboard-v1`), tidak dikirim ke mana pun. Halaman itu diberi `noindex`, serta
 tidak dicantumkan pada `sitemap.xml`. Jangan memasukkan data mahasiswa sungguhan.
 
-Halaman `/kkn/daftar/` adalah formulir uji coba pendaftaran KKN. GitHub Pages tidak
-dapat menyimpan isian, jadi halaman itu mengirim isiannya ke aplikasi web Google Apps
-Script milik pemilik situs, yang menambahkan satu baris ke Google Sheet. Alamatnya
-disimpan pada variabel `ALAMAT_PENERIMA` di dalam halaman; selama kosong atau bukan
-alamat `https://script.google.com/macros/s/.../exec`, tombol kirim tetap nonaktif.
-Kode penerimanya (`terima-pendaftaran.gs`) tidak disimpan di repositori ini. Isian
-dikirim sebagai formulir biasa tanpa kepala khusus, sebab Apps Script tidak melayani
-permintaan pendahuluan (preflight). Pola isian yang diketik (nama, tempat lahir, hobi)
-sama dengan pola pada penerima; ubah keduanya bersamaan. Judul kolom Sheet sama dengan
-judul kolom yang dikenali pengimpor di `/kkn/`. Formulir ini terbuka tanpa masuk akun,
-jadi hanya untuk data karangan sampai ada keputusan tentang pemilik formulir resmi.
-Berkas pendaftar yang dimuat ke dashboard dibaca di peramban dan tidak dikirim ke peladen.
+Pendaftaran KKN dilakukan melalui sistem resmi LP2M di `https://kkn.uin-alauddin.ac.id/`.
+Tautan "Pendaftaran KKN resmi" pada pita atas `/kkn/` mengarah ke sana. Halaman
+`/kkn/daftar/` dahulu berisi formulir uji coba yang mengirim isian ke Google Apps
+Script; sejak 28 November 2026 halaman itu hanya memuat pemberitahuan dan tautan ke
+sistem resmi. Berkas pendaftar yang dimuat ke dashboard dibaca di peramban dan tidak
+dikirim ke peladen.
 
-Halaman `/kkn/buka-absen/` membuat kode buka akses absen harian untuk admin KKN.
+Layar Buka absen pada dok menu `/kkn/` membuat kode buka akses absen harian untuk
+admin KKN. Layar itu dapat dibuka langsung lewat `/kkn/#buka-absen`; halaman lama
+`/kkn/buka-absen/` kini hanya mengalihkan ke alamat tersebut.
 Aplikasi LKH KKN memblokir absen seorang peserta setelah tiga percobaan gagal
 dalam satu hari WITA; admin mengetik NIM peserta dan nomor pembukaan, lalu halaman
 menghitung kode enam angka di peramban dengan WebCrypto: HMAC-SHA256 atas
@@ -68,12 +65,11 @@ harus sama persis dengan `utils/batasAbsen.ts` di repositori aplikasi; vektor
 ujinya ada di `tests/vektor-kode-buka.json` di sana. Kunci rahasianya ditempel
 admin dan disimpan di `localStorage` peramban itu saja (kunci
 `kkn-buka-absen-kunci`), begitu pula riwayat kode (`kkn-buka-absen-riwayat`);
-keduanya tidak pernah ditulis ke repositori dan tidak dikirim ke mana pun. Halaman
-itu memakai set warna `/kkn/`, diberi `noindex`, dan tidak dicantumkan pada
-`sitemap.xml`.
+keduanya tidak pernah ditulis ke repositori dan tidak dikirim ke mana pun. Kartu
+"Terblokir hari ini" masih kosong sampai dashboard tersambung ke peladen LKH.
 
-Menu Pendaftar pada `/kkn/` membaca Sheet yang sama lewat aplikasi web yang sama
-(`aksi=daftar`) setiap 15 detik dan dapat mengubah kolom Status serta Catatan
+Menu Pendaftar pada `/kkn/` membaca Google Sheet pendaftaran uji coba lewat aplikasi web
+Google Apps Script (`aksi=daftar`) setiap 15 detik dan dapat mengubah kolom Status serta Catatan
 (`aksi=status`). Kedua permintaan itu memerlukan kunci admin yang ditempel admin pada
 dashboard dan disimpan di `localStorage` peramban itu saja; kunci tidak pernah ditulis
 ke repositori. Isi Sheet tidak disimpan di peramban; hanya pendaftar yang dipakai untuk
